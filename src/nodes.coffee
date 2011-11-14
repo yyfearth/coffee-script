@@ -1,3 +1,4 @@
+# -*- mode: coffee; tab-width: 2; c-basic-offset: 2; indent-tabs-mode: nil; -*-
 # `nodes.coffee` contains all of the node classes for the syntax tree. Most
 # nodes are created as the result of actions in the [grammar](grammar.html),
 # but some are created by other nodes as a method of code generation. To convert
@@ -119,6 +120,8 @@ exports.Base = class Base
     for attr in @children when @[attr]
       for child in flatten [@[attr]]
         return this if func(child) is false
+    for c in @cpsChildren
+      return this if func(child) is false
     this
 
   traverseChildren: (crossScope, func) ->
@@ -138,11 +141,15 @@ exports.Base = class Base
   # will override these with custom logic, if needed.
   children: []
 
+  # children folded into this node via the tame CPS translation
+  cpsChildren : []
+
   isStatement     : NO
   jumps           : NO
   isComplex       : YES
   isChainable     : NO
   isAssignable    : NO
+  isControlBreak  : NO
 
   unwrap     : THIS
   unfoldSoak : NO
@@ -1213,7 +1220,7 @@ exports.Splat = class Splat extends Base
 
   compile: (o) ->
     if @index? then @compileParam o else @name.compile o
-    
+
   unwrap: -> @name
 
   # Utility function that converts an arbitrary number of elements, mixed with
@@ -1367,9 +1374,9 @@ exports.Op = class Op extends Base
   unfoldSoak: (o) ->
     @operator in ['++', '--', 'delete'] and unfoldSoak o, this, 'first'
 
-  compileNode: (o) ->    
+  compileNode: (o) ->
     isChain = @isChainable() and @first.isChainable()
-    # In chains, there's no need to wrap bare obj literals in parens, 
+    # In chains, there's no need to wrap bare obj literals in parens,
     # as the chained expression is wrapped.
     @first.front = @front unless isChain
     return @compileUnary     o if @isUnary()
@@ -1406,7 +1413,7 @@ exports.Op = class Op extends Base
     parts.push ' ' if op in ['new', 'typeof', 'delete'] or
                       plusMinus and @first instanceof Op and @first.operator is op
     if (plusMinus && @first instanceof Op) or (op is 'new' and @first.isStatement o)
-      @first = new Parens @first 
+      @first = new Parens @first
     parts.push @first.compile o, LEVEL_OP
     parts.reverse() if @flip
     parts.join ''
@@ -1474,15 +1481,15 @@ exports.Try = class Try extends Base
     o.indent  += TAB
     errorPart = if @error then " (#{ @error.compile o }) " else ' '
     tryPart   = @attempt.compile o, LEVEL_TOP
-    
+
     catchPart = if @recovery
       o.scope.add @error.value, 'param' unless o.scope.check @error.value
       " catch#{errorPart}{\n#{ @recovery.compile o, LEVEL_TOP }\n#{@tab}}"
     else unless @ensure or @recovery
       ' catch (_error) {}'
-      
+
     ensurePart = if @ensure then " finally {\n#{ @ensure.compile o, LEVEL_TOP }\n#{@tab}}" else ''
-      
+
     """#{@tab}try {
     #{tryPart}
     #{@tab}}#{ catchPart or '' }#{ensurePart}"""
