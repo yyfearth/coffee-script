@@ -137,6 +137,16 @@ exports.Base = class Base
     continue until node is node = node.unwrap()
     node
 
+  # Walk the AST looking for taming. Mark a node as 'hasTaming'
+  # if any of its children are tamed, but don't cross scope boundary
+  # when considering the children
+  walkTaming : ->
+    @hasTaming = false
+    for attr in @children when @[attr]
+      for child in flatten [@[attr]]
+        @hasTaming = true if child.walkTaming()
+    return @hasTaming
+
   # Default implementations of the common node properties and methods. Nodes
   # will override these with custom logic, if needed.
   children: []
@@ -150,6 +160,8 @@ exports.Base = class Base
   isChainable     : NO
   isAssignable    : NO
   isControlBreak  : NO
+  isTamedFunc     : NO
+  hasTaming       : NO
 
   unwrap     : THIS
   unfoldSoak : NO
@@ -1219,6 +1231,8 @@ exports.Code = class Code extends Base
     code  = 'function'
     code  += ' ' + @name if @ctor
     code  += '(' + params.join(', ') + ') {'
+    if @hasTaming
+      code  += ' /* TAMED */ '
     code  += "\n#{ @body.compileWithDeclarations o }\n#{@tab}" unless @body.isEmpty()
     code  += '}'
     return @tab + code if @ctor
@@ -1234,6 +1248,12 @@ exports.Code = class Code extends Base
   # unless `crossScope` is `true`.
   traverseChildren: (crossScope, func) ->
     super(crossScope, func) if crossScope
+
+  # we are taming as a feature of all of our children.  However, if we
+  # are tamed, it's not the case that our parent is tamed!
+  walkTaming : ->
+    @hasTaming = super()
+    return false
 
 #### Param
 
@@ -1587,6 +1607,13 @@ exports.Await = class Await extends Base
     """(function () { /* await translation */
     #{body}
      })();"""
+
+  # We still need to walk our children to see if there are any embedded
+  # function which might also be tamed.  But we're always going to report
+  # to our parent that we are tamed, since we are!
+  walkTaming : ->
+    @hasTaming = super()
+    return true
 
 #### Try
 
