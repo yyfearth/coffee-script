@@ -1715,7 +1715,11 @@ exports.Await = class Await extends Base
     call = new Call cls, [ new Value new Literal "_k" ]
     rhs = new Op "new", call
     assign = new Assign lhs, rhs
-    @body = [ assign ] + body
+    body.unshift assign
+    meth = lhs.add new Access new Value new Literal "_fulfill"
+    call = new Call meth, []
+    body.push (call)
+    @body = body
 
   children: ['body']
 
@@ -1725,9 +1729,7 @@ exports.Await = class Await extends Base
   
   compileNode: (o) ->
     o.indent += TAB
-    body += "#{ @body.compile o }\n#{@tab}"
-    body += "__tame_deferrals._fulfill();"
-    body
+    @body.compile o
 
   # We still need to walk our children to see if there are any embedded
   # function which might also be tamed.  But we're always going to report
