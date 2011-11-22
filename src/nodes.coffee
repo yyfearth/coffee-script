@@ -179,9 +179,8 @@ exports.Base = class Base
     @tameNodeFlag
 
   walkAstCps : (flood) ->
-    flood = true if @isLoop()
-    if @isAwait()
-      flood = false
+    flood = true  if @isLoop() and @tameNodeFlag
+    flood = false if @isAwait()
     @cpsNodeFlag = flood
     for child in @flattenChildren()
       @cpsNodeFlag = true if child.walkAstCps(flood)
@@ -436,7 +435,7 @@ exports.Block = class Block extends Base
   # Perform all steps of the Tame transform
   tameTransform : ->
     @walkAstTame()
-    #@walkAstCps(false)
+    @walkAstCps(false)
     @cpsRotate()
 
 #### Literal
@@ -1395,8 +1394,8 @@ exports.Code = class Code extends Base
     @tameNodeFlag = true if super()
     false
 
-  walkAstCps : (flood) ->
-    @cpsNodeFlag = super(false)
+  walkAstCps : (flood) -> 
+    @cpsNodeFlag = true if super(false)
     false
 
 #### Param
