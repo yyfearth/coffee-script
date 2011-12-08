@@ -1470,7 +1470,6 @@ exports.Code = class Code extends Base
     code  += ' ' + @name if @ctor
     code  += '(' + params.join(', ') + ') {'
     if @tameNodeFlag
-      code  += ' /* TAMED */ '
       o.tamed_scope = o.scope
     code  += "\n#{ @body.compileWithDeclarations o }\n#{@tab}" unless @body.isEmpty()
     code  += '}'
