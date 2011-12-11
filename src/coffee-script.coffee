@@ -13,7 +13,6 @@ path             = require 'path'
 tame             = require './tame'
 vm               = require 'vm'
 
-astTamer = new tame.AstTamer
 
 # TODO: Remove registerExtension when fully deprecated.
 if require.extensions
@@ -37,7 +36,7 @@ exports.helpers = require './helpers'
 exports.compile = compile = (code, options = {}) ->
   {merge} = exports.helpers
   try
-    (astTamer.transform parser.parse lexer.tokenize code).compile merge {}, options
+    (tame.transform parser.parse lexer.tokenize code).compile merge {}, options
   catch err
     err.message = "In #{options.filename}, #{err.message}" if options.filename
     throw err
@@ -51,9 +50,9 @@ exports.tokens = (code, options) ->
 # or traverse it by using `.traverseChildren()` with a callback.
 exports.nodes = (source, options) ->
   if typeof source is 'string'
-    astTamer.transform parser.parse lexer.tokenize source, options
+    tame.transform parser.parse lexer.tokenize source, options
   else
-    astTamer.transform parser.parse source
+    tame.transform parser.parse source
 
 # Compile and execute a string of CoffeeScript (on the server), correctly
 # setting `__filename`, `__dirname`, and relative `require()`.
