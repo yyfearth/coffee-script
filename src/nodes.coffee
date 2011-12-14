@@ -1426,10 +1426,12 @@ exports.Code = class Code extends Base
     code  += '(' + vars.join(', ') + ') {'
 
     unless @tamegen
+      stored_tamed_scope = o.tamed_scope
       o.tamed_scope = if @tameNodeFlag then o.scope else null
     
     code  += "\n#{ @body.compileWithDeclarations o }\n#{@tab}" unless @body.isEmpty()
     code  += '}'
+    o.tamed_scope = stored_tamed_scope
     return @tab + code if @ctor
     if @front or (o.level >= LEVEL_ACCESS) then "(#{code})" else code
 
