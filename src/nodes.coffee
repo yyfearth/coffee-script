@@ -1504,6 +1504,7 @@ exports.Code = class Code extends Base
       o.tamed_scope = o.scope
     code  += "\n#{ @body.compileWithDeclarations o }\n#{@tab}" unless @body.isEmpty()
     code  += '}'
+    o.tamed_scope = stored_tamed_scope
     return @tab + code if @ctor
     if @front or (o.level >= LEVEL_ACCESS) then "(#{code})" else code
 
