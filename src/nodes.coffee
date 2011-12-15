@@ -1406,6 +1406,12 @@ exports.Code = class Code extends Base
     exprs.unshift splats if splats
     @body.expressions.unshift exprs... if exprs.length
     o.scope.parameter vars[i] = v.compile o for v, i in vars unless splats
+
+    # Empty guys should still autocb
+    if wasEmpty and @tameHasAutocbFlag
+      @body.expressions.unshift(new Return null, true)
+      wasEmpty = false
+      
     @body.makeReturn() unless wasEmpty or @noReturn
     if @bound
       if o.scope.parent.method?.bound
