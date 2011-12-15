@@ -1482,6 +1482,12 @@ exports.Code = class Code extends Base
     for name in @paramNames()
       throw SyntaxError "multiple parameters named '#{name}'" if name in uniqs
       uniqs.push name
+
+    # Empty guys should still autocb
+    if wasEmpty and @tameHasAutocbFlag
+      @body.expressions.unshift(new Return null, true)
+      wasEmpty = false
+      
     @body.makeReturn() unless wasEmpty or @noReturn
     if @bound
       if o.scope.parent.method?.bound
@@ -1491,7 +1497,9 @@ exports.Code = class Code extends Base
     idt   = o.indent
     code  = 'function'
     code  += ' ' + @name if @ctor
-    code  += '(' + vars.join(', ') + ') {'
+    code  += '(' + params.join(', ') + ') {'
+    if @tameNodeFlag
+      o.tamed_scope = o.scope
 
     # There are two important cases to consider in terms of autocb;
     # In the case of an explicit call to return, we handle it in
