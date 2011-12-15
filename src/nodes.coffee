@@ -1201,6 +1201,7 @@ exports.Assign = class Assign extends Base
   constructor: (@variable, @value, @context, options) ->
     @param = options and options.param
     @subpattern = options and options.subpattern
+    @tamelocal = options and options.tamelocal
 
   children: ['variable', 'value']
 
@@ -1227,8 +1228,8 @@ exports.Assign = class Assign extends Base
       unless (varBase = @variable.unwrapAll()).isAssignable()
         throw SyntaxError "\"#{ @variable.compile o }\" cannot be assigned."
       unless varBase.hasProperties?()
-        if @param
-          o.scope.add name, 'var'
+        if @param or @tamelocal
+          o.scope.add name, 'var', @tamelocal
         else
           o.scope.find name
     if @value instanceof Code and match = METHOD_DEF.exec name
@@ -1567,8 +1568,7 @@ exports.While = class While extends Base
     top_id = new Value new Literal tame.const.t_while
     k_id = new Value new Literal tame.const.k
     break_id = new Value new Literal tame.const.b_while
-
-    break_assign = new Assign break_id, k_id
+    break_assign = new Assign break_id, k_id, null, { tamelocal : yes }
 
     # The continue assignment is the increment at the end
     # of the loop (if it's there), and also the recursive
@@ -1577,7 +1577,7 @@ exports.While = class While extends Base
     continue_block = new Block [ new Call top_id, [ k_id ] ]
     continue_block.unshift d.step if d.step
     continue_body = new Code [], continue_block, 'tamegen'
-    continue_assign = new Assign continue_id, continue_body
+    continue_assign = new Assign continue_id, continue_body, null, { tamelocal : yes } 
 
     # The whole body is wrapped in an if, with the positive
     # condition being the loop, and the negative condition
@@ -1588,7 +1588,7 @@ exports.While = class While extends Base
     # The top of the loop construct.
     top_body = new Block [ break_assign, continue_assign, cond ]
     top_func = new Code [ k_id ], top_body, 'tamegen'
-    top_assign = new Assign top_id, top_func
+    top_assign = new Assign top_id, top_func, null, { tamelocal : yes }
     top_call = new Call top_id, [ k_id ]
     top_statements = []
     top_statements = top_statements.concat d.init if d.init
