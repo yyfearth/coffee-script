@@ -1171,6 +1171,11 @@ exports.Obj = class Obj extends Base
 
   children: ['properties']
 
+  tameWrapContinuation : YES
+  tameCpsRotate : ->
+    for prop in @properties when prop instanceof Assign
+      prop.value = v if (v = @tameCpsExprRotate prop.value)
+
   compileNode: (o) ->
     props = @properties
     propNames = []
@@ -1221,6 +1226,11 @@ exports.Arr = class Arr extends Base
   children: ['objects']
 
   filterImplicitObjects: Call::filterImplicitObjects
+
+  tameWrapContinuation : YES
+  tameCpsRotate: ->
+    for o,i in @objects
+      @objects[i] = v if (v = @tameCpsExprRotate o)
 
   compileNode: (o) ->
     return '[]' unless @objects.length
