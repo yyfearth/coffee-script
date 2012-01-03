@@ -790,6 +790,16 @@ exports.Value = class Value extends Base
       nref = new Index nref
     [base.add(name), new Value(bref or base.base, [nref or name])]
 
+  tameWrapContinuation : YES
+  tameCpsRotate: ->
+    unless @properties.length
+      super()
+      return
+    @base = nv if (nv = @tameCpsExprRotate @base)
+    for p in @properties
+      if (p.index? and @tameCpsExprRotate p.index)
+        p.index = v
+
   # We compile a value to JavaScript by compiling and joining each property.
   # Things get much more interesting if the chain of properties has *soak*
   # operators `?.` interspersed. Then we have to take care not to accidentally
@@ -877,6 +887,12 @@ exports.Call = class Call extends Base
   # The appropriate `this` value for a `super` call.
   superThis : (o) ->
     o.scope.method?.context or "this"
+
+  tameWrapContinuation: YES
+  tameCpsRotate: ->
+    for a,i in @args
+      @args[i] = v if (v = @tameCpsExprRotate a)
+    @variable = v if (v = @tameCpsExprRotate @variable)
 
   # Soaked chained invocations unfold into if/else ternary structures.
   unfoldSoak: (o) ->
