@@ -2557,7 +2557,8 @@ exports.For = class For extends While
       a2 = new Assign keys_val, loop_keys
 
       # _i = 0
-      ival = new Value new Literal 'i'
+      iname = scope.freeVariable 'i'
+      ival = new Value new Literal iname
       a3 = new Assign ival, new Value new Literal 0
 
       init = [ a1, a2, a3 ]
