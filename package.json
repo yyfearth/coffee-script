@@ -2,8 +2,8 @@
   "name":         "taco-script",
   "description":  "TAmed COffeeScript",
   "keywords":     ["javascript", "language", "coffeescript", "compiler"],
-  "author":       "Jeremy Ashkenas",
-  "version":      "1.3.2-pre",
+  "author":       "Maxwell Krohn",
+  "version":      "1.2.0a",
   "licenses":     [{
     "type":       "MIT",
     "url":        "http://github.com/jashkenas/coffee-script/raw/master/LICENSE"
