@@ -537,3 +537,16 @@ atest 'for + return + autocb (part 2)', (cb) ->
     [10..20]
   await bar defer v
   cb(v[3] is 13, {})
+
+atest "for + guards", (cb) ->
+  v = for i in [0..10] when i % 2 is 0
+    await delay defer()
+    i
+  cb(v[3] is 6, {})
+
+atest "while + guards", (cb) ->
+  i = 0
+  v = while (x = i++) < 10 when x % 2 is 0
+    await delay defer()
+    x
+  cb(v[3] is 6, {})
