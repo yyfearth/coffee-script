@@ -2,8 +2,8 @@ if require?
 
   icedRequire(none)
 
-  tame = iced = require('../lib/coffee-script/coffee-script').iced;
-  icedlib = require('../lib/coffee-script/tamelib')
+  iced = require('../lib/coffee-script/coffee-script').iced;
+  icedlib = require('../lib/coffee-script/icedlib')
 
 ##----------------------------------------------------------------------
 
