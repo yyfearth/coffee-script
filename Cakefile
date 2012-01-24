@@ -30,7 +30,7 @@ header = """
 sources = [
   'coffee-script', 'grammar', 'helpers'
   'lexer', 'nodes', 'rewriter', 'scope',
-  'tame', 'tamelib', 'icedlib' 
+  'iced', 'icedlib'
 ].map (filename) -> "src/#{filename}.coffee"
 
 # Run a CoffeeScript through our node/coffee interpreter.
@@ -97,7 +97,7 @@ task 'build:ultraviolet', 'build and install the Ultraviolet syntax highlighter'
 
 task 'build:browser', 'rebuild the merged script for inclusion in the browser', ->
   code = ''
-  for name in ['helpers', 'rewriter', 'lexer', 'parser', 'scope', 'tame', 'nodes', 'coffee-script', 'browser', 'icedlib' ]
+  for name in ['helpers', 'rewriter', 'lexer', 'parser', 'scope', 'iced', 'nodes', 'coffee-script', 'browser', 'icedlib' ]
     code += """
       require['./#{name}'] = new function() {
         var exports = this;
@@ -260,6 +260,6 @@ task 'test:browser', 'run the test suite against the merged browser script', ->
   result = {}
   global.testingBrowser = yes
   (-> eval source).call result
-  global.tame = result.CoffeeScript.tame
+  global.iced = result.CoffeeScript.iced
   runTests result.CoffeeScript
 
