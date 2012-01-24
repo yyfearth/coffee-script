@@ -12,11 +12,6 @@ flavoring.
 This document first presents a "Iced" tutorial (adapted from the JavaScript
 version), and then discusses the specifics of the CoffeeScript implementation.
 
-(Note: we are slowly changing all instances of the word "tame" in 
-the repository and the generated code to "iced".  This should have
-little impact on ICS source in the wild, since the word "tame"
-only appears in your code if you're using advanced features.)
-
 # Quick Tutorial and Examples
 
 Here is a simple example that prints "hello" 10 times, with 100ms
@@ -77,7 +72,7 @@ do_all process.argv[2...]
 
 You can run this on the command line like so:
 
-    iced examples/tame/dns.coffee yahoo.com google.com nytimes.com okcupid.com tinyurl.com
+    iced examples/iced/dns.coffee yahoo.com google.com nytimes.com okcupid.com tinyurl.com
 
 And you will get a response:
 
@@ -247,7 +242,7 @@ cb = defer x, obj.field, arr[i], rest...
 And here is the output from the iced `coffee` compiler:
 
 ```javascript
-cb = __tame_deferrals.defer({
+cb = __iced_deferrals.defer({
     assign_fn: (function(__slot_1, __slot_2, __slot_3) {
       return function() {
         x = arguments[0];
@@ -259,7 +254,7 @@ cb = __tame_deferrals.defer({
   });
 ```
 
-The `__tame_deferrals` object is an internal object of type `Deferrals`
+The `__iced_deferrals` object is an internal object of type `Deferrals`
 that's collecting all calls to `defer` in the current `await` block.
 The one in question should fulfill with 3 or more values.  When it does,
 it will call into the innermost anonymous function to perform the 
@@ -413,33 +408,33 @@ while x3
 
 * Here is schematic diagram for this AST:
 
-   <img src="/maxtaco/coffee-script/raw/tame/media/rotate1.png" width=650 />
+   <img src="/maxtaco/coffee-script/raw/iced/media/rotate1.png" width=650 />
 
 * After Step 2.1, nodes in blue are marked with **A**.  Recall, Step 2.1 traces
 upwards from all `await` blocks.
 
-   <img src="/maxtaco/coffee-script/raw/tame/media/rotate2.png" width=650 />
+   <img src="/maxtaco/coffee-script/raw/iced/media/rotate2.png" width=650 />
 
 * After Step 2.2, nodes in purple are marked with **L**.  Recall, Step 2.2 floods
 downwards from any any loops marked with **A**.
 
-   <img src="/maxtaco/coffee-script/raw/tame/media/rotate3.png" width=650 />
+   <img src="/maxtaco/coffee-script/raw/iced/media/rotate3.png" width=650 />
 
 * After Step 2.3, nodes in yellow are marked with **P**.  Recall, Step 2.3 
 traces upwards from any jumps marked with **L**.
 
-   <img src="/maxtaco/coffee-script/raw/tame/media/rotate4.png" width=650 />
+   <img src="/maxtaco/coffee-script/raw/iced/media/rotate4.png" width=650 />
 
 * The green nodes are those marked with **A** or **P**.  They are "marked"
 for rotations in the next step.
 
-   <img src="/maxtaco/coffee-script/raw/tame/media/rotate5.png" width=650 />
+   <img src="/maxtaco/coffee-script/raw/iced/media/rotate5.png" width=650 />
 
 * In Step 3, rotate all marked nodes AST nodes. This rotation
 introduces the new orange `block` nodes in the graph, and attaches
 them to pivot nodes as _continuation_ blocks.
 
-   <img src="/maxtaco/coffee-script/raw/tame/media/post-rotate.png" width=650 />
+   <img src="/maxtaco/coffee-script/raw/iced/media/post-rotate.png" width=650 />
 
 
 * In translated code, the general format of a _pivot_ node is:
@@ -456,7 +451,7 @@ them to pivot nodes as _continuation_ blocks.
 To see how pivots and continuations are output in our example, look
 at this portion of the AST, introduced after Step 3:
    
-   ![detail](/maxtaco/coffee-script/raw/tame/media/detail.png)
+   ![detail](/maxtaco/coffee-script/raw/iced/media/detail.png)
 
 Here is the translated output (slightly hand-edited for clarity):
 
@@ -464,7 +459,7 @@ Here is the translated output (slightly hand-edited for clarity):
 (function() {
   // await block f4()
   (function(k) {
-    var __deferrals = new tame.Deferrals(k);
+    var __deferrals = new iced.Deferrals(k);
     f4(__deferrals.defer({}));
     __deferrals._fulfill();
   })(function() {
