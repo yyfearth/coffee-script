@@ -685,7 +685,7 @@ exports.Literal = class Literal extends Base
   assigns: (name) ->
     name is @value
 
-  compileTame: (o) ->
+  compileIced: (o) ->
     d =
       'continue' : iced.const.c_while
       'break'    : iced.const.b_while
@@ -709,7 +709,7 @@ exports.Literal = class Literal extends Base
     else if @value.reserved
       "\"#{@value}\""
     else if @icedLoopFlag and @icedIsJump()
-      @compileTame o
+      @compileIced o
     else
       @value
     if @isStatement() then "#{@tab}#{code};" else code
@@ -1903,8 +1903,12 @@ exports.While = class While extends Base
     # The whole body is wrapped in an if, with the positive
     # condition being the loop, and the negative condition
     # being the break out of the loop
-    cond = new If condition, body
-    cond.addElse new Block [ new Call break_id, [] ]
+    cond = new If condition.invert(), new Block [ new Call break_id, [] ]
+    if d.guard
+      cond.addElse new If d.guard, body
+      cond.addElse new Block [ new Call continue_id, [] ]
+    else
+      cond.addElse body
 
     # The top of the loop construct.
     top_body = new Block [ break_assign, continue_assign, next_assign, cond ]
@@ -1922,9 +1926,9 @@ exports.While = class While extends Base
   icedCallContinuation : ->
     @body.icedThreadReturn new TameTailCall iced.const.n_while
 
-  compileTame: (o) ->
+  compileIced: (o) ->
     return null unless @icedNodeFlag
-    opts = { @condition, @body }
+    opts = { @condition, @body, @guard }
     if @returns
       opts.rvar = o.scope.freeVariable 'results'
     b = @icedWrap opts
@@ -1934,7 +1938,7 @@ exports.While = class While extends Base
   # *while* can be used as a part of a larger expression -- while loops may
   # return an array containing the computed result of each iteration.
   compileNode: (o) ->
-    return code if code = @compileTame o
+    return code if code = @compileIced o
     o.indent += TAB
     set      = ''
     {body}   = this
@@ -2540,7 +2544,7 @@ exports.For = class For extends While
 
   children: ['body', 'source', 'guard', 'step']
 
-  compileTame: (o, d) ->
+  compileIced: (o, d) ->
     return null unless @icedNodeFlag
 
     body = d.body
@@ -2623,7 +2627,8 @@ exports.For = class For extends While
       body.unshift a4
 
     rvar = d.rvar
-    b = @icedWrap { condition, body, init, step, rvar }
+    guard = d.guard
+    b = @icedWrap { condition, body, init, step, rvar, guard }
     b.compile o
 
   # Welcome to the hairiest method in all of CoffeeScript. Handles the inner
@@ -2652,7 +2657,7 @@ exports.For = class For extends While
     defPart   = ''
     idt1      = @tab + TAB
 
-    return code if code = @compileTame o, { stepvar, body, rvar, kvar }
+    return code if code = @compileIced o, { stepvar, body, rvar, kvar, @guard }
 
     if @range
       forPart = source.compile merge(o, {index: ivar, name, @step})
