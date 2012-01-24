@@ -3,24 +3,24 @@
 # Compile Time!
 #
 exports.transform = (x) ->
-  x.tameTransform()
+  x.icedTransform()
 
 exports.const = 
-  k : "__tame_k"
-  param : "__tame_p_"
-  ns: "tame"
+  k : "__iced_k"
+  param : "__iced_p_"
+  ns: "iced"
   Deferrals : "Deferrals"
-  deferrals : "__tame_deferrals"
+  deferrals : "__iced_deferrals"
   fulfill : "_fulfill"
   b_while : "_break"
   t_while : "_while"
   c_while : "_continue"
   n_while : "_next"
-  n_arg   : "__tame_next_arg"
+  n_arg   : "__iced_next_arg"
   defer_method : "defer"
   slot : "__slot"
   assign_fn : "assign_fn"
-  runtime : "tamerun"
+  runtime : "icedrun"
   autocb : "autocb"
   retslot : "ret"
 
@@ -33,9 +33,9 @@ makeDeferReturn = (obj, defer_args, id) ->
     obj._fulfill id
 
   if defer_args
-    ret.__tame_trace = {}
+    ret.__iced_trace = {}
     for k in [ "parent_cb", "file", "line", "func_name" ]
-      ret.__tame_trace[k] = defer_args[k]
+      ret.__iced_trace[k] = defer_args[k]
 
   ret
 
@@ -58,7 +58,7 @@ tickCounter = (mod) ->
 # Deferrals
 #
 #   A collection of Deferrals; this is a better version than the one
-#   that's inline; it allows for tame tracing
+#   that's inline; it allows for iced tracing
 #
 
 class Deferrals

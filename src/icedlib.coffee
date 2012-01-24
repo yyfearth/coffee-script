@@ -1,13 +1,13 @@
 icedRequire(none)
 
-tame_internals = require('./tame')
-tame = tame_internals.runtime
+iced_internals = require('./iced')
+iced = iced_internals.runtime
 
 #
-# tamelib
+# icedlib
 #
 #   This class contains non-essential but convenient runtime libraries
-#   for tame programs
+#   for iced programs
 # 
 
 #
@@ -15,7 +15,7 @@ tame = tame_internals.runtime
 # existing event-based calls
 #  
 _timeout = (cb, t, res, tmp) ->
-    rv = new tame.Rendezvous
+    rv = new iced.Rendezvous
     tmp[0] = rv.id(true).defer(arr...)
     setTimeout rv.id(false).defer(), t
     await rv.wait defer which
@@ -43,7 +43,7 @@ exports.Pipeliner = class Pipeliner
     
     # This is a hack to work with the desugaring of
     # 'defer' output by the coffee compiler. Same as in rendezvous
-    @[tame_internals.const.deferrals] = this
+    @[iced_internals.const.deferrals] = this
     
     # Rebind "defer" to "_defer"; We can't do this directly since the
     # compiler would pick it up
