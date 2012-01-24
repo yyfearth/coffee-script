@@ -3,7 +3,7 @@ delay = (cb, i) ->
    i = i || 3
    setTimeout cb, i
 
-atest "basic tame waiting", (cb) ->
+atest "basic iced waiting", (cb) ->
    i = 1
    await delay defer()
    i++
@@ -13,18 +13,18 @@ foo = (i, cb) ->
   await delay(defer(), i)
   cb(i)
 
-atest "basic tame waiting", (cb) ->
+atest "basic iced waiting", (cb) ->
    i = 1
    await delay defer()
    i++
    cb(i is 2, {})
 
-atest "basic tame trigger values", (cb) ->
+atest "basic iced trigger values", (cb) ->
    i = 10
    await foo(i, defer j)
    cb(i is j, {})
 
-atest "basic tame set structs", (cb) ->
+atest "basic iced set structs", (cb) ->
    field = "yo"
    i = 10
    obj = { cat : { dog : 0 } }
@@ -251,7 +251,7 @@ atest "another autocb gotcha", (cb) ->
   ok = true
   cb(ok, {})
 
-atest "fat arrow versus tame", (cb) ->
+atest "fat arrow versus iced", (cb) ->
   class Foo
     constructor : ->
       @bindings = {}
