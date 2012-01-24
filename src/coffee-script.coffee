@@ -10,7 +10,7 @@ fs               = require 'fs'
 path             = require 'path'
 {Lexer,RESERVED} = require './lexer'
 {parser}         = require './parser'
-tame             = require './tame'
+iced             = require './iced'
 vm               = require 'vm'
 
 # Native extensions we're willing to consider
@@ -45,7 +45,7 @@ exports.helpers = require './helpers'
 exports.compile = compile = (code, options = {}) ->
   {merge} = exports.helpers
   try
-    js = (tame.transform parser.parse lexer.tokenize code).compile options
+    js = (iced.transform parser.parse lexer.tokenize code).compile options
     return js unless options.header
   catch err
     err.message = "In #{options.filename}, #{err.message}" if options.filename
@@ -62,9 +62,9 @@ exports.tokens = (code, options) ->
 # or traverse it by using `.traverseChildren()` with a callback.
 exports.nodes = (source, options) ->
   if typeof source is 'string'
-    tame.transform parser.parse lexer.tokenize source, options
+    iced.transform parser.parse lexer.tokenize source, options
   else
-    tame.transform parser.parse source
+    iced.transform parser.parse source
 
 # Compile and execute a string of CoffeeScript (on the server), correctly
 # setting `__filename`, `__dirname`, and relative `require()`.
@@ -140,5 +140,5 @@ parser.lexer =
 
 parser.yy = require './nodes'
 
-# Export the tame runtime as 'tame'
-exports.tame = exports.iced = tame.runtime
+# Export the iced runtime as 'iced'
+exports.iced = iced.runtime
