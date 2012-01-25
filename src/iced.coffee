@@ -23,6 +23,7 @@ exports.const =
   runtime : "icedrun"
   autocb : "autocb"
   retslot : "ret"
+  trace : "__iced_trace"
 
 #=======================================================================
 # runtime
@@ -33,9 +34,9 @@ makeDeferReturn = (obj, defer_args, id) ->
     obj._fulfill id
 
   if defer_args
-    ret.__iced_trace = {}
+    ret[exports.const.trace] = {}
     for k in [ "parent_cb", "file", "line", "func_name" ]
-      ret.__iced_trace[k] = defer_args[k]
+      ret[exports.const.trace][k] = defer_args[k]
 
   ret
 
@@ -79,6 +80,13 @@ class Deferrals
     @count++
     self = this
     return makeDeferReturn self, args, null
+
+#=======================================================================
+
+findDeferral : (args) ->
+  for a in args
+    return a if a and a[exports.const.trace]
+  return null
 
 #=======================================================================
 
