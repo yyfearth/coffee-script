@@ -83,7 +83,7 @@ grammar =
   ]
 
   Require : [
-    o 'ICEDREQUIRE Arguments',                  -> new TameRequire $2
+    o 'ICEDREQUIRE Arguments',                  -> new IcedRequire $2
 
   ]
 
