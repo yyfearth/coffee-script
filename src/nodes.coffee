@@ -117,12 +117,12 @@ exports.Base = class Base
         # For some types of objects, we wrap the value of the object in a
         # iced tail call here.  We might have done this earlier (in
         # icedCallContinuation) but at that point we don't have the option
-        # to replace an AST node with TameTailCall(this).  So instead, we
+        # to replace an AST node with IcedTailCall(this).  So instead, we
         # do that now.
-        new TameTailCall null, this
+        new IcedTailCall null, this
 
       else
-        # The simple case is no continuation, and no added TameTailCall
+        # The simple case is no continuation, and no added IcedTailCall
         # needed.
         this
 
@@ -191,7 +191,7 @@ exports.Base = class Base
   # `toString` representation of the node, for inspecting the parse tree.
   # This is what `coffee --nodes` prints out.
   #
-  # Add some Tame-specific additions --- the 'A' flag if this node
+  # Add some Iced-specific additions --- the 'A' flag if this node
   # is an await or its ancestor; the 'L' flag, if this node is a iced
   # loop or its descendant; a 'P' flag if this node is going to be
   # a 'pivot' in the CPS tree rotation; a 'C' flag if this node is inside
@@ -325,7 +325,7 @@ exports.Base = class Base
 
   # A CPS Rotation routine for expressions
   icedCpsExprRotate : (v) ->
-    doRotate = v.icedIsTamedExpr()
+    doRotate = v.icedIsIcedExpr()
     if doRotate
       v.icedCallContinuation()
     v.icedCpsRotate() # do our children first, regardless...
@@ -340,10 +340,10 @@ exports.Base = class Base
   icedCallContinuation      :     -> @icedCallContinuationFlag = true
   icedWrapContinuation      :     NO
   icedIsJump                :     NO
-  icedIsTamedExpr           :     -> (this not instanceof Code) and @icedNodeFlag
+  icedIsIcedExpr           :     -> (this not instanceof Code) and @icedNodeFlag
 
   icedNestPrequelBlock: (bb) ->
-    rv = new TameReturnValue()
+    rv = new IcedReturnValue()
     obj = @icedParentAwait || this
     obj.icedPrequels.push { block : bb, retval : rv }
     rv
@@ -419,7 +419,7 @@ exports.Block = class Block extends Base
       return exp if exp.jumps o
 
   icedThreadReturn: (call)  ->
-    call = call || new TameTailCall
+    call = call || new IcedTailCall
     len = @expressions.length
     foundReturn = false
     while len--
@@ -427,12 +427,12 @@ exports.Block = class Block extends Base
 
       # If the last expression in the block is either a bonafide statement
       # or if it's going to be pivoted, then don't thread the return value
-      # through the TameTailCall, just bolt it onto the end.
+      # through the IcedTailCall, just bolt it onto the end.
       if expr.isStatement()
         break
 
       # In this case, we have a value that we're going to return out
-      # of the block, so apply the TameTamilCall onto the value
+      # of the block, so apply the IcedTamilCall onto the value
       if expr not instanceof Comment and expr not instanceof Return
         call.assignValue expr
         @expressions[len] = call
@@ -642,9 +642,9 @@ exports.Block = class Block extends Base
     return @expressions?.length and @expressions[@expressions.length-1] instanceof Await
 
   icedAddRuntime : ->
-    @expressions.unshift new TameRequire()
+    @expressions.unshift new IcedRequire()
 
-  # Perform all steps of the Tame transform
+  # Perform all steps of the Iced transform
   icedTransform : ->
 
     # we need to do at least 1 walk -- do the most important walk first
@@ -1924,7 +1924,7 @@ exports.While = class While extends Base
     top_block = new Block top_statements
 
   icedCallContinuation : ->
-    @body.icedThreadReturn new TameTailCall iced.const.n_while
+    @body.icedThreadReturn new IcedTailCall iced.const.n_while
 
   compileIced: (o) ->
     return null unless @icedNodeFlag
@@ -2344,7 +2344,7 @@ exports.Await = class Await extends Base
 # your choosing. 'icedRequire(window)', will set `window.iced`
 # to have the iced runtime.
 #
-exports.TameRequire = class TameRequire extends Base
+exports.IcedRequire = class IcedRequire extends Base
   constructor: (args) ->
     super()
     @typ = null
@@ -2799,7 +2799,7 @@ exports.If = class If extends Base
       @elseBody.icedThreadReturn()
       @isChain = false
     else
-      @addElse new TameTailCall
+      @addElse new IcedTailCall
     @body.icedThreadReturn()
 
   # The **If** only compiles into a statement if either of its bodies needs
@@ -2915,7 +2915,7 @@ CpsCascade =
 
     # Optimization! If the block is just a tail call to another continuation
     # that can be inlined, then we just call that call directly.
-    if (e = block.getSingle()) and e instanceof TameTailCall and e.canInline()
+    if (e = block.getSingle()) and e instanceof IcedTailCall and e.canInline()
       cont = e.extractFunc()
     else
       cont = new Code args, block, 'icedgen'
@@ -2928,7 +2928,7 @@ CpsCascade =
 # At the end of a iced if, loop, or switch statement, we tail call off
 # to the next continuation
 
-class TameTailCall extends Base
+class IcedTailCall extends Base
   constructor : (@func, val = null) ->
     super()
     @func = iced.const.k unless @func
@@ -2940,7 +2940,7 @@ class TameTailCall extends Base
     @value = v
 
   canInline : ->
-    return not @value or @value instanceof TameReturnValue
+    return not @value or @value instanceof IcedReturnValue
 
   literalFunc: -> new Literal @func
   extractFunc: -> new Value @literalFunc()
@@ -2961,17 +2961,17 @@ class TameTailCall extends Base
       new Call f, args
     out.compileNode o
 
-#### TameReturnValue
+#### IcedReturnValue
 #
 # A variable reference to a deferred computation
 
-class TameReturnValue extends Param
+class IcedReturnValue extends Param
   @counter : 0
   constructor : () ->
     super null, null, no
 
   bindName : (o) ->
-    l = "#{o.scope.freeVariable iced.const.param, no}_#{TameReturnValue.counter++}"
+    l = "#{o.scope.freeVariable iced.const.param, no}_#{IcedReturnValue.counter++}"
     @name = new Literal l
 
   compile : (o) ->
