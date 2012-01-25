@@ -279,6 +279,7 @@ exports.Base = class Base
   #      o.foundRequire -- on if icedRequire() was found anywhere in the AST
   #      o.foundDefer   -- on if defer() was found anywhere in the AST
   #      o.foundAwait   -- on if await... was found anywhere in the AST
+  #      o.currFunc     -- the current func we're in
   #
   icedWalkAst : (p, o) ->
     @icedParentAwait = p
@@ -1704,7 +1705,9 @@ exports.Code = class Code extends Base
   icedWalkAst : (parent, o) ->
     @icedParentAwait = parent
     fa_prev = o.foundAutocb
+    cf_prev = o.currFunc
     o.foundAutocb = false
+    o.currFunc = @
     for param in @params
       if param.name instanceof Literal and param.name.value is iced.const.autocb
         o.foundAutocb = true
@@ -1712,6 +1715,7 @@ exports.Code = class Code extends Base
     @icedHasAutocbFlag = o.foundAutocb
     super parent, o
     o.foundAutocb = fa_prev
+    o.currFunc = cf_prev
     false
 
   icedWalkAstLoops : (flood) ->
@@ -2300,6 +2304,7 @@ exports.Defer = class Defer extends Base
   icedWalkAst : (p, o) ->
     @icedHasAutocbFlag = o.foundAutocb
     o.foundDefer = true
+    @parentFunc = o.currFunc
     super p, o
 
 #### Await
