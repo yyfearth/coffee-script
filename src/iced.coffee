@@ -5,7 +5,7 @@
 exports.transform = (x) ->
   x.icedTransform()
 
-exports.const = 
+exports.const = C =
   k : "__iced_k"
   param : "__iced_p_"
   ns: "iced"
@@ -26,6 +26,7 @@ exports.const =
   trace : "__iced_trace"
   passed_deferral : "__iced_passed_deferral"
   findDeferral : "findDeferral"
+  pass_fields : [ "parent_cb", "file", "line", "func_name" ]
 
 #=======================================================================
 # runtime
@@ -36,9 +37,9 @@ makeDeferReturn = (obj, defer_args, id) ->
     obj._fulfill id
 
   if defer_args
-    ret[exports.const.trace] = {}
-    for k in [ "parent_cb", "file", "line", "func_name" ]
-      ret[exports.const.trace][k] = defer_args[k]
+    ret[C.trace] = {}
+    for k in C.pass_fields
+      ret[C.trace][k] = defer_args[k]
 
   ret
 
@@ -87,7 +88,7 @@ class Deferrals
 
 findDeferral = (args) ->
   for a in args
-    return a if a and a[exports.const.trace]
+    return a if a?[C.trace]
   return null
 
 #=======================================================================
@@ -99,7 +100,7 @@ class Rendezvous
     @defer_id = 0
     # This is a hack to work with the desugaring of
     # 'defer' output by the coffee compiler.
-    @[exports.const.deferrals] = this
+    @[C.deferrals] = this
 
   #-----------------------------------------
     
@@ -128,7 +129,7 @@ class Rendezvous
   
   id: (i) ->
     ret = {}
-    ret[exports.const.deferrals] = new RvId(this, i)
+    ret[C.deferrals] = new RvId(this, i)
     ret
   
   #-----------------------------------------
