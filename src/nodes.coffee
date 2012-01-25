@@ -3010,9 +3010,14 @@ InlineRuntime =
   #       @continuation @ret if not --@count
   #     defer : (defer_params) ->
   #       @count++
-  #       (inner_params...) =>
+  #       ret = (inner_params...) =>
   #         defer_params?.assign_fn?.apply(null, inner_params)
   #         @_fulfill()
+  #       if defer_args
+  #         ret[C.trace] = {}
+  #         for k in C.pass_fields
+  #           ret[C.trace][k] = defer_args[k]
+  #       ret
   #   findDeferral : (args) ->
   #     for a in args
   #       return a if a?[exports.const.trace]
@@ -3066,13 +3071,19 @@ InlineRuntime =
     # Make the defer member:
     #   defer : (defer_params) ->
     #     @count++
-    #     (inner_params...) =>
+    #     ret = (inner_params...) ->
     #       defer_params?.assign_fn?.apply(null, inner_params)
     #       @_fulfill()
+    #     if defer_args
+    #       ret[C.trace] = {}
+    #       for k in C.pass_fields
+    #         ret[C.trace][k] = defer_args[k]
+    #     ret
     #
     inc = new Op "++", cnt_member
     ip = new Literal "inner_params"
     dp = new Literal "defer_params"
+    dp_value = new Value dp
     call_meth = new Value dp
     af = new Literal iced.const.assign_fn
     call_meth.add new Access af, "soak"
@@ -3086,7 +3097,25 @@ InlineRuntime =
     inner_body = new Block [ apply_call, _fulfill_call ]
     inner_params = [ new Param ip, null, on ]
     inner_code = new Code inner_params, inner_body, "boundfunc"
-    defer_body = new Block [ inc, inner_code ]
+    ret_literal = new Literal 'ret'
+    ret_value = new Value ret_literal
+    ret_assign = new Assign ret_value, inner_code
+    ret_access = ret_value.copy()
+    ret_access.add new Access new Value new Literal iced.const.trace
+    ret_trace_assign = new Assign ret_access, new Obj
+    k_literal = new Literal 'k'
+    k_value = new Value k_literal
+    fields = ((new Value new Literal "'#{i}'") for i in iced.const.pass_fields)
+    ret_access_inner = ret_value.copy()
+    ret_access_inner.add new Access new Value new Literal iced.const.trace
+    ret_access_inner.add new Index k_literal
+    rhs = dp_value.copy()
+    rhs.add new Index k_literal
+    for_assign = new Assign ret_access_inner, rhs
+    for_body = new Block [ for_assign ]
+    for_block = new For for_body, name: k_value, source: new Arr fields
+    if_body = new If dp_value, new Block [ ret_trace_assign, for_block ]
+    defer_body = new Block [ inc, ret_assign, if_body, ret_value ]
     defer_params = [ new Param dp ]
     defer_code = new Code defer_params, defer_body
     defer_name = new Value new Literal iced.const.defer_method
