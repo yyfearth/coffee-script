@@ -24,6 +24,8 @@ exports.const =
   autocb : "autocb"
   retslot : "ret"
   trace : "__iced_trace"
+  passed_deferral : "__iced_passed_deferral"
+  findDeferral : "findDeferral"
 
 #=======================================================================
 # runtime
@@ -83,7 +85,7 @@ class Deferrals
 
 #=======================================================================
 
-findDeferral : (args) ->
+findDeferral = (args) ->
   for a in args
     return a if a and a[exports.const.trace]
   return null
@@ -146,6 +148,6 @@ class Rendezvous
 
 #=======================================================================
 
-exports.runtime = { Deferrals, Rendezvous }
+exports.runtime = { Deferrals, Rendezvous, findDeferral }
 
 #=======================================================================

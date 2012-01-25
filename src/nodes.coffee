@@ -1600,6 +1600,7 @@ exports.Code = class Code extends Base
     @icedgen = tag is 'icedgen'
     @bound   = tag is 'boundfunc' or @icedgen
     @context = '_this' if @bound or @icedgen
+    @icedPassedDeferral = null
 
   children: ['params', 'body']
 
@@ -1659,6 +1660,17 @@ exports.Code = class Code extends Base
     code  = 'function'
     code  += ' ' + @name if @ctor
     code  += '(' + params.join(', ') + ') {'
+
+    if @icedNodeFlag and not @icedgen
+      # Find the tamecb if possible, and do this before we update the
+      # scope, below...
+      @icedPassedDeferral = o.scope.freeVariable iced.const.passed_deferral
+      lhs = new Value new Literal @icedPassedDeferral
+      f = new Value new Literal iced.const.ns
+      f.add new Access new Value new Literal iced.const.findDeferral
+      rhs = new Call f, [ new Value new Literal 'arguments' ]
+      @body.unshift(new Assign lhs, rhs)
+    
     if @icedNodeFlag
       o.iced_scope = o.scope
 
@@ -2378,7 +2390,7 @@ exports.IcedRequire = class IcedRequire extends Base
         window_mode = true if v is "window"
         if window_mode
           window_val = new Value new Literal v
-        InlineDeferral.generate(if window_val then window_val.copy() else null)
+        InlineRuntime.generate(if window_val then window_val.copy() else null)
       when "node"
         file = new Literal "'coffee-script'"
         access = new Access new Literal iced.const.ns
@@ -2983,9 +2995,9 @@ class IcedReturnValue extends Param
     @bindName o if not @name
     super o
 
-#### Deferral class, the most basic one...
+#### Runtime class and funcs, the most basic one...
 
-InlineDeferral =
+InlineRuntime =
 
   # Generate this code, inline. Is there a better way?
   #
@@ -3001,6 +3013,10 @@ InlineDeferral =
   #       (inner_params...) =>
   #         defer_params?.assign_fn?.apply(null, inner_params)
   #         @_fulfill()
+  #   findDeferral : (args) ->
+  #     for a in args
+  #       return a if a?[exports.const.trace]
+  #     return null
   #
   generate : (ns_window) ->
     k = new Literal "continuation"
@@ -3081,12 +3097,32 @@ InlineDeferral =
     obj = new Obj assignments, true
     body = new Block [ new Value obj ]
     klass = new Class null, null, body
-
+    
+    #   findDeferral : (args) ->
+    #     for a in args
+    #       return a if a?[iced.const.trace]
+    #     return null
+    args_literal = new Literal 'args'
+    args_value = new Value args_literal
+    args_param = new Param args_literal
+    a = new Value new Literal 'a'
+    a_copy = a.copy()
+    a.add new Access (new Value new Literal iced.const.trace), 'soak'
+    found_block = new Block [ new Return a ]
+    if_block = new If a, found_block
+    for_block = new For if_block, source: args_value, name: a_copy
+    unfound_block = new Block [ new Return NULL() ]
+    outer_block = new Block [ for_block, unfound_block ]
+    fn_code = new Code [ args_param ], outer_block
+    fn_name = new Value new Literal iced.const.findDeferral
+      
     # iced =
     #   Deferrals : <class>
+    #   findDeferral : <code>
     #
     klass_assign = new Assign cn, klass, "object"
-    ns_obj = new Obj [ klass_assign ], true
+    fn_assign = new Assign fn_name, fn_code, "object"
+    ns_obj = new Obj [ klass_assign, fn_assign ], true
     ns_val = new Value ns_obj
     new Assign ns, ns_val
 
