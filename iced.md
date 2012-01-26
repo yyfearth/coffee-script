@@ -342,7 +342,8 @@ a standard CoffeeScript-style abstract syntax tree (AST).
    ancestors with an **A** flag.
 
    * **2.2** Find all `for`, `while`, `until`, or `loop` nodes marked with
-   **A**.  Mark them and their descendants with an **L** flag.
+   **A**.  Flood them and their descendants with an **L** flag. Stop
+   flooding when the first loop without an **A** flag is hit.
 
    * **2.3** Find all `continue` or `break` nodes marked with an **L** flag.
    Mark them and their descendants with a **P** flag.
