@@ -2443,9 +2443,6 @@ exports.IcedRequire = class IcedRequire extends Base
       window_val.add new Access lhs
       lhs = window_val
     k = new Assign lhs, rhs
-
-
-
     out + "#{@tab}" + k.compile(o, LEVEL_TOP)
 
   children = [ 'typ']
