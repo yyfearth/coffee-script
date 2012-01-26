@@ -12,6 +12,9 @@ optparse       = require './optparse'
 CoffeeScript   = require './coffee-script'
 {spawn, exec}  = require 'child_process'
 {EventEmitter} = require 'events'
+iced           = require './iced'
+
+runtime_modes_str = "{" + (iced.const.runtime_modes.join ", ") + "}"
 
 # Allow CoffeeScript to emit Node.js events.
 helpers.extend CoffeeScript, new EventEmitter
@@ -44,7 +47,7 @@ SWITCHES = [
   ['-t', '--tokens',          'print out the tokens that the lexer/rewriter produce']
   ['-v', '--version',         'display the version number']
   ['-w', '--watch',           'watch scripts for changes and rerun commands']
-  ['-I', '--iced-runtime',    'how to include the iced runtime, one of {inline,node,none,window}; default is "inline"' ]
+  ['-I', '--runtime [WHICH]',    'how to include the iced runtime, one of #{runtime_modes_str}; default is "inline"' ]
 ]
 
 # Top-level objects shared by all the functions.
@@ -301,11 +304,18 @@ printTokens = (tokens) ->
     "[#{tag} #{value}]"
   printLine strings.join(' ')
 
+handleIcedOptions = (o) ->
+  # Some opts we can read out of the evironment
+  o.runtime = v if not o.runtime and (v = process.env.ICED_RUNTIME)?
+  if (val = o.runtime)? and val not in iced.const.runtime_modes
+    throw new Error "Option -I/--runtime has to be one of #{runtime_modes_str}, got '#{val}'"
+  
 # Use the [OptionParser module](optparse.html) to extract all options from
 # `process.argv` that are specified in `SWITCHES`.
 parseOptions = ->
   optionParser  = new optparse.OptionParser SWITCHES, BANNER
   o = opts      = optionParser.parse process.argv[2..]
+  handleIcedOptions o
   o.compile     or=  !!o.output
   o.run         = not (o.compile or o.print or o.lint)
   o.print       = !!  (o.print or (o.eval or o.stdio and o.compile))
@@ -315,7 +325,7 @@ parseOptions = ->
 
 # The compile-time options to pass to the CoffeeScript compiler.
 compileOptions = (filename) ->
-  {filename, bare: opts.bare, header: opts.compile}
+  {filename, bare: opts.bare, header: opts.compile, runtime: opts.runtime}
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
 # the `node` binary, preserving the other options.

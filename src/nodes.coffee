@@ -276,7 +276,6 @@ exports.Base = class Base
   #   used with subfields:
   #
   #      o.foundAutocb  -- on if the parent function has an autocb
-  #      o.foundRequire -- on if icedRequire() was found anywhere in the AST
   #      o.foundDefer   -- on if defer() was found anywhere in the AST
   #      o.foundAwait   -- on if await... was found anywhere in the AST
   #      o.currFunc     -- the current func we're in
@@ -643,8 +642,8 @@ exports.Block = class Block extends Base
   endsInAwait : ->
     return @expressions?.length and @expressions[@expressions.length-1] instanceof Await
 
-  icedAddRuntime : ->
-    @expressions.unshift new IcedRequire()
+  icedAddRuntime : (foundDefer) ->
+    @expressions.unshift new IcedRequire foundDefer
 
   # Perform all steps of the Iced transform
   icedTransform : ->
@@ -656,8 +655,8 @@ exports.Block = class Block extends Base
     # short-circuit here for optimization. If we didn't find await
     # then no need to iced anything in this AST
     if obj.foundAwait
-      @icedAddRuntime() if obj.foundDefer and not obj.foundRequire
-      @icedWalkAstLoops(false)
+      @icedAddRuntime obj.foundDefer
+      @icedWalkAstLoops false
       @icedWalkCpsPivots()
       @icedCpsRotate()
 
@@ -2383,37 +2382,26 @@ exports.Await = class Await extends Base
     super p, o
     @icedNodeFlag = o.foundAwait = true
 
-#### icedRequire
+#### IcedRequire
 #
-# By default, the iced libraries are inlined.  But if you preface your file
-# with 'icedRequire(node)', it will assume a node runtime, emitting:
+# By default, the iced libraries are require'd via nodejs' require.
+# You can change this behavior on the command line:
 #
-#   iced = require('iced-coffee-script').iced
-#
-# With 'icedRequire(none)', you can supply a runtime of
-# your choosing. 'icedRequire(window)', will set `window.iced`
-# to have the iced runtime.
+#    -Iinline --- inlines a simplified runtime to the output file
+#    -Inode   --- force node.js inclusion
+#    -Iwindow --- attach the inlined runtime to the window.* object
+#    -Inone   --- no inclusion, do it yourself...
 #
 exports.IcedRequire = class IcedRequire extends Base
-  constructor: (args) ->
+  constructor: (@foundDefer) ->
     super()
-    @typ = null
-    types = [ 'inline', 'node', 'window', 'none', 'xnode' ]
-    @usage =  "icedRequire takes one of {#{types.join ','}}"
-    if args and args.length > 2
-       throw SyntaxError @usage
-    if args and args.length is 1
-       @typ = args[0]
 
   compileNode: (o) ->
     @tab = o.indent
 
-    v = if @typ
-      @typ.compile(o)
-    else if o.bare
-      'none'
-    else
-      "inline"
+    v = if o.runtime then o.runtime
+    else if o.bare   then "none"
+    else                  "node"
 
     window_mode = false
     window_val = null
@@ -2425,7 +2413,7 @@ exports.IcedRequire = class IcedRequire extends Base
         if window_mode
           window_val = new Value new Literal v
         InlineRuntime.generate(if window_val then window_val.copy() else null)
-      when "node", 'xnode'
+      when "node"
         file = new Literal "'iced-coffee-script'"
         access = new Access new Literal iced.const.ns
         req = new Value new Literal "require"
@@ -2433,13 +2421,7 @@ exports.IcedRequire = class IcedRequire extends Base
         callv = new Value call
         callv.add access
         ns = new Value new Literal iced.const.ns
-        block = new Block [ new Assign ns, callv ]
-        if v is 'xnode'
-          fn = new Value new Literal iced.const.ns
-          fn.add new Access new Value new Literal iced.const.catchExceptions
-          call = new Call fn, []
-          block.push call
-        block
+        new Block [ new Assign ns, callv ]
       when "none" then null
       else throw SyntaxError @usage
 
@@ -2453,11 +2435,8 @@ exports.IcedRequire = class IcedRequire extends Base
     k = new Assign lhs, rhs
     out + "#{@tab}" + k.compile(o, LEVEL_TOP)
 
-  children = [ 'typ']
-
   icedWalkAst : (p,o) ->
     @icedHasAutocbFlag = o.foundAutocb
-    o.foundRequire = true
     super p, o
 
 #### Try

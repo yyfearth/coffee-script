@@ -31,6 +31,7 @@ exports.const = C =
   filename : "filename"
   funcname : "funcname"
   catchExceptions : 'catchExceptions'
+  runtime_modes : [ "node", "inline", "window", "none" ]
 
 #=======================================================================
 # runtime
