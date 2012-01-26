@@ -29,21 +29,24 @@ exports.const = C =
   lineno : "lineno"
   parent : "parent"
   filename : "filename"
+  funcname : "funcname"
+  catchExceptions : 'catchExceptions'
 
 #=======================================================================
 # runtime
 
 makeDeferReturn = (obj, defer_args, id, trace_template) ->
+  
+  trace = {}
+  for k,v of trace_template
+    trace[k] = v
+  trace[C.lineno] = defer_args?[C.lineno]
+  
   ret = (inner_args...) ->
     defer_args?.assign_fn?.apply(null, inner_args)
-    obj._fulfill id
+    obj._fulfill id, trace
 
-  if defer_args
-    trace = {}
-    trace[C.lineno] = defer_args[C.lineno]
-    for k in [ C.parent, C.filename ]
-      trace[k] = trace_template[k]
-    ret[C.trace] = trace
+  ret[C.trace] = trace
     
   ret
 
@@ -78,15 +81,16 @@ class Deferrals
     @count = 1
     @ret = null
 
-  _call : ->
+  _call : (trace) ->
+    __active_trace = trace
     @continuation @ret
 
-  _fulfill : ->
+  _fulfill : (id, trace) ->
     if --@count == 0
       if tickCounter 500
-        process.nextTick (=> @_call())
+        process.nextTick (=> @_call trace)
       else
-        @_call()
+        @_call trace
 
   defer : (args) ->
     @count++
@@ -143,7 +147,7 @@ class Rendezvous
   
   #-----------------------------------------
 
-  _fulfill: (id) ->
+  _fulfill: (id, trace) ->
     if @waiters.length
       cb = @waiters.shift()
       cb(id)
@@ -158,6 +162,43 @@ class Rendezvous
 
 #=======================================================================
 
-exports.runtime = { Deferrals, Rendezvous, findDeferral }
+stackWalk = (cb) ->
+  ret = []
+  tr = if cb then cb[C.trace] else __active_trace
+  while tr
+    fn = tr[C.funcname] || "<anonymous>"
+    line = "   at #{fn} (#{tr[C.filename]}:#{tr[C.lineno] + 1})"
+    ret.push line
+    tr = tr?[C.parent]?[C.trace]
+  ret
+ 
+#=======================================================================
+
+exceptionHandler = (err) ->
+  console.log err.stack
+  stack = stackWalk()
+  if stack.length
+    console.log "Iced 'stack' trace (w/ real line numbers):"
+    console.log stack.join "\n"
+ 
+#=======================================================================
+
+# Catch all uncaught exceptions with the tamejs exception handler.
+# As mentioned here:
+#
+#    http://debuggable.com/posts/node-js-dealing-with-uncaught-exceptions:4c933d54-1428-443c-928d-4e1ecbdd56cb 
+# 
+# It's good idea to kill the service at this point, since state
+# is probably horked. See his examples for more explanations.
+# 
+catchExceptions = () ->
+  process.on 'uncaughtException', (err) ->
+  	exceptionHandler err
+  	process.exit 1
+
+#=======================================================================
+
+exports.runtime = { Deferrals, Rendezvous, findDeferral, stackWalk,
+  exceptionHandler, catchExceptions }
 
 #=======================================================================
