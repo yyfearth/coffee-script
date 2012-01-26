@@ -550,3 +550,17 @@ atest "while + guards", (cb) ->
     await delay defer()
     x
   cb(v[3] is 6, {})
+
+atest "nested loops + inner break", (cb) ->
+  i = 0
+  while i < 10
+    await delay defer()
+    j = 0
+    while j < 10
+      if j == 5
+        break
+      j++
+    i++
+  res = j*i
+  cb(res is 50, {})
+    
