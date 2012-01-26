@@ -2375,7 +2375,7 @@ exports.Await = class Await extends Base
 # By default, the iced libraries are inlined.  But if you preface your file
 # with 'icedRequire(node)', it will assume a node runtime, emitting:
 #
-#   iced = require('coffee-script').iced
+#   iced = require('iced-coffee-script').iced
 #
 # With 'icedRequire(none)', you can supply a runtime of
 # your choosing. 'icedRequire(window)', will set `window.iced`
@@ -2385,7 +2385,8 @@ exports.IcedRequire = class IcedRequire extends Base
   constructor: (args) ->
     super()
     @typ = null
-    @usage =  "icedRequire takes either 'inline', 'node', 'window' or 'none'"
+    types = [ 'inline', 'node', 'window', 'none', 'xnode' ]
+    @usage =  "icedRequire takes one of {#{types.join ','}}"
     if args and args.length > 2
        throw SyntaxError @usage
     if args and args.length is 1
@@ -2411,15 +2412,21 @@ exports.IcedRequire = class IcedRequire extends Base
         if window_mode
           window_val = new Value new Literal v
         InlineRuntime.generate(if window_val then window_val.copy() else null)
-      when "node"
-        file = new Literal "'coffee-script'"
+      when "node", 'xnode'
+        file = new Literal "'iced-coffee-script'"
         access = new Access new Literal iced.const.ns
         req = new Value new Literal "require"
         call = new Call req, [ file ]
         callv = new Value call
         callv.add access
         ns = new Value new Literal iced.const.ns
-        new Assign ns, callv
+        block = new Block [ new Assign ns, callv ]
+        if v is 'xnode'
+          fn = new Value new Literal iced.const.ns
+          fn.add new Access new Value new Literal iced.const.catchExceptions
+          call = new Call fn, []
+          block.push call
+        block
       when "none" then null
       else throw SyntaxError @usage
 
