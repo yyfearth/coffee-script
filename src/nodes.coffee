@@ -293,7 +293,8 @@ exports.Base = class Base
   #   as being children in a iced loop. They'll need more translations
   #   than other nodes. Eventually, "switch" statements might also be "loops"
   icedWalkAstLoops : (flood) ->
-    flood = true if @isLoop() and @icedNodeFlag
+    flood = true if  @isLoop() and @icedNodeFlag
+    flood = false if @isLoop() and not @icedNodeFlag
     @icedLoopFlag = flood
     for child in @flattenChildren()
       @icedLoopFlag = true if child.icedWalkAstLoops flood
