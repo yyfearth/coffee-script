@@ -489,8 +489,11 @@ exports.Block = class Block extends Base
       if node instanceof Block
         # This is a nested block.  We don't do anything special here like enclose
         # it in a new scope; we just compile the statements in this block along with
-        # our own
-        codes.push node.compileNode o
+        # our own.
+        # In the case of IcedRuntime, the block might output nothing.
+        # In that case, don't add extra spaces
+        chld = node.compileNode o
+        codes.push chld if chld and chld.length
       else if top
         node.front = true
         code = node.compile o
@@ -642,8 +645,8 @@ exports.Block = class Block extends Base
   endsInAwait : ->
     return @expressions?.length and @expressions[@expressions.length-1] instanceof Await
 
-  icedAddRuntime : (foundDefer) ->
-    @expressions.unshift new IcedRequire foundDefer
+  icedAddRuntime : (foundDefer, foundAwait) ->
+    @expressions.unshift new IcedRuntime foundDefer, foundAwait
 
   # Perform all steps of the Iced transform
   icedTransform : ->
@@ -652,10 +655,12 @@ exports.Block = class Block extends Base
     obj = {}
     @icedWalkAst null, obj
 
+    # Add a runtime if necessary
+    @icedAddRuntime obj.foundDefer, obj.foundAwait
+
     # short-circuit here for optimization. If we didn't find await
     # then no need to iced anything in this AST
     if obj.foundAwait
-      @icedAddRuntime obj.foundDefer
       @icedWalkAstLoops false
       @icedWalkCpsPivots()
       @icedCpsRotate()
@@ -2382,7 +2387,7 @@ exports.Await = class Await extends Base
     super p, o
     @icedNodeFlag = o.foundAwait = true
 
-#### IcedRequire
+#### IcedRuntime
 #
 # By default, the iced libraries are require'd via nodejs' require.
 # You can change this behavior on the command line:
@@ -2392,16 +2397,17 @@ exports.Await = class Await extends Base
 #    -I window --- attach the inlined runtime to the window.* object
 #    -I none   --- no inclusion, do it yourself...
 #
-exports.IcedRequire = class IcedRequire extends Base
-  constructor: (@foundDefer) ->
+class IcedRuntime extends Block
+  constructor: (@foundDefer, @foundAwait) ->
     super()
 
   compileNode: (o) ->
-    @tab = o.indent
-
-    v = if o.runtime then o.runtime
-    else if o.bare   then "none"
-    else                  "node"
+    @expressions = []
+    
+    v = if o.runtime    then o.runtime
+    else if o.bare      then "none"
+    else if @foundDefer then "node"
+    else                     "none"
 
     window_mode = false
     window_val = null
@@ -2421,24 +2427,27 @@ exports.IcedRequire = class IcedRequire extends Base
         callv = new Value call
         callv.add access
         ns = new Value new Literal iced.const.ns
-        new Block [ new Assign ns, callv ]
+        new Assign ns, callv
       when "none" then null
-      else throw SyntaxError @usage
+      else throw SyntaxError "unexpected flag IcedRuntime #{v}"
 
-    out = if inc then "#{@tab}#{inc.compile o, LEVEL_TOP}\n" else ""
+    @push inc if inc
 
-    rhs = new Code [], new Block []
-    lhs = new Value new Literal iced.const.k
-    if window_val
-      window_val.add new Access lhs
-      lhs = window_val
-    k = new Assign lhs, rhs
-    out + "#{@tab}" + k.compile(o, LEVEL_TOP)
+    if @foundAwait
+      rhs = new Code [], new Block []
+      lhs = new Value new Literal iced.const.k
+      if window_val
+        window_val.add new Access lhs
+        lhs = window_val
+      @push new Assign lhs, rhs
+
+    if @isEmpty() then null
+    else               super o
 
   icedWalkAst : (p,o) ->
     @icedHasAutocbFlag = o.foundAutocb
     super p, o
-
+ 
 #### Try
 
 # A classic *try/catch/finally* block.
