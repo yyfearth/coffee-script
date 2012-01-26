@@ -1,8 +1,5 @@
 if require?
-
-  icedRequire(none)
-
-  iced = require('../lib/coffee-script/coffee-script').iced;
+  iced = require("../lib/coffee-script/iced").runtime
   icedlib = require('../lib/coffee-script/icedlib')
 
 ##----------------------------------------------------------------------

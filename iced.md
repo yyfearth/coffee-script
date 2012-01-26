@@ -107,8 +107,6 @@ allows a program to continue as soon as the first deferral is
 fulfilled (rather than the last):
 
 ```coffeescript
-icedRequire(node) # need full library via require() for rendezvous
-
 do_all = (lst, windowsz) ->
   rv = new iced.Rendezvous
   nsent = 0
@@ -214,10 +212,6 @@ In sum, the iced additions to CoffeeScript consist of three new keywords:
 * **await**, marking off a block or a single statement.
 * **defer**, which is quite similar to a normal function call, but is compiled specially
 to accommodate argument passing.
-* **icedRequire**, which is used to control the "require"ing of the
-iced runtime.  By default, the runtime is pasted inline, but with
-`icedRequire(node)`, it is loaded via node's `require`, and with
-`icedRequire(none)`, it is skipped altogether.
 
 Finally, `autocb` isn't a bona-fide keyword, but the compiler searches
 for it in parameters to CoffeeScript functions, and updates the

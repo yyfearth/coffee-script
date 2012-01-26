@@ -5,4 +5,6565 @@
  * Copyright 2011, Jeremy Ashkenas
  * Released under the MIT License
  */
-(function(root){var CoffeeScript=function(){function require(a){return require[a]}return require["./helpers"]=new function(){var a=this;((function(){var b,c;a.starts=function(a,b,c){return b===a.substr(c,b.length)},a.ends=function(a,b,c){var d;return d=b.length,b===a.substr(a.length-d-(c||0),d)},a.compact=function(a){var b,c,d,e;e=[];for(c=0,d=a.length;c<d;c++)b=a[c],b&&e.push(b);return e},a.count=function(a,b){var c,d;c=d=0;if(!b.length)return 1/0;while(d=1+a.indexOf(b,d))c++;return c},a.merge=function(a,c){return b(b({},a),c)},b=a.extend=function(a,b){var c,d;for(c in b)d=b[c],a[c]=d;return a},a.flatten=c=function(a){var b,d,e,f;d=[];for(e=0,f=a.length;e<f;e++)b=a[e],b instanceof Array?d=d.concat(c(b)):d.push(b);return d},a.del=function(a,b){var c;return c=a[b],delete a[b],c},a.last=function(a,b){return a[a.length-(b||0)-1]}})).call(this)},require["./rewriter"]=new function(){var a=this;((function(){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t=[].indexOf||function(a){for(var b=0,c=this.length;b<c;b++)if(b in this&&this[b]===a)return b;return-1},u=[].slice;a.Rewriter=function(){function a(){}return a.name="Rewriter",a.prototype.rewrite=function(a){return this.tokens=a,this.removeLeadingNewlines(),this.removeMidExpressionNewlines(),this.closeOpenCalls(),this.closeOpenIndexes(),this.addImplicitIndentation(),this.tagPostfixConditionals(),this.addImplicitBraces(),this.addImplicitParentheses(),this.tokens},a.prototype.scanTokens=function(a){var b,c,d;d=this.tokens,b=0;while(c=d[b])b+=a.call(this,c,b,d);return!0},a.prototype.detectEnd=function(a,b,c){var f,g,h,i,j;h=this.tokens,f=0;while(g=h[a]){if(f===0&&b.call(this,g,a))return c.call(this,g,a);if(!g||f<0)return c.call(this,g,a-1);if(i=g[0],t.call(e,i)>=0)f+=1;else if(j=g[0],t.call(d,j)>=0)f-=1;a+=1}return a-1},a.prototype.removeLeadingNewlines=function(){var a,b,c,d,e;e=this.tokens;for(a=c=0,d=e.length;c<d;a=++c){b=e[a][0];if(b!=="TERMINATOR")break}if(a)return this.tokens.splice(0,a)},a.prototype.removeMidExpressionNewlines=function(){return this.scanTokens(function(a,b,d){var e;return a[0]==="TERMINATOR"&&(e=this.tag(b+1),t.call(c,e)>=0)?(d.splice(b,1),0):1})},a.prototype.closeOpenCalls=function(){var a,b;return b=function(a,b){var c;return(c=a[0])===")"||c==="CALL_END"||a[0]==="OUTDENT"&&this.tag(b-1)===")"},a=function(a,b){return this.tokens[a[0]==="OUTDENT"?b-1:b][0]="CALL_END"},this.scanTokens(function(c,d){return c[0]==="CALL_START"&&this.detectEnd(d+1,b,a),1})},a.prototype.closeOpenIndexes=function(){var a,b;return b=function(a,b){var c;return(c=a[0])==="]"||c==="INDEX_END"},a=function(a,b){return a[0]="INDEX_END"},this.scanTokens(function(c,d){return c[0]==="INDEX_START"&&this.detectEnd(d+1,b,a),1})},a.prototype.addImplicitBraces=function(){var a,b,c,f,g,i,j;return f=[],g=null,j=null,c=!0,i=0,b=function(a,b){var d,e,f,g,i,k;return i=this.tokens.slice(b+1,b+3+1||9e9),d=i[0],g=i[1],f=i[2],"HERECOMMENT"===(d!=null?d[0]:void 0)?!1:(e=a[0],t.call(l,e)>=0&&(c=!1),(e==="TERMINATOR"||e==="OUTDENT"||t.call(h,e)>=0&&c)&&(!j&&this.tag(b-1)!==","||(g!=null?g[0]:void 0)!==":"&&((d!=null?d[0]:void 0)!=="@"||(f!=null?f[0]:void 0)!==":"))||e===","&&d&&(k=d[0])!=="IDENTIFIER"&&k!=="NUMBER"&&k!=="STRING"&&k!=="@"&&k!=="TERMINATOR"&&k!=="OUTDENT")},a=function(a,b){var c;return c=this.generate("}","}",a[2]),this.tokens.splice(b,0,c)},this.scanTokens(function(h,i,k){var m,n,o,p,q,r,s,u;if(s=p=h[0],t.call(e,s)>=0)return f.push([p==="INDENT"&&this.tag(i-1)==="{"?"{":p,i]),1;if(t.call(d,p)>=0)return g=f.pop(),1;if(p!==":"||(m=this.tag(i-2))!==":"&&((u=f[f.length-1])!=null?u[0]:void 0)==="{")return 1;c=!0,f.push(["{"]),n=m==="@"?i-2:i-1;while(this.tag(n-2)==="HERECOMMENT")n-=2;return o=this.tag(n-1),j=!o||t.call(l,o)>=0,r=new String("{"),r.generated=!0,q=this.generate("{",r,h[2]),k.splice(n,0,q),this.detectEnd(i+2,b,a),2})},a.prototype.addImplicitParentheses=function(){var a,b,c,d,e;return c=e=d=!1,b=function(a,b){var c,g,i,j;g=a[0];if(!e&&a.fromThen)return!0;if(g==="IF"||g==="ELSE"||g==="CATCH"||g==="->"||g==="=>"||g==="CLASS")e=!0;if(g==="IF"||g==="ELSE"||g==="SWITCH"||g==="TRY"||g==="=")d=!0;return g!=="."&&g!=="?."&&g!=="::"||this.tag(b-1)!=="OUTDENT"?!a.generated&&this.tag(b-1)!==","&&(t.call(h,g)>=0||g==="INDENT"&&!d)&&(g!=="INDENT"||(i=this.tag(b-2))!=="CLASS"&&i!=="EXTENDS"&&(j=this.tag(b-1),t.call(f,j)<0)&&(!(c=this.tokens[b+1])||!c.generated||c[0]!=="{")):!0},a=function(a,b){return this.tokens.splice(b,0,this.generate("CALL_END",")",a[2]))},this.scanTokens(function(f,h,k){var m,n,o,p,q,r,s,u;q=f[0];if(q==="CLASS"||q==="IF")c=!0;return r=k.slice(h-1,h+1+1||9e9),p=r[0],n=r[1],o=r[2],m=!c&&q==="INDENT"&&o&&o.generated&&o[0]==="{"&&p&&(s=p[0],t.call(i,s)>=0),e=!1,d=!1,t.call(l,q)>=0&&(c=!1),p&&!p.spaced&&q==="?"&&(f.call=!0),f.fromThen?1:m||(p!=null?p.spaced:void 0)&&(p.call||(u=p[0],t.call(i,u)>=0))&&(t.call(g,q)>=0||!f.spaced&&!f.newLine&&t.call(j,q)>=0)?(k.splice(h,0,this.generate("CALL_START","(",f[2])),this.detectEnd(h+1,b,a),p[0]==="?"&&(p[0]="FUNC_EXIST"),2):1})},a.prototype.addImplicitIndentation=function(){var a,b,c,d,e;return e=c=d=null,b=function(a,b){var c;return a[1]!==";"&&(c=a[0],t.call(m,c)>=0)&&(a[0]!=="ELSE"||e==="IF"||e==="THEN")},a=function(a,b){return this.tokens.splice(this.tag(b-1)===","?b-1:b,0,d)},this.scanTokens(function(f,g,h){var i,j,k;return i=f[0],i==="TERMINATOR"&&this.tag(g+1)==="THEN"?(h.splice(g,1),0):i==="ELSE"&&this.tag(g-1)!=="OUTDENT"?(h.splice.apply(h,[g,0].concat(u.call(this.indentation(f)))),2):i!=="CATCH"||(j=this.tag(g+2))!=="OUTDENT"&&j!=="TERMINATOR"&&j!=="FINALLY"?t.call(n,i)>=0&&this.tag(g+1)!=="INDENT"&&(i!=="ELSE"||this.tag(g+1)!=="IF")?(e=i,k=this.indentation(f,!0),c=k[0],d=k[1],e==="THEN"&&(c.fromThen=!0),h.splice(g+1,0,c),this.detectEnd(g+2,b,a),i==="THEN"&&h.splice(g,1),1):1:(h.splice.apply(h,[g+2,0].concat(u.call(this.indentation(f)))),4)})},a.prototype.tagPostfixConditionals=function(){var a,b,c;return c=null,b=function(a,b){var c;return(c=a[0])==="TERMINATOR"||c==="INDENT"},a=function(a,b){if(a[0]!=="INDENT"||a.generated&&!a.fromThen)return c[0]="POST_"+c[0]},this.scanTokens(function(d,e){return d[0]!=="IF"?1:(c=d,this.detectEnd(e+1,b,a),1)})},a.prototype.indentation=function(a,b){var c,d;return b==null&&(b=!1),c=["INDENT",2,a[2]],d=["OUTDENT",2,a[2]],b&&(c.generated=d.generated=!0),[c,d]},a.prototype.generate=function(a,b,c){var d;return d=[a,b,c],d.generated=!0,d},a.prototype.tag=function(a){var b;return(b=this.tokens[a])!=null?b[0]:void 0},a}(),b=[["(",")"],["[","]"],["{","}"],["INDENT","OUTDENT"],["CALL_START","CALL_END"],["PARAM_START","PARAM_END"],["INDEX_START","INDEX_END"]],a.INVERSES=k={},e=[],d=[];for(q=0,r=b.length;q<r;q++)s=b[q],o=s[0],p=s[1],e.push(k[p]=o),d.push(k[o]=p);c=["CATCH","WHEN","ELSE","FINALLY"].concat(d),i=["IDENTIFIER","SUPER",")","CALL_END","]","INDEX_END","@","THIS","DEFER","TAMEREQUIRE"],g=["IDENTIFIER","NUMBER","STRING","JS","REGEX","NEW","PARAM_START","CLASS","IF","TRY","SWITCH","THIS","BOOL","UNARY","SUPER","DEFER","TAMEREQUIRE","@","->","=>","[","(","{","--","++"],j=["+","-"],f=["->","=>","{","[",","],h=["POST_IF","FOR","WHILE","UNTIL","WHEN","BY","LOOP","TERMINATOR","AWAIT"],n=["ELSE","->","=>","TRY","FINALLY","THEN"],m=["TERMINATOR","CATCH","FINALLY","ELSE","OUTDENT","LEADING_WHEN"],l=["TERMINATOR","INDENT","OUTDENT"]})).call(this)},require["./lexer"]=new function(){var a=this;((function(){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X=[].indexOf||function(a){for(var b=0,c=this.length;b<c;b++)if(b in this&&this[b]===a)return b;return-1};V=require("./rewriter"),J=V.Rewriter,r=V.INVERSES,W=require("./helpers"),R=W.count,U=W.starts,Q=W.compact,T=W.last,a.Lexer=y=function(){function a(){}return a.name="Lexer",a.prototype.tokenize=function(a,b){var c,d,e,f,g;b==null&&(b={}),P.test(a)&&(a="\n"+a),a=a.replace(/\r/g,"").replace(N,""),this.code=a,this.line=b.line||0,this.indent=0,this.indebt=0,this.outdebt=0,this.indents=[],this.ends=[],this.tokens=[],d=0;while(this.chunk=a.slice(d))d+=this.identifierToken()||this.commentToken()||this.whitespaceToken()||this.lineToken()||this.heredocToken()||this.stringToken()||this.numberToken()||this.regexToken()||this.jsToken()||this.literalToken();return this.closeIndentation(),(g=this.ends.pop())&&this.error("missing "+g),b.rewrite===!1?this.tokens:(c=!1,c&&console.log(function(){var a,b,c,d;c=this.tokens,d=[];for(a=0,b=c.length;a<b;a++)f=c[a],d.push(f[0]+"/"+f[1]);return d}.call(this).join(" ")),e=(new J).rewrite(this.tokens),c&&console.log(function(){var a,b,c;c=[];for(a=0,b=e.length;a<b;a++)f=e[a],c.push(f[0]+"/"+f[1]);return c}().join(" ")),e)},a.prototype.identifierToken=function(){var a,b,c,d,h,i,j,k,l;return(h=p.exec(this.chunk))?(d=h[0],c=h[1],a=h[2],c==="own"&&this.tag()==="FOR"?(this.token("OWN",c),c.length):(b=a||(i=T(this.tokens))&&((k=i[0])==="."||k==="?."||k==="::"||!i.spaced&&i[0]==="@")&&c!=="defer",j="IDENTIFIER",!b&&(X.call(u,c)>=0||X.call(g,c)>=0)&&(j=c.toUpperCase(),j==="WHEN"&&(l=this.tag(),X.call(v,l)>=0)?j="LEADING_WHEN":j==="FOR"?this.seenFor=!0:j==="UNLESS"?j="IF":X.call(O,j)>=0?j="UNARY":X.call(H,j)>=0&&(j!=="INSTANCEOF"&&this.seenFor?(j="FOR"+j,this.seenFor=!1):(j="RELATION",this.value()==="!"&&(this.tokens.pop(),c="!"+c)))),X.call(t,c)>=0&&(b?(j="IDENTIFIER",c=new String(c),c.reserved=!0):X.call(I,c)>=0&&this.error('reserved word "'+c+'"')),b||(X.call(e,c)>=0&&(c=f[c]),j=function(){switch(c){case"!":return"UNARY";case"==":case"!=":return"COMPARE";case"&&":case"||":return"LOGIC";case"true":case"false":case"null":case"undefined":return"BOOL";case"break":case"continue":return"STATEMENT";default:return j}}()),this.token(j,c),a&&this.token(":",":"),d.length)):0},a.prototype.numberToken=function(){var a,b,c,d,e;if(!(c=E.exec(this.chunk)))return 0;d=c[0],/E/.test(d)?this.error("exponential notation '"+d+"' must be indicated with a lowercase 'e'"):/[BOX]/.test(d)?this.error("radix prefixes must be lowercase '"+d+"'"):/^0[89]/.test(d)?this.error("decimal literals '"+d+"' must not be prefixed with '0'"):/^0[0-7]/.test(d)&&this.error("octal literals '"+d+"' must be prefixed with '0o'"),b=d.length;if(e=/0o([0-7]+)/.exec(d))d=parseInt(e[1],8).toString();if(a=/0b([01]+)/.exec(d))d=parseInt(a[1],2).toString();return this.token("NUMBER",d),b},a.prototype.stringToken=function(){var a,b,c;switch(this.chunk.charAt(0)){case"'":if(!(a=L.exec(this.chunk)))return 0;this.token("STRING",(c=a[0]).replace(A,"\\\n"));break;case'"':if(!(c=this.balancedString(this.chunk,'"')))return 0;0<c.indexOf("#{",1)?this.interpolateString(c.slice(1,-1)):this.token("STRING",this.escapeLines(c));break;default:return 0}return(b=/^(?:\\.|[^\\])*\\[0-7]/.test(c))&&this.error("octal escape sequences "+c+" are not allowed"),this.line+=R(c,"\n"),c.length},a.prototype.heredocToken=function(){var a,b,c,d;return(c=k.exec(this.chunk))?(b=c[0],d=b.charAt(0),a=this.sanitizeHeredoc(c[2],{quote:d,indent:null}),d==='"'&&0<=a.indexOf("#{")?this.interpolateString(a,{heredoc:!0}):this.token("STRING",this.makeString(a,d,!0)),this.line+=R(b,"\n"),b.length):0},a.prototype.commentToken=function(){var a,b,c;return(c=this.chunk.match(h))?(a=c[0],b=c[1],b&&this.token("HERECOMMENT",this.sanitizeHeredoc(b,{herecomment:!0,indent:Array(this.indent+1).join(" ")})),this.line+=R(a,"\n"),a.length):0},a.prototype.jsToken=function(){var a,b;return this.chunk.charAt(0)!=="`"||!(a=s.exec(this.chunk))?0:(this.token("JS",(b=a[0]).slice(1,-1)),b.length)},a.prototype.regexToken=function(){var a,b,c,d,e,f,g;return this.chunk.charAt(0)!=="/"?0:(c=n.exec(this.chunk))?(b=this.heregexToken(c),this.line+=R(c[0],"\n"),b):(d=T(this.tokens),d&&(f=d[0],X.call(d.spaced?C:D,f)>=0)?0:(c=G.exec(this.chunk))?(g=c,c=g[0],e=g[1],a=g[2],e.slice(0,2)==="/*"&&this.error("regular expressions cannot begin with `*`"),e==="//"&&(e="/(?:)/"),this.token("REGEX",""+e+a),c.length):0)},a.prototype.heregexToken=function(a){var b,c,d,e,f,g,h,i,j,k,l,m,n;d=a[0],b=a[1],c=a[2];if(0>b.indexOf("#{"))return e=b.replace(o,"").replace(/\//g,"\\/"),e.match(/^\*/)&&this.error("regular expressions cannot begin with `*`"),this.token("REGEX","/"+(e||"(?:)")+"/"+c),d.length;this.token("IDENTIFIER","RegExp"),this.tokens.push(["CALL_START","("]),g=[],k=this.interpolateString(b,{regex:!0});for(i=0,j=k.length;i<j;i++){l=k[i],f=l[0],h=l[1];if(f==="TOKENS")g.push.apply(g,h);else{if(!(h=h.replace(o,"")))continue;h=h.replace(/\\/g,"\\\\"),g.push(["STRING",this.makeString(h,'"',!0)])}g.push(["+","+"])}return g.pop(),((m=g[0])!=null?m[0]:void 0)!=="STRING"&&this.tokens.push(["STRING",'""'],["+","+"]),(n=this.tokens).push.apply(n,g),c&&this.tokens.push([",",","],["STRING",'"'+c+'"']),this.token(")",")"),d.length},a.prototype.lineToken=function(){var a,b,c,d,e,f;if(!(c=B.exec(this.chunk)))return 0;b=c[0],this.line+=R(b,"\n"),this.seenFor=!1,e=T(this.tokens,1),f=b.length-1-b.lastIndexOf("\n"),d=this.unfinished();if(f-this.indebt===this.indent)return d?this.suppressNewlines():this.newlineToken(),b.length;if(f>this.indent){if(d)return this.indebt=f-this.indent,this.suppressNewlines(),b.length;a=f-this.indent+this.outdebt,this.token("INDENT",a),this.indents.push(a),this.ends.push("OUTDENT"),this.outdebt=this.indebt=0}else this.indebt=0,this.outdentToken(this.indent-f,d);return this.indent=f,b.length},a.prototype.outdentToken=function(a,b){var c,d;while(a>0)d=this.indents.length-1,this.indents[d]===void 0?a=0:this.indents[d]===this.outdebt?(a-=this.outdebt,this.outdebt=0):this.indents[d]<this.outdebt?(this.outdebt-=this.indents[d],a-=this.indents[d]):(c=this.indents.pop()-this.outdebt,a-=c,this.outdebt=0,this.pair("OUTDENT"),this.token("OUTDENT",c));c&&(this.outdebt-=a);while(this.value()===";")this.tokens.pop();return this.tag()!=="TERMINATOR"&&!b&&this.token("TERMINATOR","\n"),this},a.prototype.whitespaceToken=function(){var a,b,c;return!(a=P.exec(this.chunk))&&!(b=this.chunk.charAt(0)==="\n")?0:(c=T(this.tokens),c&&(c[a?"spaced":"newLine"]=!0),a?a[0].length:0)},a.prototype.newlineToken=function(){while(this.value()===";")this.tokens.pop();return this.tag()!=="TERMINATOR"&&this.token("TERMINATOR","\n"),this},a.prototype.suppressNewlines=function(){return this.value()==="\\"&&this.tokens.pop(),this},a.prototype.literalToken=function(){var a,b,e,f,g,h,k,l;(a=F.exec(this.chunk))?(f=a[0],d.test(f)&&this.tagParameters()):f=this.chunk.charAt(0),e=f,b=T(this.tokens);if(f==="="&&b){!b[1].reserved&&(g=b[1],X.call(t,g)>=0)&&this.error('reserved word "'+this.value()+"\" can't be assigned");if((h=b[1])==="||"||h==="&&")return b[0]="COMPOUND_ASSIGN",b[1]+="=",f.length}if(f===";")this.seenFor=!1,e="TERMINATOR";else if(X.call(z,f)>=0)e="MATH";else if(X.call(i,f)>=0)e="COMPARE";else if(X.call(j,f)>=0)e="COMPOUND_ASSIGN";else if(X.call(O,f)>=0)e="UNARY";else if(X.call(K,f)>=0)e="SHIFT";else if(X.call(x,f)>=0||f==="?"&&(b!=null?b.spaced:void 0))e="LOGIC";else if(b&&!b.spaced)if(f==="("&&(k=b[0],X.call(c,k)>=0))b[0]==="?"&&(b[0]="FUNC_EXIST"),e="CALL_START";else if(f==="["&&(l=b[0],X.call(q,l)>=0)){e="INDEX_START";switch(b[0]){case"?":b[0]="INDEX_SOAK"}}switch(f){case"(":case"{":case"[":this.ends.push(r[f]);break;case")":case"}":case"]":this.pair(f)}return this.token(e,f),f.length},a.prototype.sanitizeHeredoc=function(a,b){var c,d,e,f,g;e=b.indent,d=b.herecomment;if(d){l.test(a)&&this.error('block comment cannot contain "*/", starting');if(a.indexOf("\n")<=0)return a}else while(f=m.exec(a)){c=f[1];if(e===null||0<(g=c.length)&&g<e.length)e=c}return e&&(a=a.replace(RegExp("\\n"+e,"g"),"\n")),d||(a=a.replace(/^\n/,"")),a},a.prototype.tagParameters=function(){var a,b,c,d;if(this.tag()!==")")return this;b=[],d=this.tokens,a=d.length,d[--a][0]="PARAM_END";while(c=d[--a])switch(c[0]){case")":b.push(c);break;case"(":case"CALL_START":if(!b.length)return c[0]==="("?(c[0]="PARAM_START",this):this;b.pop()}return this},a.prototype.closeIndentation=function(){return this.outdentToken(this.indent)},a.prototype.balancedString=function(a,b){var c,d,e,f,g,h,i,j;c=0,h=[b];for(d=i=1,j=a.length;1<=j?i<j:i>j;d=1<=j?++i:--i){if(c){--c;continue}switch(e=a.charAt(d)){case"\\":++c;continue;case b:h.pop();if(!h.length)return a.slice(0,d+1||9e9);b=h[h.length-1];continue}b!=="}"||e!=='"'&&e!=="'"?b==="}"&&e==="/"&&(f=n.exec(a.slice(d))||G.exec(a.slice(d)))?c+=f[0].length-1:b==="}"&&e==="{"?h.push(b="}"):b==='"'&&g==="#"&&e==="{"&&h.push(b="}"):h.push(b=e),g=e}return this.error("missing "+h.pop()+", starting")},a.prototype.interpolateString=function(b,c){var d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u;c==null&&(c={}),e=c.heredoc,m=c.regex,o=[],l=0,f=-1;while(j=b.charAt(f+=1)){if(j==="\\"){f+=1;continue}if(j!=="#"||b.charAt(f+1)!=="{"||!(d=this.balancedString(b.slice(f+1),"}")))continue;l<f&&o.push(["NEOSTRING",b.slice(l,f)]),g=d.slice(1,-1);if(g.length){k=(new a).tokenize(g,{line:this.line,rewrite:!1}),k.pop(),((s=k[0])!=null?s[0]:void 0)==="TERMINATOR"&&k.shift();if(i=k.length)i>1&&(k.unshift(["(","(",this.line]),k.push([")",")",this.line])),o.push(["TOKENS",k])}f+=d.length,l=f+1}f>l&&l<b.length&&o.push(["NEOSTRING",b.slice(l)]);if(m)return o;if(!o.length)return this.token("STRING",'""');o[0][0]!=="NEOSTRING"&&o.unshift(["",""]),(h=o.length>1)&&this.token("(","(");for(f=q=0,r=o.length;q<r;f=++q)t=o[f],n=t[0],p=t[1],f&&this.token("+","+"),n==="TOKENS"?(u=this.tokens).push.apply(u,p):this.token("STRING",this.makeString(p,'"',e));return h&&this.token(")",")"),o},a.prototype.pair=function(a){var b,c;return a!==(c=T(this.ends))?("OUTDENT"!==c&&this.error("unmatched "+a),this.indent-=b=T(this.indents),this.outdentToken(b,!0),this.pair(a)):this.ends.pop()},a.prototype.token=function(a,b){return this.tokens.push([a,b,this.line])},a.prototype.tag=function(a,b){var c;return(c=T(this.tokens,a))&&(b?c[0]=b:c[0])},a.prototype.value=function(a,b){var c;return(c=T(this.tokens,a))&&(b?c[1]=b:c[1])},a.prototype.unfinished=function(){var a;return w.test(this.chunk)||(a=this.tag())==="\\"||a==="."||a==="?."||a==="UNARY"||a==="MATH"||a==="+"||a==="-"||a==="SHIFT"||a==="RELATION"||a==="COMPARE"||a==="LOGIC"||a==="THROW"||a==="EXTENDS"},a.prototype.escapeLines=function(a,b){return a.replace(A,b?"\\n":"")},a.prototype.makeString=function(a,b,c){return a?(a=a.replace(/\\([\s\S])/g,function(a,c){return c==="\n"||c===b?c:a}),a=a.replace(RegExp(""+b,"g"),"\\$&"),b+this.escapeLines(a,c)+b):b+b},a.prototype.error=function(a){throw SyntaxError(""+a+" on line "+(this.line+1))},a}(),u=["true","false","null","this","new","delete","typeof","in","instanceof","return","throw","break","continue","debugger","if","else","switch","for","while","do","try","catch","finally","class","extends","super"],g=["undefined","then","unless","until","loop","of","by","when","await","defer","icedRequire"],f={and:"&&",or:"||",is:"==",isnt:"!=",not:"!",yes:"true",no:"false",on:"true",off:"false"},e=function(){var a;a=[];for(S in f)a.push(S);return a}(),g=g.concat(e),I=["case","default","function","var","void","with","const","let","enum","export","import","native","__hasProp","__extends","__slice","__bind","__indexOf","implements","interface","let","package","private","protected","public","static","yield"],M=["arguments","eval"],t=u.concat(I).concat(M),a.RESERVED=I.concat(u).concat(g).concat(M),a.STRICT_PROSCRIBED=M,p=/^([$A-Za-z_\x7f-\uffff][$\w\x7f-\uffff]*)([^\n\S]*:(?!:))?/,E=/^0b[01]+|^0o[0-7]+|^0x[\da-f]+|^\d*\.?\d+(?:e[+-]?\d+)?/i,k=/^("""|''')([\s\S]*?)(?:\n[^\n\S]*)?\1/,F=/^(?:[-=]>|[-+*\/%<>&|^!?=]=|>>>=?|([-+:])\1|([&|<>])\2=?|\?\.|\.{2,3})/,P=/^[^\n\S]+/,h=/^###([^#][\s\S]*?)(?:###[^\n\S]*|(?:###)?$)|^(?:\s*#(?!##[^#]).*)+/,d=/^[-=]>/,B=/^(?:\n[^\n\S]*)+/,L=/^'[^\\']*(?:\\.[^\\']*)*'/,s=/^`[^\\`]*(?:\\.[^\\`]*)*`/,G=/^(\/(?![\s=])[^[\/\n\\]*(?:(?:\\[\s\S]|\[[^\]\n\\]*(?:\\[\s\S][^\]\n\\]*)*])[^[\/\n\\]*)*\/)([imgy]{0,4})(?!\w)/,n=/^\/{3}([\s\S]+?)\/{3}([imgy]{0,4})(?!\w)/,o=/\s+(?:#.*)?/g,A=/\n/g,m=/\n+([^\n\S]*)/g,l=/\*\//,w=/^\s*(?:,|\??\.(?![.\d])|::)/,N=/\s+$/,j=["-=","+=","/=","*=","%=","||=","&&=","?=","<<=",">>=",">>>=","&=","^=","|="],O=["!","~","NEW","TYPEOF","DELETE","DO"],x=["&&","||","&","|","^"],K=["<<",">>",">>>"],i=["==","!=","<",">","<=",">="],z=["*","/","%"],H=["IN","OF","INSTANCEOF"],b=["TRUE","FALSE","NULL","UNDEFINED"],C=["NUMBER","REGEX","BOOL","++","--","]"],D=C.concat(")","}","THIS","IDENTIFIER","STRING"),c=["IDENTIFIER","STRING","REGEX",")","]","}","?","::","@","THIS","SUPER","DEFER","ICEDREQUIRE"],q=c.concat("NUMBER","BOOL"),v=["INDENT","OUTDENT","TERMINATOR"]})).call(this)},require["./parser"]=new function(){var a=this,b=function(){undefined;var a={trace:function(){},yy:{},symbols_:{error:2,Root:3,Body:4,Block:5,TERMINATOR:6,Line:7,Expression:8,Statement:9,Return:10,Comment:11,STATEMENT:12,Require:13,ICEDREQUIRE:14,Arguments:15,Await:16,AWAIT:17,Value:18,Invocation:19,Code:20,Operation:21,Assign:22,If:23,Try:24,While:25,For:26,Switch:27,Class:28,Throw:29,Defer:30,INDENT:31,OUTDENT:32,Identifier:33,IDENTIFIER:34,AlphaNumeric:35,NUMBER:36,STRING:37,Literal:38,JS:39,REGEX:40,DEBUGGER:41,BOOL:42,Assignable:43,"=":44,AssignObj:45,ObjAssignable:46,":":47,ThisProperty:48,RETURN:49,HERECOMMENT:50,PARAM_START:51,ParamList:52,PARAM_END:53,FuncGlyph:54,"->":55,"=>":56,OptComma:57,",":58,Param:59,ParamVar:60,"...":61,Array:62,Object:63,Splat:64,SimpleAssignable:65,Accessor:66,Parenthetical:67,Range:68,This:69,".":70,"?.":71,"::":72,Index:73,INDEX_START:74,IndexValue:75,INDEX_END:76,INDEX_SOAK:77,Slice:78,"{":79,AssignList:80,"}":81,CLASS:82,EXTENDS:83,OptFuncExist:84,SUPER:85,DEFER:86,FUNC_EXIST:87,CALL_START:88,CALL_END:89,ArgList:90,THIS:91,"@":92,"[":93,"]":94,RangeDots:95,"..":96,Arg:97,SimpleArgs:98,TRY:99,Catch:100,FINALLY:101,CATCH:102,THROW:103,"(":104,")":105,WhileSource:106,WHILE:107,WHEN:108,UNTIL:109,Loop:110,LOOP:111,ForBody:112,FOR:113,ForStart:114,ForSource:115,ForVariables:116,OWN:117,ForValue:118,FORIN:119,FOROF:120,BY:121,SWITCH:122,Whens:123,ELSE:124,When:125,LEADING_WHEN:126,IfBlock:127,IF:128,POST_IF:129,UNARY:130,"-":131,"+":132,"--":133,"++":134,"?":135,MATH:136,SHIFT:137,COMPARE:138,LOGIC:139,RELATION:140,COMPOUND_ASSIGN:141,$accept:0,$end:1},terminals_:{2:"error",6:"TERMINATOR",12:"STATEMENT",14:"ICEDREQUIRE",17:"AWAIT",31:"INDENT",32:"OUTDENT",34:"IDENTIFIER",36:"NUMBER",37:"STRING",39:"JS",40:"REGEX",41:"DEBUGGER",42:"BOOL",44:"=",47:":",49:"RETURN",50:"HERECOMMENT",51:"PARAM_START",53:"PARAM_END",55:"->",56:"=>",58:",",61:"...",70:".",71:"?.",72:"::",74:"INDEX_START",76:"INDEX_END",77:"INDEX_SOAK",79:"{",81:"}",82:"CLASS",83:"EXTENDS",85:"SUPER",86:"DEFER",87:"FUNC_EXIST",88:"CALL_START",89:"CALL_END",91:"THIS",92:"@",93:"[",94:"]",96:"..",99:"TRY",101:"FINALLY",102:"CATCH",103:"THROW",104:"(",105:")",107:"WHILE",108:"WHEN",109:"UNTIL",111:"LOOP",113:"FOR",117:"OWN",119:"FORIN",120:"FOROF",121:"BY",122:"SWITCH",124:"ELSE",126:"LEADING_WHEN",128:"IF",129:"POST_IF",130:"UNARY",131:"-",132:"+",133:"--",134:"++",135:"?",136:"MATH",137:"SHIFT",138:"COMPARE",139:"LOGIC",140:"RELATION",141:"COMPOUND_ASSIGN"},productions_:[0,[3,0],[3,1],[3,2],[4,1],[4,3],[4,2],[7,1],[7,1],[9,1],[9,1],[9,1],[9,1],[13,2],[16,2],[16,2],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[5,2],[5,3],[33,1],[35,1],[35,1],[38,1],[38,1],[38,1],[38,1],[38,1],[22,3],[22,4],[22,5],[45,1],[45,3],[45,5],[45,1],[46,1],[46,1],[46,1],[10,2],[10,1],[11,1],[20,5],[20,2],[54,1],[54,1],[57,0],[57,1],[52,0],[52,1],[52,3],[59,1],[59,2],[59,3],[60,1],[60,1],[60,1],[60,1],[64,2],[65,1],[65,2],[65,2],[65,1],[43,1],[43,1],[43,1],[18,1],[18,1],[18,1],[18,1],[18,1],[66,2],[66,2],[66,2],[66,2],[66,1],[66,1],[73,3],[73,2],[75,1],[75,1],[63,4],[80,0],[80,1],[80,3],[80,4],[80,6],[28,1],[28,2],[28,3],[28,4],[28,2],[28,3],[28,4],[28,5],[19,3],[19,3],[19,1],[19,2],[30,2],[84,0],[84,1],[15,2],[15,4],[69,1],[69,1],[48,2],[62,2],[62,4],[95,1],[95,1],[68,5],[78,3],[78,2],[78,2],[78,1],[90,1],[90,3],[90,4],[90,4],[90,6],[97,1],[97,1],[98,1],[98,3],[24,2],[24,3],[24,4],[24,5],[100,3],[29,2],[67,3],[67,5],[106,2],[106,4],[106,2],[106,4],[25,2],[25,2],[25,2],[25,1],[110,2],[110,2],[26,2],[26,2],[26,2],[112,2],[112,2],[114,2],[114,3],[118,1],[118,1],[118,1],[116,1],[116,3],[115,2],[115,2],[115,4],[115,4],[115,4],[115,6],[115,6],[27,5],[27,7],[27,4],[27,6],[123,1],[123,2],[125,3],[125,4],[127,3],[127,5],[23,1],[23,3],[23,3],[23,3],[21,2],[21,2],[21,2],[21,2],[21,2],[21,2],[21,2],[21,2],[21,3],[21,3],[21,3],[21,3],[21,3],[21,3],[21,3],[21,3],[21,5],[21,3]],performAction:function(b,c,d,e,f,g,h){var i=g.length-1;switch(f){case 1:return this.$=new e.Block;case 2:return this.$=g[i];case 3:return this.$=g[i-1];case 4:this.$=e.Block.wrap([g[i]]);break;case 5:this.$=g[i-2].push(g[i]);break;case 6:this.$=g[i-1];break;case 7:this.$=g[i];break;case 8:this.$=g[i];break;case 9:this.$=g[i];break;case 10:this.$=g[i];break;case 11:this.$=new e.Literal(g[i]);break;case 12:this.$=g[i];break;case 13:this.$=new e.IcedRequire(g[i]);break;case 14:this.$=new e.Await(g[i]);break;case 15:this.$=new e.Await(e.Block.wrap([g[i]]));break;case 16:this.$=g[i];break;case 17:this.$=g[i];break;case 18:this.$=g[i];break;case 19:this.$=g[i];break;case 20:this.$=g[i];break;case 21:this.$=g[i];break;case 22:this.$=g[i];break;case 23:this.$=g[i];break;case 24:this.$=g[i];break;case 25:this.$=g[i];break;case 26:this.$=g[i];break;case 27:this.$=g[i];break;case 28:this.$=g[i];break;case 29:this.$=g[i];break;case 30:this.$=new e.Block;break;case 31:this.$=g[i-1];break;case 32:this.$=new e.Literal(g[i]);break;case 33:this.$=new e.Literal(g[i]);break;case 34:this.$=new e.Literal(g[i]);break;case 35:this.$=g[i];break;case 36:this.$=new e.Literal(g[i]);break;case 37:this.$=new e.Literal(g[i]);break;case 38:this.$=new e.Literal(g[i]);break;case 39:this.$=function(){var a;return a=new e.Literal(g[i]),g[i]==="undefined"&&(a.isUndefined=!0),a}();break;case 40:this.$=new e.Assign(g[i-2],g[i]);break;case 41:this.$=new e.Assign(g[i-3],g[i]);break;case 42:this.$=new e.Assign(g[i-4],g[i-1]);break;case 43:this.$=new e.Value(g[i]);break;case 44:this.$=new e.Assign(new e.Value(g[i-2]),g[i],"object");break;case 45:this.$=new e.Assign(new e.Value(g[i-4]),g[i-1],"object");break;case 46:this.$=g[i];break;case 47:this.$=g[i];break;case 48:this.$=g[i];break;case 49:this.$=g[i];break;case 50:this.$=new e.Return(g[i]);break;case 51:this.$=new e.Return;break;case 52:this.$=new e.Comment(g[i]);break;case 53:this.$=new e.Code(g[i-3],g[i],g[i-1]);break;case 54:this.$=new e.Code([],g[i],g[i-1]);break;case 55:this.$="func";break;case 56:this.$="boundfunc";break;case 57:this.$=g[i];break;case 58:this.$=g[i];break;case 59:this.$=[];break;case 60:this.$=[g[i]];break;case 61:this.$=g[i-2].concat(g[i]);break;case 62:this.$=new e.Param(g[i]);break;case 63:this.$=new e.Param(g[i-1],null,!0);break;case 64:this.$=new e.Param(g[i-2],g[i]);break;case 65:this.$=g[i];break;case 66:this.$=g[i];break;case 67:this.$=g[i];break;case 68:this.$=g[i];break;case 69:this.$=new e.Splat(g[i-1]);break;case 70:this.$=new e.Value(g[i]);break;case 71:this.$=g[i-1].add(g[i]);break;case 72:this.$=new e.Value(g[i-1],[].concat(g[i]));break;case 73:this.$=g[i];break;case 74:this.$=g[i];break;case 75:this.$=new e.Value(g[i]);break;case 76:this.$=new e.Value(g[i]);break;case 77:this.$=g[i];break;case 78:this.$=new e.Value(g[i]);break;case 79:this.$=new e.Value(g[i]);break;case 80:this.$=new e.Value(g[i]);break;case 81:this.$=g[i];break;case 82:this.$=new e.Access(g[i]);break;case 83:this.$=new e.Access(g[i]);break;case 84:this.$=new e.Access(g[i],"soak");break;case 85:this.$=[new e.Access(new e.Literal("prototype")),new e.Access(g[i])];break;case 86:this.$=new e.Access(new e.Literal("prototype"));break;case 87:this.$=g[i];break;case 88:this.$=g[i-1];break;case 89:this.$=e.extend(g[i],{soak:!0});break;case 90:this.$=new e.Index(g[i]);break;case 91:this.$=new e.Slice(g[i]);break;case 92:this.$=new e.Obj(g[i-2],g[i-3].generated);break;case 93:this.$=[];break;case 94:this.$=[g[i]];break;case 95:this.$=g[i-2].concat(g[i]);break;case 96:this.$=g[i-3].concat(g[i]);break;case 97:this.$=g[i-5].concat(g[i-2]);break;case 98:this.$=new e.Class;break;case 99:this.$=new e.Class(null,null,g[i]);break;case 100:this.$=new e.Class(null,g[i]);break;case 101:this.$=new e.Class(null,g[i-1],g[i]);break;case 102:this.$=new e.Class(g[i]);break;case 103:this.$=new e.Class(g[i-1],null,g[i]);break;case 104:this.$=new e.Class(g[i-2],g[i]);break;case 105:this.$=new e.Class(g[i-3],g[i-1],g[i]);break;case 106:this.$=new e.Call(g[i-2],g[i],g[i-1]);break;case 107:this.$=new e.Call(g[i-2],g[i],g[i-1]);break;case 108:this.$=new e.Call("super",[new e.Splat(new e.Literal("arguments"))]);break;case 109:this.$=new e.Call("super",g[i]);break;case 110:this.$=new e.Defer(g[i],d);break;case 111:this.$=!1;break;case 112:this.$=!0;break;case 113:this.$=[];break;case 114:this.$=g[i-2];break;case 115:this.$=new e.Value(new e.Literal("this"));break;case 116:this.$=new e.Value(new e.Literal("this"));break;case 117:this.$=new e.Value(new e.Literal("this"),[new e.Access(g[i])],"this");break;case 118:this.$=new e.Arr([]);break;case 119:this.$=new e.Arr(g[i-2]);break;case 120:this.$="inclusive";break;case 121:this.$="exclusive";break;case 122:this.$=new e.Range(g[i-3],g[i-1],g[i-2]);break;case 123:this.$=new e.Range(g[i-2],g[i],g[i-1]);break;case 124:this.$=new e.Range(g[i-1],null,g[i]);break;case 125:this.$=new e.Range(null,g[i],g[i-1]);break;case 126:this.$=new e.Range(null,null,g[i]);break;case 127:this.$=[g[i]];break;case 128:this.$=g[i-2].concat(g[i]);break;case 129:this.$=g[i-3].concat(g[i]);break;case 130:this.$=g[i-2];break;case 131:this.$=g[i-5].concat(g[i-2]);break;case 132:this.$=g[i];break;case 133:this.$=g[i];break;case 134:this.$=g[i];break;case 135:this.$=[].concat(g[i-2],g[i]);break;case 136:this.$=new e.Try(g[i]);break;case 137:this.$=new e.Try(g[i-1],g[i][0],g[i][1]);break;case 138:this.$=new e.Try(g[i-2],null,null,g[i]);break;case 139:this.$=new e.Try(g[i-3],g[i-2][0],g[i-2][1],g[i]);break;case 140:this.$=[g[i-1],g[i]];break;case 141:this.$=new e.Throw(g[i]);break;case 142:this.$=new e.Parens(g[i-1]);break;case 143:this.$=new e.Parens(g[i-2]);break;case 144:this.$=new e.While(g[i]);break;case 145:this.$=new e.While(g[i-2],{guard:g[i]});break;case 146:this.$=new e.While(g[i],{invert:!0});break;case 147:this.$=new e.While(g[i-2],{invert:!0,guard:g[i]});break;case 148:this.$=g[i-1].addBody(g[i]);break;case 149:this.$=g[i].addBody(e.Block.wrap([g[i-1]]));break;case 150:this.$=g[i].addBody(e.Block.wrap([g[i-1]]));break;case 151:this.$=g[i];break;case 152:this.$=(new e.While(new e.Literal("true"))).addBody(g[i]);break;case 153:this.$=(new e.While(new e.Literal("true"))).addBody(e.Block.wrap([g[i]]));break;case 154:this.$=new e.For(g[i-1],g[i]);break;case 155:this.$=new e.For(g[i-1],g[i]);break;case 156:this.$=new e.For(g[i],g[i-1]);break;case 157:this.$={source:new e.Value(g[i])};break;case 158:this.$=function(){return g[i].own=g[i-1].own,g[i].name=g[i-1][0],g[i].index=g[i-1][1],g[i]}();break;case 159:this.$=g[i];break;case 160:this.$=function(){return g[i].own=!0,g[i]}();break;case 161:this.$=g[i];break;case 162:this.$=new e.Value(g[i]);break;case 163:this.$=new e.Value(g[i]);break;case 164:this.$=[g[i]];break;case 165:this.$=[g[i-2],g[i]];break;case 166:this.$={source:g[i]};break;case 167:this.$={source:g[i],object:!0};break;case 168:this.$={source:g[i-2],guard:g[i]};break;case 169:this.$={source:g[i-2],guard:g[i],object:!0};break;case 170:this.$={source:g[i-2],step:g[i]};break;case 171:this.$={source:g[i-4],guard:g[i-2],step:g[i]};break;case 172:this.$={source:g[i-4],step:g[i-2],guard:g[i]};break;case 173:this.$=new e.Switch(g[i-3],g[i-1]);break;case 174:this.$=new e.Switch(g[i-5],g[i-3],g[i-1]);break;case 175:this.$=new e.Switch(null,g[i-1]);break;case 176:this.$=new e.Switch(null,g[i-3],g[i-1]);break;case 177:this.$=g[i];break;case 178:this.$=g[i-1].concat(g[i]);break;case 179:this.$=[[g[i-1],g[i]]];break;case 180:this.$=[[g[i-2],g[i-1]]];break;case 181:this.$=new e.If(g[i-1],g[i],{type:g[i-2]});break;case 182:this.$=g[i-4].addElse(new e.If(g[i-1],g[i],{type:g[i-2]}));break;case 183:this.$=g[i];break;case 184:this.$=g[i-2].addElse(g[i]);break;case 185:this.$=new e.If(g[i],e.Block.wrap([g[i-2]]),{type:g[i-1],statement:!0});break;case 186:this.$=new e.If(g[i],e.Block.wrap([g[i-2]]),{type:g[i-1],statement:!0});break;case 187:this.$=new e.Op(g[i-1],g[i]);break;case 188:this.$=new e.Op("-",g[i]);break;case 189:this.$=new e.Op("+",g[i]);break;case 190:this.$=new e.Op("--",g[i]);break;case 191:this.$=new e.Op("++",g[i]);break;case 192:this.$=new e.Op("--",g[i-1],null,!0);break;case 193:this.$=new e.Op("++",g[i-1],null,!0);break;case 194:this.$=new e.Existence(g[i-1]);break;case 195:this.$=new e.Op("+",g[i-2],g[i]);break;case 196:this.$=new e.Op("-",g[i-2],g[i]);break;case 197:this.$=new e.Op(g[i-1],g[i-2],g[i]);break;case 198:this.$=new e.Op(g[i-1],g[i-2],g[i]);break;case 199:this.$=new e.Op(g[i-1],g[i-2],g[i]);break;case 200:this.$=new e.Op(g[i-1],g[i-2],g[i]);break;case 201:this.$=function(){return g[i-1].charAt(0)==="!"?(new e.Op(g[i-1].slice(1),g[i-2],g[i])).invert():new e.Op(g[i-1],g[i-2],g[i])}();break;case 202:this.$=new e.Assign(g[i-2],g[i],g[i-1]);break;case 203:this.$=new e.Assign(g[i-4],g[i-1],g[i-3]);break;case 204:this.$=new e.Extends(g[i-2],g[i])}},table:[{1:[2,1],3:1,4:2,5:3,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,5],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[3]},{1:[2,2],6:[1,78]},{6:[1,79]},{1:[2,4],6:[2,4],32:[2,4],105:[2,4]},{4:81,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,32:[1,80],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,7],6:[2,7],32:[2,7],105:[2,7],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,8],6:[2,8],32:[2,8],105:[2,8],106:94,107:[1,69],109:[1,70],112:95,113:[1,72],114:73,129:[1,93]},{1:[2,16],6:[2,16],31:[2,16],32:[2,16],53:[2,16],58:[2,16],61:[2,16],66:97,70:[1,99],71:[1,100],72:[1,101],73:102,74:[1,103],76:[2,16],77:[1,104],81:[2,16],84:96,87:[1,98],88:[2,111],89:[2,16],94:[2,16],96:[2,16],105:[2,16],107:[2,16],108:[2,16],109:[2,16],113:[2,16],121:[2,16],129:[2,16],131:[2,16],132:[2,16],135:[2,16],136:[2,16],137:[2,16],138:[2,16],139:[2,16],140:[2,16]},{1:[2,17],6:[2,17],31:[2,17],32:[2,17],53:[2,17],58:[2,17],61:[2,17],66:106,70:[1,99],71:[1,100],72:[1,101],73:102,74:[1,103],76:[2,17],77:[1,104],81:[2,17],84:105,87:[1,98],88:[2,111],89:[2,17],94:[2,17],96:[2,17],105:[2,17],107:[2,17],108:[2,17],109:[2,17],113:[2,17],121:[2,17],129:[2,17],131:[2,17],132:[2,17],135:[2,17],136:[2,17],137:[2,17],138:[2,17],139:[2,17],140:[2,17]},{1:[2,18],6:[2,18],31:[2,18],32:[2,18],53:[2,18],58:[2,18],61:[2,18],76:[2,18],81:[2,18],89:[2,18],94:[2,18],96:[2,18],105:[2,18],107:[2,18],108:[2,18],109:[2,18],113:[2,18],121:[2,18],129:[2,18],131:[2,18],132:[2,18],135:[2,18],136:[2,18],137:[2,18],138:[2,18],139:[2,18],140:[2,18]},{1:[2,19],6:[2,19],31:[2,19],32:[2,19],53:[2,19],58:[2,19],61:[2,19],76:[2,19],81:[2,19],89:[2,19],94:[2,19],96:[2,19],105:[2,19],107:[2,19],108:[2,19],109:[2,19],113:[2,19],121:[2,19],129:[2,19],131:[2,19],132:[2,19],135:[2,19],136:[2,19],137:[2,19],138:[2,19],139:[2,19],140:[2,19]},{1:[2,20],6:[2,20],31:[2,20],32:[2,20],53:[2,20],58:[2,20],61:[2,20],76:[2,20],81:[2,20],89:[2,20],94:[2,20],96:[2,20],105:[2,20],107:[2,20],108:[2,20],109:[2,20],113:[2,20],121:[2,20],129:[2,20],131:[2,20],132:[2,20],135:[2,20],136:[2,20],137:[2,20],138:[2,20],139:[2,20],140:[2,20]},{1:[2,21],6:[2,21],31:[2,21],32:[2,21],53:[2,21],58:[2,21],61:[2,21],76:[2,21],81:[2,21],89:[2,21],94:[2,21],96:[2,21],105:[2,21],107:[2,21],108:[2,21],109:[2,21],113:[2,21],121:[2,21],129:[2,21],131:[2,21],132:[2,21],135:[2,21],136:[2,21],137:[2,21],138:[2,21],139:[2,21],140:[2,21]},{1:[2,22],6:[2,22],31:[2,22],32:[2,22],53:[2,22],58:[2,22],61:[2,22],76:[2,22],81:[2,22],89:[2,22],94:[2,22],96:[2,22],105:[2,22],107:[2,22],108:[2,22],109:[2,22],113:[2,22],121:[2,22],129:[2,22],131:[2,22],132:[2,22],135:[2,22],136:[2,22],137:[2,22],138:[2,22],139:[2,22],140:[2,22]},{1:[2,23],6:[2,23],31:[2,23],32:[2,23],53:[2,23],58:[2,23],61:[2,23],76:[2,23],81:[2,23],89:[2,23],94:[2,23],96:[2,23],105:[2,23],107:[2,23],108:[2,23],109:[2,23],113:[2,23],121:[2,23],129:[2,23],131:[2,23],132:[2,23],135:[2,23],136:[2,23],137:[2,23],138:[2,23],139:[2,23],140:[2,23]},{1:[2,24],6:[2,24],31:[2,24],32:[2,24],53:[2,24],58:[2,24],61:[2,24],76:[2,24],81:[2,24],89:[2,24],94:[2,24],96:[2,24],105:[2,24],107:[2,24],108:[2,24],109:[2,24],113:[2,24],121:[2,24],129:[2,24],131:[2,24],132:[2,24],135:[2,24],136:[2,24],137:[2,24],138:[2,24],139:[2,24],140:[2,24]},{1:[2,25],6:[2,25],31:[2,25],32:[2,25],53:[2,25],58:[2,25],61:[2,25],76:[2,25],81:[2,25],89:[2,25],94:[2,25],96:[2,25],105:[2,25],107:[2,25],108:[2,25],109:[2,25],113:[2,25],121:[2,25],129:[2,25],131:[2,25],132:[2,25],135:[2,25],136:[2,25],137:[2,25],138:[2,25],139:[2,25],140:[2,25]},{1:[2,26],6:[2,26],31:[2,26],32:[2,26],53:[2,26],58:[2,26],61:[2,26],76:[2,26],81:[2,26],89:[2,26],94:[2,26],96:[2,26],105:[2,26],107:[2,26],108:[2,26],109:[2,26],113:[2,26],121:[2,26],129:[2,26],131:[2,26],132:[2,26],135:[2,26],136:[2,26],137:[2,26],138:[2,26],139:[2,26],140:[2,26]},{1:[2,27],6:[2,27],31:[2,27],32:[2,27],53:[2,27],58:[2,27],61:[2,27],76:[2,27],81:[2,27],89:[2,27],94:[2,27],96:[2,27],105:[2,27],107:[2,27],108:[2,27],109:[2,27],113:[2,27],121:[2,27],129:[2,27],131:[2,27],132:[2,27],135:[2,27],136:[2,27],137:[2,27],138:[2,27],139:[2,27],140:[2,27]},{1:[2,28],6:[2,28],31:[2,28],32:[2,28],53:[2,28],58:[2,28],61:[2,28],76:[2,28],81:[2,28],89:[2,28],94:[2,28],96:[2,28],105:[2,28],107:[2,28],108:[2,28],109:[2,28],113:[2,28],121:[2,28],129:[2,28],131:[2,28],132:[2,28],135:[2,28],136:[2,28],137:[2,28],138:[2,28],139:[2,28],140:[2,28]},{1:[2,29],6:[2,29],31:[2,29],32:[2,29],53:[2,29],58:[2,29],61:[2,29],76:[2,29],81:[2,29],89:[2,29],94:[2,29],96:[2,29],105:[2,29],107:[2,29],108:[2,29],109:[2,29],113:[2,29],121:[2,29],129:[2,29],131:[2,29],132:[2,29],135:[2,29],136:[2,29],137:[2,29],138:[2,29],139:[2,29],140:[2,29]},{1:[2,9],6:[2,9],32:[2,9],105:[2,9],107:[2,9],109:[2,9],113:[2,9],129:[2,9]},{1:[2,10],6:[2,10],32:[2,10],105:[2,10],107:[2,10],109:[2,10],113:[2,10],129:[2,10]},{1:[2,11],6:[2,11],32:[2,11],105:[2,11],107:[2,11],109:[2,11],113:[2,11],129:[2,11]},{1:[2,12],6:[2,12],32:[2,12],105:[2,12],107:[2,12],109:[2,12],113:[2,12],129:[2,12]},{1:[2,77],6:[2,77],31:[2,77],32:[2,77],44:[1,107],53:[2,77],58:[2,77],61:[2,77],70:[2,77],71:[2,77],72:[2,77],74:[2,77],76:[2,77],77:[2,77],81:[2,77],87:[2,77],88:[2,77],89:[2,77],94:[2,77],96:[2,77],105:[2,77],107:[2,77],108:[2,77],109:[2,77],113:[2,77],121:[2,77],129:[2,77],131:[2,77],132:[2,77],135:[2,77],136:[2,77],137:[2,77],138:[2,77],139:[2,77],140:[2,77]},{1:[2,78],6:[2,78],31:[2,78],32:[2,78],53:[2,78],58:[2,78],61:[2,78],70:[2,78],71:[2,78],72:[2,78],74:[2,78],76:[2,78],77:[2,78],81:[2,78],87:[2,78],88:[2,78],89:[2,78],94:[2,78],96:[2,78],105:[2,78],107:[2,78],108:[2,78],109:[2,78],113:[2,78],121:[2,78],129:[2,78],131:[2,78],132:[2,78],135:[2,78],136:[2,78],137:[2,78],138:[2,78],139:[2,78],140:[2,78]},{1:[2,79],6:[2,79],31:[2,79],32:[2,79],53:[2,79],58:[2,79],61:[2,79],70:[2,79],71:[2,79],72:[2,79],74:[2,79],76:[2,79],77:[2,79],81:[2,79],87:[2,79],88:[2,79],89:[2,79],94:[2,79],96:[2,79],105:[2,79],107:[2,79],108:[2,79],109:[2,79],113:[2,79],121:[2,79],129:[2,79],131:[2,79],132:[2,79],135:[2,79],136:[2,79],137:[2,79],138:[2,79],139:[2,79],140:[2,79]},{1:[2,80],6:[2,80],31:[2,80],32:[2,80],53:[2,80],58:[2,80],61:[2,80],70:[2,80],71:[2,80],72:[2,80],74:[2,80],76:[2,80],77:[2,80],81:[2,80],87:[2,80],88:[2,80],89:[2,80],94:[2,80],96:[2,80],105:[2,80],107:[2,80],108:[2,80],109:[2,80],113:[2,80],121:[2,80],129:[2,80],131:[2,80],132:[2,80],135:[2,80],136:[2,80],137:[2,80],138:[2,80],139:[2,80],140:[2,80]},{1:[2,81],6:[2,81],31:[2,81],32:[2,81],53:[2,81],58:[2,81],61:[2,81],70:[2,81],71:[2,81],72:[2,81],74:[2,81],76:[2,81],77:[2,81],81:[2,81],87:[2,81],88:[2,81],89:[2,81],94:[2,81],96:[2,81],105:[2,81],107:[2,81],108:[2,81],109:[2,81],113:[2,81],121:[2,81],129:[2,81],131:[2,81],132:[2,81],135:[2,81],136:[2,81],137:[2,81],138:[2,81],139:[2,81],140:[2,81]},{1:[2,108],6:[2,108],15:108,31:[2,108],32:[2,108],53:[2,108],58:[2,108],61:[2,108],70:[2,108],71:[2,108],72:[2,108],74:[2,108],76:[2,108],77:[2,108],81:[2,108],87:[2,108],88:[1,109],89:[2,108],94:[2,108],96:[2,108],105:[2,108],107:[2,108],108:[2,108],109:[2,108],113:[2,108],121:[2,108],129:[2,108],131:[2,108],132:[2,108],135:[2,108],136:[2,108],137:[2,108],138:[2,108],139:[2,108],140:[2,108]},{33:113,34:[1,77],48:114,52:110,53:[2,59],58:[2,59],59:111,60:112,62:115,63:116,79:[1,74],92:[1,117],93:[1,118]},{5:119,31:[1,5]},{8:120,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:122,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:123,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{18:125,19:126,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:127,48:67,62:53,63:54,65:124,67:28,68:29,69:30,79:[1,74],85:[1,31],91:[1,62],92:[1,63],93:[1,61],104:[1,60]},{18:125,19:126,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:127,48:67,62:53,63:54,65:128,67:28,68:29,69:30,79:[1,74],85:[1,31],91:[1,62],92:[1,63],93:[1,61],104:[1,60]},{1:[2,74],6:[2,74],31:[2,74],32:[2,74],44:[2,74],53:[2,74],58:[2,74],61:[2,74],70:[2,74],71:[2,74],72:[2,74],74:[2,74],76:[2,74],77:[2,74],81:[2,74],83:[1,132],87:[2,74],88:[2,74],89:[2,74],94:[2,74],96:[2,74],105:[2,74],107:[2,74],108:[2,74],109:[2,74],113:[2,74],121:[2,74],129:[2,74],131:[2,74],132:[2,74],133:[1,129],134:[1,130],135:[2,74],136:[2,74],137:[2,74],138:[2,74],139:[2,74],140:[2,74],141:[1,131]},{1:[2,183],6:[2,183],31:[2,183],32:[2,183],53:[2,183],58:[2,183],61:[2,183],76:[2,183],81:[2,183],89:[2,183],94:[2,183],96:[2,183],105:[2,183],107:[2,183],108:[2,183],109:[2,183],113:[2,183],121:[2,183],124:[1,133],129:[2,183],131:[2,183],132:[2,183],135:[2,183],136:[2,183],137:[2,183],138:[2,183],139:[2,183],140:[2,183]},{5:134,31:[1,5]},{5:135,31:[1,5]},{1:[2,151],6:[2,151],31:[2,151],32:[2,151],53:[2,151],58:[2,151],61:[2,151],76:[2,151],81:[2,151],89:[2,151],94:[2,151],96:[2,151],105:[2,151],107:[2,151],108:[2,151],109:[2,151],113:[2,151],121:[2,151],129:[2,151],131:[2,151],132:[2,151],135:[2,151],136:[2,151],137:[2,151],138:[2,151],139:[2,151],140:[2,151]},{5:136,31:[1,5]},{8:137,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,138],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,98],5:139,6:[2,98],18:125,19:126,31:[1,5],32:[2,98],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:127,48:67,53:[2,98],58:[2,98],61:[2,98],62:53,63:54,65:141,67:28,68:29,69:30,76:[2,98],79:[1,74],81:[2,98],83:[1,140],85:[1,31],89:[2,98],91:[1,62],92:[1,63],93:[1,61],94:[2,98],96:[2,98],104:[1,60],105:[2,98],107:[2,98],108:[2,98],109:[2,98],113:[2,98],121:[2,98],129:[2,98],131:[2,98],132:[2,98],135:[2,98],136:[2,98],137:[2,98],138:[2,98],139:[2,98],140:[2,98]},{8:142,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{15:143,88:[1,109]},{5:144,8:145,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,5],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,51],6:[2,51],8:146,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,32:[2,51],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],105:[2,51],106:42,107:[2,51],109:[2,51],110:43,111:[1,71],112:44,113:[2,51],114:73,122:[1,45],127:40,128:[1,68],129:[2,51],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,52],6:[2,52],31:[2,52],32:[2,52],58:[2,52],81:[2,52],105:[2,52],107:[2,52],109:[2,52],113:[2,52],129:[2,52]},{15:147,88:[1,109]},{1:[2,75],6:[2,75],31:[2,75],32:[2,75],44:[2,75],53:[2,75],58:[2,75],61:[2,75],70:[2,75],71:[2,75],72:[2,75],74:[2,75],76:[2,75],77:[2,75],81:[2,75],87:[2,75],88:[2,75],89:[2,75],94:[2,75],96:[2,75],105:[2,75],107:[2,75],108:[2,75],109:[2,75],113:[2,75],121:[2,75],129:[2,75],131:[2,75],132:[2,75],135:[2,75],136:[2,75],137:[2,75],138:[2,75],139:[2,75],140:[2,75]},{1:[2,76],6:[2,76],31:[2,76],32:[2,76],44:[2,76],53:[2,76],58:[2,76],61:[2,76],70:[2,76],71:[2,76],72:[2,76],74:[2,76],76:[2,76],77:[2,76],81:[2,76],87:[2,76],88:[2,76],89:[2,76],94:[2,76],96:[2,76],105:[2,76],107:[2,76],108:[2,76],109:[2,76],113:[2,76],121:[2,76],129:[2,76],131:[2,76],132:[2,76],135:[2,76],136:[2,76],137:[2,76],138:[2,76],139:[2,76],140:[2,76]},{1:[2,35],6:[2,35],31:[2,35],32:[2,35],53:[2,35],58:[2,35],61:[2,35],70:[2,35],71:[2,35],72:[2,35],74:[2,35],76:[2,35],77:[2,35],81:[2,35],87:[2,35],88:[2,35],89:[2,35],94:[2,35],96:[2,35],105:[2,35],107:[2,35],108:[2,35],109:[2,35],113:[2,35],121:[2,35],129:[2,35],131:[2,35],132:[2,35],135:[2,35],136:[2,35],137:[2,35],138:[2,35],139:[2,35],140:[2,35]},{1:[2,36],6:[2,36],31:[2,36],32:[2,36],53:[2,36],58:[2,36],61:[2,36],70:[2,36],71:[2,36],72:[2,36],74:[2,36],76:[2,36],77:[2,36],81:[2,36],87:[2,36],88:[2,36],89:[2,36],94:[2,36],96:[2,36],105:[2,36],107:[2,36],108:[2,36],109:[2,36],113:[2,36],121:[2,36],129:[2,36],131:[2,36],132:[2,36],135:[2,36],136:[2,36],137:[2,36],138:[2,36],139:[2,36],140:[2,36]},{1:[2,37],6:[2,37],31:[2,37],32:[2,37],53:[2,37],58:[2,37],61:[2,37],70:[2,37],71:[2,37],72:[2,37],74:[2,37],76:[2,37],77:[2,37],81:[2,37],87:[2,37],88:[2,37],89:[2,37],94:[2,37],96:[2,37],105:[2,37],107:[2,37],108:[2,37],109:[2,37],113:[2,37],121:[2,37],129:[2,37],131:[2,37],132:[2,37],135:[2,37],136:[2,37],137:[2,37],138:[2,37],139:[2,37],140:[2,37]},{1:[2,38],6:[2,38],31:[2,38],32:[2,38],53:[2,38],58:[2,38],61:[2,38],70:[2,38],71:[2,38],72:[2,38],74:[2,38],76:[2,38],77:[2,38],81:[2,38],87:[2,38],88:[2,38],89:[2,38],94:[2,38],96:[2,38],105:[2,38],107:[2,38],108:[2,38],109:[2,38],113:[2,38],121:[2,38],129:[2,38],131:[2,38],132:[2,38],135:[2,38],136:[2,38],137:[2,38],138:[2,38],139:[2,38],140:[2,38]},{1:[2,39],6:[2,39],31:[2,39],32:[2,39],53:[2,39],58:[2,39],61:[2,39],70:[2,39],71:[2,39],72:[2,39],74:[2,39],76:[2,39],77:[2,39],81:[2,39],87:[2,39],88:[2,39],89:[2,39],94:[2,39],96:[2,39],105:[2,39],107:[2,39],108:[2,39],109:[2,39],113:[2,39],121:[2,39],129:[2,39],131:[2,39],132:[2,39],135:[2,39],136:[2,39],137:[2,39],138:[2,39],139:[2,39],140:[2,39]},{4:148,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,149],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:150,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,154],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],90:152,91:[1,62],92:[1,63],93:[1,61],94:[1,151],97:153,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,115],6:[2,115],31:[2,115],32:[2,115],53:[2,115],58:[2,115],61:[2,115],70:[2,115],71:[2,115],72:[2,115],74:[2,115],76:[2,115],77:[2,115],81:[2,115],87:[2,115],88:[2,115],89:[2,115],94:[2,115],96:[2,115],105:[2,115],107:[2,115],108:[2,115],109:[2,115],113:[2,115],121:[2,115],129:[2,115],131:[2,115],132:[2,115],135:[2,115],136:[2,115],137:[2,115],138:[2,115],139:[2,115],140:[2,115]},{1:[2,116],6:[2,116],31:[2,116],32:[2,116],33:156,34:[1,77],53:[2,116],58:[2,116],61:[2,116],70:[2,116],71:[2,116],72:[2,116],74:[2,116],76:[2,116],77:[2,116],81:[2,116],87:[2,116],88:[2,116],89:[2,116],94:[2,116],96:[2,116],105:[2,116],107:[2,116],108:[2,116],109:[2,116],113:[2,116],121:[2,116],129:[2,116],131:[2,116],132:[2,116],135:[2,116],136:[2,116],137:[2,116],138:[2,116],139:[2,116],140:[2,116]},{31:[2,55]},{31:[2,56]},{1:[2,70],6:[2,70],31:[2,70],32:[2,70],44:[2,70],53:[2,70],58:[2,70],61:[2,70],70:[2,70],71:[2,70],72:[2,70],74:[2,70],76:[2,70],77:[2,70],81:[2,70],83:[2,70],87:[2,70],88:[2,70],89:[2,70],94:[2,70],96:[2,70],105:[2,70],107:[2,70],108:[2,70],109:[2,70],113:[2,70],121:[2,70],129:[2,70],131:[2,70],132:[2,70],133:[2,70],134:[2,70],135:[2,70],136:[2,70],137:[2,70],138:[2,70],139:[2,70],140:[2,70],141:[2,70]},{1:[2,73],6:[2,73],31:[2,73],32:[2,73],44:[2,73],53:[2,73],58:[2,73],61:[2,73],70:[2,73],71:[2,73],72:[2,73],74:[2,73],76:[2,73],77:[2,73],81:[2,73],83:[2,73],87:[2,73],88:[2,73],89:[2,73],94:[2,73],96:[2,73],105:[2,73],107:[2,73],108:[2,73],109:[2,73],113:[2,73],121:[2,73],129:[2,73],131:[2,73],132:[2,73],133:[2,73],134:[2,73],135:[2,73],136:[2,73],137:[2,73],138:[2,73],139:[2,73],140:[2,73],141:[2,73]},{8:157,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:158,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:159,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{5:160,8:161,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,5],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{33:166,34:[1,77],62:167,63:168,68:162,79:[1,74],93:[1,61],116:163,117:[1,164],118:165},{115:169,119:[1,170],120:[1,171]},{6:[2,93],11:175,31:[2,93],33:176,34:[1,77],35:177,36:[1,75],37:[1,76],45:173,46:174,48:178,50:[1,51],58:[2,93],80:172,81:[2,93],92:[1,117]},{1:[2,33],6:[2,33],31:[2,33],32:[2,33],47:[2,33],53:[2,33],58:[2,33],61:[2,33],70:[2,33],71:[2,33],72:[2,33],74:[2,33],76:[2,33],77:[2,33],81:[2,33],87:[2,33],88:[2,33],89:[2,33],94:[2,33],96:[2,33],105:[2,33],107:[2,33],108:[2,33],109:[2,33],113:[2,33],121:[2,33],129:[2,33],131:[2,33],132:[2,33],135:[2,33],136:[2,33],137:[2,33],138:[2,33],139:[2,33],140:[2,33]},{1:[2,34],6:[2,34],31:[2,34],32:[2,34],47:[2,34],53:[2,34],58:[2,34],61:[2,34],70:[2,34],71:[2,34],72:[2,34],74:[2,34],76:[2,34],77:[2,34],81:[2,34],87:[2,34],88:[2,34],89:[2,34],94:[2,34],96:[2,34],105:[2,34],107:[2,34],108:[2,34],109:[2,34],113:[2,34],121:[2,34],129:[2,34],131:[2,34],132:[2,34],135:[2,34],136:[2,34],137:[2,34],138:[2,34],139:[2,34],140:[2,34]},{1:[2,32],6:[2,32],31:[2,32],32:[2,32],44:[2,32],47:[2,32],53:[2,32],58:[2,32],61:[2,32],70:[2,32],71:[2,32],72:[2,32],74:[2,32],76:[2,32],77:[2,32],81:[2,32],83:[2,32],87:[2,32],88:[2,32],89:[2,32],94:[2,32],96:[2,32],105:[2,32],107:[2,32],108:[2,32],109:[2,32],113:[2,32],119:[2,32],120:[2,32],121:[2,32],129:[2,32],131:[2,32],132:[2,32],133:[2,32],134:[2,32],135:[2,32],136:[2,32],137:[2,32],138:[2,32],139:[2,32],140:[2,32],141:[2,32]},{1:[2,6],6:[2,6],7:179,8:6,9:7,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,32:[2,6],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],105:[2,6],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,3]},{1:[2,30],6:[2,30],31:[2,30],32:[2,30],53:[2,30],58:[2,30],61:[2,30],76:[2,30],81:[2,30],89:[2,30],94:[2,30],96:[2,30],101:[2,30],102:[2,30],105:[2,30],107:[2,30],108:[2,30],109:[2,30],113:[2,30],121:[2,30],124:[2,30],126:[2,30],129:[2,30],131:[2,30],132:[2,30],135:[2,30],136:[2,30],137:[2,30],138:[2,30],139:[2,30],140:[2,30]},{6:[1,78],32:[1,180]},{1:[2,194],6:[2,194],31:[2,194],32:[2,194],53:[2,194],58:[2,194],61:[2,194],76:[2,194],81:[2,194],89:[2,194],94:[2,194],96:[2,194],105:[2,194],107:[2,194],108:[2,194],109:[2,194],113:[2,194],121:[2,194],129:[2,194],131:[2,194],132:[2,194],135:[2,194],136:[2,194],137:[2,194],138:[2,194],139:[2,194],140:[2,194]},{8:181,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:182,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:183,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:184,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:185,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:186,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:187,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:188,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,150],6:[2,150],31:[2,150],32:[2,150],53:[2,150],58:[2,150],61:[2,150],76:[2,150],81:[2,150],89:[2,150],94:[2,150],96:[2,150],105:[2,150],107:[2,150],108:[2,150],109:[2,150],113:[2,150],121:[2,150],129:[2,150],131:[2,150],132:[2,150],135:[2,150],136:[2,150],137:[2,150],138:[2,150],139:[2,150],140:[2,150]},{1:[2,155],6:[2,155],31:[2,155],32:[2,155],53:[2,155],58:[2,155],61:[2,155],76:[2,155],81:[2,155],89:[2,155],94:[2,155],96:[2,155],105:[2,155],107:[2,155],108:[2,155],109:[2,155],113:[2,155],121:[2,155],129:[2,155],131:[2,155],132:[2,155],135:[2,155],136:[2,155],137:[2,155],138:[2,155],139:[2,155],140:[2,155]},{8:189,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,149],6:[2,149],31:[2,149],32:[2,149],53:[2,149],58:[2,149],61:[2,149],76:[2,149],81:[2,149],89:[2,149],94:[2,149],96:[2,149],105:[2,149],107:[2,149],108:[2,149],109:[2,149],113:[2,149],121:[2,149],129:[2,149],131:[2,149],132:[2,149],135:[2,149],136:[2,149],137:[2,149],138:[2,149],139:[2,149],140:[2,149]},{1:[2,154],6:[2,154],31:[2,154],32:[2,154],53:[2,154],58:[2,154],61:[2,154],76:[2,154],81:[2,154],89:[2,154],94:[2,154],96:[2,154],105:[2,154],107:[2,154],108:[2,154],109:[2,154],113:[2,154],121:[2,154],129:[2,154],131:[2,154],132:[2,154],135:[2,154],136:[2,154],137:[2,154],138:[2,154],139:[2,154],140:[2,154]},{15:190,88:[1,109]},{1:[2,71],6:[2,71],31:[2,71],32:[2,71],44:[2,71],53:[2,71],58:[2,71],61:[2,71],70:[2,71],71:[2,71],72:[2,71],74:[2,71],76:[2,71],77:[2,71],81:[2,71],83:[2,71],87:[2,71],88:[2,71],89:[2,71],94:[2,71],96:[2,71],105:[2,71],107:[2,71],108:[2,71],109:[2,71],113:[2,71],121:[2,71],129:[2,71],131:[2,71],132:[2,71],133:[2,71],134:[2,71],135:[2,71],136:[2,71],137:[2,71],138:[2,71],139:[2,71],140:[2,71],141:[2,71]},{88:[2,112]},{30:192,33:191,34:[1,77],86:[1,48]},{33:193,34:[1,77]},{1:[2,86],6:[2,86],31:[2,86],32:[2,86],33:194,34:[1,77],44:[2,86],53:[2,86],58:[2,86],61:[2,86],70:[2,86],71:[2,86],72:[2,86],74:[2,86],76:[2,86],77:[2,86],81:[2,86],83:[2,86],87:[2,86],88:[2,86],89:[2,86],94:[2,86],96:[2,86],105:[2,86],107:[2,86],108:[2,86],109:[2,86],113:[2,86],121:[2,86],129:[2,86],131:[2,86],132:[2,86],133:[2,86],134:[2,86],135:[2,86],136:[2,86],137:[2,86],138:[2,86],139:[2,86],140:[2,86],141:[2,86]},{1:[2,87],6:[2,87],31:[2,87],32:[2,87],44:[2,87],53:[2,87],58:[2,87],61:[2,87],70:[2,87],71:[2,87],72:[2,87],74:[2,87],76:[2,87],77:[2,87],81:[2,87],83:[2,87],87:[2,87],88:[2,87],89:[2,87],94:[2,87],96:[2,87],105:[2,87],107:[2,87],108:[2,87],109:[2,87],113:[2,87],121:[2,87],129:[2,87],131:[2,87],132:[2,87],133:[2,87],134:[2,87],135:[2,87],136:[2,87],137:[2,87],138:[2,87],139:[2,87],140:[2,87],141:[2,87]},{8:196,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],61:[1,200],62:53,63:54,65:39,67:28,68:29,69:30,75:195,78:197,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],95:198,96:[1,199],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{73:201,74:[1,103],77:[1,104]},{15:202,88:[1,109]},{1:[2,72],6:[2,72],31:[2,72],32:[2,72],44:[2,72],53:[2,72],58:[2,72],61:[2,72],70:[2,72],71:[2,72],72:[2,72],74:[2,72],76:[2,72],77:[2,72],81:[2,72],83:[2,72],87:[2,72],88:[2,72],89:[2,72],94:[2,72],96:[2,72],105:[2,72],107:[2,72],108:[2,72],109:[2,72],113:[2,72],121:[2,72],129:[2,72],131:[2,72],132:[2,72],133:[2,72],134:[2,72],135:[2,72],136:[2,72],137:[2,72],138:[2,72],139:[2,72],140:[2,72],141:[2,72]},{6:[1,204],8:203,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,205],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,109],6:[2,109],31:[2,109],32:[2,109],53:[2,109],58:[2,109],61:[2,109],70:[2,109],71:[2,109],72:[2,109],74:[2,109],76:[2,109],77:[2,109],81:[2,109],87:[2,109],88:[2,109],89:[2,109],94:[2,109],96:[2,109],105:[2,109],107:[2,109],108:[2,109],109:[2,109],113:[2,109],121:[2,109],129:[2,109],131:[2,109],132:[2,109],135:[2,109],136:[2,109],137:[2,109],138:[2,109],139:[2,109],140:[2,109]},{8:208,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,154],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],89:[1,206],90:207,91:[1,62],92:[1,63],93:[1,61],97:153,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{53:[1,209],58:[1,210]},{53:[2,60],58:[2,60]},{44:[1,212],53:[2,62],58:[2,62],61:[1,211]},{44:[2,65],53:[2,65],58:[2,65],61:[2,65]},{44:[2,66],53:[2,66],58:[2,66],61:[2,66]},{44:[2,67],53:[2,67],58:[2,67],61:[2,67]},{44:[2,68],53:[2,68],58:[2,68],61:[2,68]},{33:156,34:[1,77]},{8:208,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,154],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],90:152,91:[1,62],92:[1,63],93:[1,61],94:[1,151],97:153,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,54],6:[2,54],31:[2,54],32:[2,54],53:[2,54],58:[2,54],61:[2,54],76:[2,54],81:[2,54],89:[2,54],94:[2,54],96:[2,54],105:[2,54],107:[2,54],108:[2,54],109:[2,54],113:[2,54],121:[2,54],129:[2,54],131:[2,54],132:[2,54],135:[2,54],136:[2,54],137:[2,54],138:[2,54],139:[2,54],140:[2,54]},{1:[2,187],6:[2,187],31:[2,187],32:[2,187],53:[2,187],58:[2,187],61:[2,187],76:[2,187],81:[2,187],89:[2,187],94:[2,187],96:[2,187],105:[2,187],106:91,107:[2,187],108:[2,187],109:[2,187],112:92,113:[2,187],114:73,121:[2,187],129:[2,187],131:[2,187],132:[2,187],135:[1,82],136:[2,187],137:[2,187],138:[2,187],139:[2,187],140:[2,187]},{106:94,107:[1,69],109:[1,70],112:95,113:[1,72],114:73,129:[1,93]},{1:[2,188],6:[2,188],31:[2,188],32:[2,188],53:[2,188],58:[2,188],61:[2,188],76:[2,188],81:[2,188],89:[2,188],94:[2,188],96:[2,188],105:[2,188],106:91,107:[2,188],108:[2,188],109:[2,188],112:92,113:[2,188],114:73,121:[2,188],129:[2,188],131:[2,188],132:[2,188],135:[1,82],136:[2,188],137:[2,188],138:[2,188],139:[2,188],140:[2,188]},{1:[2,189],6:[2,189],31:[2,189],32:[2,189],53:[2,189],58:[2,189],61:[2,189],76:[2,189],81:[2,189],89:[2,189],94:[2,189],96:[2,189],105:[2,189],106:91,107:[2,189],108:[2,189],109:[2,189],112:92,113:[2,189],114:73,121:[2,189],129:[2,189],131:[2,189],132:[2,189],135:[1,82],136:[2,189],137:[2,189],138:[2,189],139:[2,189],140:[2,189]},{1:[2,190],6:[2,190],31:[2,190],32:[2,190],53:[2,190],58:[2,190],61:[2,190],70:[2,74],71:[2,74],72:[2,74],74:[2,74],76:[2,190],77:[2,74],81:[2,190],87:[2,74],88:[2,74],89:[2,190],94:[2,190],96:[2,190],105:[2,190],107:[2,190],108:[2,190],109:[2,190],113:[2,190],121:[2,190],129:[2,190],131:[2,190],132:[2,190],135:[2,190],136:[2,190],137:[2,190],138:[2,190],139:[2,190],140:[2,190]},{66:97,70:[1,99],71:[1,100],72:[1,101],73:102,74:[1,103],77:[1,104],84:96,87:[1,98],88:[2,111]},{66:106,70:[1,99],71:[1,100],72:[1,101],73:102,74:[1,103],77:[1,104],84:105,87:[1,98],88:[2,111]},{70:[2,77],71:[2,77],72:[2,77],74:[2,77],77:[2,77],87:[2,77],88:[2,77]},{1:[2,191],6:[2,191],31:[2,191],32:[2,191],53:[2,191],58:[2,191],61:[2,191],70:[2,74],71:[2,74],72:[2,74],74:[2,74],76:[2,191],77:[2,74],81:[2,191],87:[2,74],88:[2,74],89:[2,191],94:[2,191],96:[2,191],105:[2,191],107:[2,191],108:[2,191],109:[2,191],113:[2,191],121:[2,191],129:[2,191],131:[2,191],132:[2,191],135:[2,191],136:[2,191],137:[2,191],138:[2,191],139:[2,191],140:[2,191]},{1:[2,192],6:[2,192],31:[2,192],32:[2,192],53:[2,192],58:[2,192],61:[2,192],76:[2,192],81:[2,192],89:[2,192],94:[2,192],96:[2,192],105:[2,192],107:[2,192],108:[2,192],109:[2,192],113:[2,192],121:[2,192],129:[2,192],131:[2,192],132:[2,192],135:[2,192],136:[2,192],137:[2,192],138:[2,192],139:[2,192],140:[2,192]},{1:[2,193],6:[2,193],31:[2,193],32:[2,193],53:[2,193],58:[2,193],61:[2,193],76:[2,193],81:[2,193],89:[2,193],94:[2,193],96:[2,193],105:[2,193],107:[2,193],108:[2,193],109:[2,193],113:[2,193],121:[2,193],129:[2,193],131:[2,193],132:[2,193],135:[2,193],136:[2,193],137:[2,193],138:[2,193],139:[2,193],140:[2,193]},{8:213,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,214],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:215,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{5:216,31:[1,5],128:[1,217]},{1:[2,136],6:[2,136],31:[2,136],32:[2,136],53:[2,136],58:[2,136],61:[2,136],76:[2,136],81:[2,136],89:[2,136],94:[2,136],96:[2,136],100:218,101:[1,219],102:[1,220],105:[2,136],107:[2,136],108:[2,136],109:[2,136],113:[2,136],121:[2,136],129:[2,136],131:[2,136],132:[2,136],135:[2,136],136:[2,136],137:[2,136],138:[2,136],139:[2,136],140:[2,136]},{1:[2,148],6:[2,148],31:[2,148],32:[2,148],53:[2,148],58:[2,148],61:[2,148],76:[2,148],81:[2,148],89:[2,148],94:[2,148],96:[2,148],105:[2,148],107:[2,148],108:[2,148],109:[2,148],113:[2,148],121:[2,148],129:[2,148],131:[2,148],132:[2,148],135:[2,148],136:[2,148],137:[2,148],138:[2,148],139:[2,148],140:[2,148]},{1:[2,156],6:[2,156],31:[2,156],32:[2,156],53:[2,156],58:[2,156],61:[2,156],76:[2,156],81:[2,156],89:[2,156],94:[2,156],96:[2,156],105:[2,156],107:[2,156],108:[2,156],109:[2,156],113:[2,156],121:[2,156],129:[2,156],131:[2,156],132:[2,156],135:[2,156],136:[2,156],137:[2,156],138:[2,156],139:[2,156],140:[2,156]},{31:[1,221],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{123:222,125:223,126:[1,224]},{1:[2,99],6:[2,99],31:[2,99],32:[2,99],53:[2,99],58:[2,99],61:[2,99],76:[2,99],81:[2,99],89:[2,99],94:[2,99],96:[2,99],105:[2,99],107:[2,99],108:[2,99],109:[2,99],113:[2,99],121:[2,99],129:[2,99],131:[2,99],132:[2,99],135:[2,99],136:[2,99],137:[2,99],138:[2,99],139:[2,99],140:[2,99]},{8:225,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,102],5:226,6:[2,102],31:[1,5],32:[2,102],53:[2,102],58:[2,102],61:[2,102],70:[2,74],71:[2,74],72:[2,74],74:[2,74],76:[2,102],77:[2,74],81:[2,102],83:[1,227],87:[2,74],88:[2,74],89:[2,102],94:[2,102],96:[2,102],105:[2,102],107:[2,102],108:[2,102],109:[2,102],113:[2,102],121:[2,102],129:[2,102],131:[2,102],132:[2,102],135:[2,102],136:[2,102],137:[2,102],138:[2,102],139:[2,102],140:[2,102]},{1:[2,141],6:[2,141],31:[2,141],32:[2,141],53:[2,141],58:[2,141],61:[2,141],76:[2,141],81:[2,141],89:[2,141],94:[2,141],96:[2,141],105:[2,141],106:91,107:[2,141],108:[2,141],109:[2,141],112:92,113:[2,141],114:73,121:[2,141],129:[2,141],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,110],6:[2,110],31:[2,110],32:[2,110],44:[2,110],53:[2,110],58:[2,110],61:[2,110],70:[2,110],71:[2,110],72:[2,110],74:[2,110],76:[2,110],77:[2,110],81:[2,110],83:[2,110],87:[2,110],88:[2,110],89:[2,110],94:[2,110],96:[2,110],105:[2,110],107:[2,110],108:[2,110],109:[2,110],113:[2,110],121:[2,110],129:[2,110],131:[2,110],132:[2,110],133:[2,110],134:[2,110],135:[2,110],136:[2,110],137:[2,110],138:[2,110],139:[2,110],140:[2,110],141:[2,110]},{1:[2,14],6:[2,14],31:[2,14],32:[2,14],53:[2,14],58:[2,14],61:[2,14],76:[2,14],81:[2,14],89:[2,14],94:[2,14],96:[2,14],105:[2,14],107:[2,14],108:[2,14],109:[2,14],113:[2,14],121:[2,14],129:[2,14],131:[2,14],132:[2,14],135:[2,14],136:[2,14],137:[2,14],138:[2,14],139:[2,14],140:[2,14]},{1:[2,15],6:[2,15],31:[2,15],32:[2,15],53:[2,15],58:[2,15],61:[2,15],76:[2,15],81:[2,15],89:[2,15],94:[2,15],96:[2,15],105:[2,15],106:91,107:[1,69],108:[2,15],109:[1,70],112:92,113:[1,72],114:73,121:[2,15],129:[2,15],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,50],6:[2,50],32:[2,50],105:[2,50],106:91,107:[2,50],109:[2,50],112:92,113:[2,50],114:73,129:[2,50],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,13],6:[2,13],32:[2,13],105:[2,13],107:[2,13],109:[2,13],113:[2,13],129:[2,13]},{6:[1,78],105:[1,228]},{4:229,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[2,132],31:[2,132],58:[2,132],61:[1,231],94:[2,132],95:230,96:[1,199],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,118],6:[2,118],31:[2,118],32:[2,118],44:[2,118],53:[2,118],58:[2,118],61:[2,118],70:[2,118],71:[2,118],72:[2,118],74:[2,118],76:[2,118],77:[2,118],81:[2,118],87:[2,118],88:[2,118],89:[2,118],94:[2,118],96:[2,118],105:[2,118],107:[2,118],108:[2,118],109:[2,118],113:[2,118],119:[2,118],120:[2,118],121:[2,118],129:[2,118],131:[2,118],132:[2,118],135:[2,118],136:[2,118],137:[2,118],138:[2,118],139:[2,118],140:[2,118]},{6:[2,57],31:[2,57],57:232,58:[1,233],94:[2,57]},{6:[2,127],31:[2,127],32:[2,127],58:[2,127],89:[2,127],94:[2,127]},{8:208,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,154],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],90:234,91:[1,62],92:[1,63],93:[1,61],97:153,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[2,133],31:[2,133],32:[2,133],58:[2,133],89:[2,133],94:[2,133]},{1:[2,117],6:[2,117],31:[2,117],32:[2,117],44:[2,117],47:[2,117],53:[2,117],58:[2,117],61:[2,117],70:[2,117],71:[2,117],72:[2,117],74:[2,117],76:[2,117],77:[2,117],81:[2,117],83:[2,117],87:[2,117],88:[2,117],89:[2,117],94:[2,117],96:[2,117],105:[2,117],107:[2,117],108:[2,117],109:[2,117],113:[2,117],121:[2,117],129:[2,117],131:[2,117],132:[2,117],133:[2,117],134:[2,117],135:[2,117],136:[2,117],137:[2,117],138:[2,117],139:[2,117],140:[2,117],141:[2,117]},{5:235,31:[1,5],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,144],6:[2,144],31:[2,144],32:[2,144],53:[2,144],58:[2,144],61:[2,144],76:[2,144],81:[2,144],89:[2,144],94:[2,144],96:[2,144],105:[2,144],106:91,107:[1,69],108:[1,236],109:[1,70],112:92,113:[1,72],114:73,121:[2,144],129:[2,144],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,146],6:[2,146],31:[2,146],32:[2,146],53:[2,146],58:[2,146],61:[2,146],76:[2,146],81:[2,146],89:[2,146],94:[2,146],96:[2,146],105:[2,146],106:91,107:[1,69],108:[1,237],109:[1,70],112:92,113:[1,72],114:73,121:[2,146],129:[2,146],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,152],6:[2,152],31:[2,152],32:[2,152],53:[2,152],58:[2,152],61:[2,152],76:[2,152],81:[2,152],89:[2,152],94:[2,152],96:[2,152],105:[2,152],107:[2,152],108:[2,152],109:[2,152],113:[2,152],121:[2,152],129:[2,152],131:[2,152],132:[2,152],135:[2,152],136:[2,152],137:[2,152],138:[2,152],139:[2,152],140:[2,152]},{1:[2,153],6:[2,153],31:[2,153],32:[2,153],53:[2,153],58:[2,153],61:[2,153],76:[2,153],81:[2,153],89:[2,153],94:[2,153],96:[2,153],105:[2,153],106:91,107:[1,69],108:[2,153],109:[1,70],112:92,113:[1,72],114:73,121:[2,153],129:[2,153],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,157],6:[2,157],31:[2,157],32:[2,157],53:[2,157],58:[2,157],61:[2,157],76:[2,157],81:[2,157],89:[2,157],94:[2,157],96:[2,157],105:[2,157],107:[2,157],108:[2,157],109:[2,157],113:[2,157],121:[2,157],129:[2,157],131:[2,157],132:[2,157],135:[2,157],136:[2,157],137:[2,157],138:[2,157],139:[2,157],140:[2,157]},{119:[2,159],120:[2,159]},{33:166,34:[1,77],62:167,63:168,79:[1,74],93:[1,118],116:238,118:165},{58:[1,239],119:[2,164],120:[2,164]},{58:[2,161],119:[2,161],120:[2,161]},{58:[2,162],119:[2,162],120:[2,162]},{58:[2,163],119:[2,163],120:[2,163]},{1:[2,158],6:[2,158],31:[2,158],32:[2,158],53:[2,158],58:[2,158],61:[2,158],76:[2,158],81:[2,158],89:[2,158],94:[2,158],96:[2,158],105:[2,158],107:[2,158],108:[2,158],109:[2,158],113:[2,158],121:[2,158],129:[2,158],131:[2,158],132:[2,158],135:[2,158],136:[2,158],137:[2,158],138:[2,158],139:[2,158],140:[2,158]},{8:240,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:241,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[2,57],31:[2,57],57:242,58:[1,243],81:[2,57]},{6:[2,94],31:[2,94],32:[2,94],58:[2,94],81:[2,94]},{6:[2,43],31:[2,43],32:[2,43],47:[1,244],58:[2,43],81:[2,43]},{6:[2,46],31:[2,46],32:[2,46],58:[2,46],81:[2,46]},{6:[2,47],31:[2,47],32:[2,47],47:[2,47],58:[2,47],81:[2,47]},{6:[2,48],31:[2,48],32:[2,48],47:[2,48],58:[2,48],81:[2,48]},{6:[2,49],31:[2,49],32:[2,49],47:[2,49],58:[2,49],81:[2,49]},{1:[2,5],6:[2,5],32:[2,5],105:[2,5]},{1:[2,31],6:[2,31],31:[2,31],32:[2,31],53:[2,31],58:[2,31],61:[2,31],76:[2,31],81:[2,31],89:[2,31],94:[2,31],96:[2,31],101:[2,31],102:[2,31],105:[2,31],107:[2,31],108:[2,31],109:[2,31],113:[2,31],121:[2,31],124:[2,31],126:[2,31],129:[2,31],131:[2,31],132:[2,31],135:[2,31],136:[2,31],137:[2,31],138:[2,31],139:[2,31],140:[2,31]},{1:[2,195],6:[2,195],31:[2,195],32:[2,195],53:[2,195],58:[2,195],61:[2,195],76:[2,195],81:[2,195],89:[2,195],94:[2,195],96:[2,195],105:[2,195],106:91,107:[2,195],108:[2,195],109:[2,195],112:92,113:[2,195],114:73,121:[2,195],129:[2,195],131:[2,195],132:[2,195],135:[1,82],136:[1,85],137:[2,195],138:[2,195],139:[2,195],140:[2,195]},{1:[2,196],6:[2,196],31:[2,196],32:[2,196],53:[2,196],58:[2,196],61:[2,196],76:[2,196],81:[2,196],89:[2,196],94:[2,196],96:[2,196],105:[2,196],106:91,107:[2,196],108:[2,196],109:[2,196],112:92,113:[2,196],114:73,121:[2,196],129:[2,196],131:[2,196],132:[2,196],135:[1,82],136:[1,85],137:[2,196],138:[2,196],139:[2,196],140:[2,196]},{1:[2,197],6:[2,197],31:[2,197],32:[2,197],53:[2,197],58:[2,197],61:[2,197],76:[2,197],81:[2,197],89:[2,197],94:[2,197],96:[2,197],105:[2,197],106:91,107:[2,197],108:[2,197],109:[2,197],112:92,113:[2,197],114:73,121:[2,197],129:[2,197],131:[2,197],132:[2,197],135:[1,82],136:[2,197],137:[2,197],138:[2,197],139:[2,197],140:[2,197]},{1:[2,198],6:[2,198],31:[2,198],32:[2,198],53:[2,198],58:[2,198],61:[2,198],76:[2,198],81:[2,198],89:[2,198],94:[2,198],96:[2,198],105:[2,198],106:91,107:[2,198],108:[2,198],109:[2,198],112:92,113:[2,198],114:73,121:[2,198],129:[2,198],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[2,198],138:[2,198],139:[2,198],140:[2,198]},{1:[2,199],6:[2,199],31:[2,199],32:[2,199],53:[2,199],58:[2,199],61:[2,199],76:[2,199],81:[2,199],89:[2,199],94:[2,199],96:[2,199],105:[2,199],106:91,107:[2,199],108:[2,199],109:[2,199],112:92,113:[2,199],114:73,121:[2,199],129:[2,199],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[2,199],139:[2,199],140:[1,89]},{1:[2,200],6:[2,200],31:[2,200],32:[2,200],53:[2,200],58:[2,200],61:[2,200],76:[2,200],81:[2,200],89:[2,200],94:[2,200],96:[2,200],105:[2,200],106:91,107:[2,200],108:[2,200],109:[2,200],112:92,113:[2,200],114:73,121:[2,200],129:[2,200],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[2,200],140:[1,89]},{1:[2,201],6:[2,201],31:[2,201],32:[2,201],53:[2,201],58:[2,201],61:[2,201],76:[2,201],81:[2,201],89:[2,201],94:[2,201],96:[2,201],105:[2,201],106:91,107:[2,201],108:[2,201],109:[2,201],112:92,113:[2,201],114:73,121:[2,201],129:[2,201],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[2,201],139:[2,201],140:[2,201]},{1:[2,186],6:[2,186],31:[2,186],32:[2,186],53:[2,186],58:[2,186],61:[2,186],76:[2,186],81:[2,186],89:[2,186],94:[2,186],96:[2,186],105:[2,186],106:91,107:[1,69],108:[2,186],109:[1,70],112:92,113:[1,72],114:73,121:[2,186],129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,185],6:[2,185],31:[2,185],32:[2,185],53:[2,185],58:[2,185],61:[2,185],76:[2,185],81:[2,185],89:[2,185],94:[2,185],96:[2,185],105:[2,185],106:91,107:[1,69],108:[2,185],109:[1,70],112:92,113:[1,72],114:73,121:[2,185],129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,106],6:[2,106],31:[2,106],32:[2,106],53:[2,106],58:[2,106],61:[2,106],70:[2,106],71:[2,106],72:[2,106],74:[2,106],76:[2,106],77:[2,106],81:[2,106],87:[2,106],88:[2,106],89:[2,106],94:[2,106],96:[2,106],105:[2,106],107:[2,106],108:[2,106],109:[2,106],113:[2,106],121:[2,106],129:[2,106],131:[2,106],132:[2,106],135:[2,106],136:[2,106],137:[2,106],138:[2,106],139:[2,106],140:[2,106]},{1:[2,82],6:[2,82],31:[2,82],32:[2,82],44:[2,82],53:[2,82],58:[2,82],61:[2,82],70:[2,82],71:[2,82],72:[2,82],74:[2,82],76:[2,82],77:[2,82],81:[2,82],83:[2,82],87:[2,82],88:[2,82],89:[2,82],94:[2,82],96:[2,82],105:[2,82],107:[2,82],108:[2,82],109:[2,82],113:[2,82],121:[2,82],129:[2,82],131:[2,82],132:[2,82],133:[2,82],134:[2,82],135:[2,82],136:[2,82],137:[2,82],138:[2,82],139:[2,82],140:[2,82],141:[2,82]},{1:[2,83],6:[2,83],31:[2,83],32:[2,83],44:[2,83],53:[2,83],58:[2,83],61:[2,83],70:[2,83],71:[2,83],72:[2,83],74:[2,83],76:[2,83],77:[2,83],81:[2,83],83:[2,83],87:[2,83],88:[2,83],89:[2,83],94:[2,83],96:[2,83],105:[2,83],107:[2,83],108:[2,83],109:[2,83],113:[2,83],121:[2,83],129:[2,83],131:[2,83],132:[2,83],133:[2,83],134:[2,83],135:[2,83],136:[2,83],137:[2,83],138:[2,83],139:[2,83],140:[2,83],141:[2,83]},{1:[2,84],6:[2,84],31:[2,84],32:[2,84],44:[2,84],53:[2,84],58:[2,84],61:[2,84],70:[2,84],71:[2,84],72:[2,84],74:[2,84],76:[2,84],77:[2,84],81:[2,84],83:[2,84],87:[2,84],88:[2,84],89:[2,84],94:[2,84],96:[2,84],105:[2,84],107:[2,84],108:[2,84],109:[2,84],113:[2,84],121:[2,84],129:[2,84],131:[2,84],132:[2,84],133:[2,84],134:[2,84],135:[2,84],136:[2,84],137:[2,84],138:[2,84],139:[2,84],140:[2,84],141:[2,84]},{1:[2,85],6:[2,85],31:[2,85],32:[2,85],44:[2,85],53:[2,85],58:[2,85],61:[2,85],70:[2,85],71:[2,85],72:[2,85],74:[2,85],76:[2,85],77:[2,85],81:[2,85],83:[2,85],87:[2,85],88:[2,85],89:[2,85],94:[2,85],96:[2,85],105:[2,85],107:[2,85],108:[2,85],109:[2,85],113:[2,85],121:[2,85],129:[2,85],131:[2,85],132:[2,85],133:[2,85],134:[2,85],135:[2,85],136:[2,85],137:[2,85],138:[2,85],139:[2,85],140:[2,85],141:[2,85]},{76:[1,245]},{61:[1,200],76:[2,90],95:246,96:[1,199],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{76:[2,91]},{8:247,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,76:[2,126],79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{12:[2,120],14:[2,120],17:[2,120],34:[2,120],36:[2,120],37:[2,120],39:[2,120],40:[2,120],41:[2,120],42:[2,120],49:[2,120],50:[2,120],51:[2,120],55:[2,120],56:[2,120],76:[2,120],79:[2,120],82:[2,120],85:[2,120],86:[2,120],91:[2,120],92:[2,120],93:[2,120],99:[2,120],103:[2,120],104:[2,120],107:[2,120],109:[2,120],111:[2,120],113:[2,120],122:[2,120],128:[2,120],130:[2,120],131:[2,120],132:[2,120],133:[2,120],134:[2,120]},{12:[2,121],14:[2,121],17:[2,121],34:[2,121],36:[2,121],37:[2,121],39:[2,121],40:[2,121],41:[2,121],42:[2,121],49:[2,121],50:[2,121],51:[2,121],55:[2,121],56:[2,121],76:[2,121],79:[2,121],82:[2,121],85:[2,121],86:[2,121],91:[2,121],92:[2,121],93:[2,121],99:[2,121],103:[2,121],104:[2,121],107:[2,121],109:[2,121],111:[2,121],113:[2,121],122:[2,121],128:[2,121],130:[2,121],131:[2,121],132:[2,121],133:[2,121],134:[2,121]},{1:[2,89],6:[2,89],31:[2,89],32:[2,89],44:[2,89],53:[2,89],58:[2,89],61:[2,89],70:[2,89],71:[2,89],72:[2,89],74:[2,89],76:[2,89],77:[2,89],81:[2,89],83:[2,89],87:[2,89],88:[2,89],89:[2,89],94:[2,89],96:[2,89],105:[2,89],107:[2,89],108:[2,89],109:[2,89],113:[2,89],121:[2,89],129:[2,89],131:[2,89],132:[2,89],133:[2,89],134:[2,89],135:[2,89],136:[2,89],137:[2,89],138:[2,89],139:[2,89],140:[2,89],141:[2,89]},{1:[2,107],6:[2,107],31:[2,107],32:[2,107],53:[2,107],58:[2,107],61:[2,107],70:[2,107],71:[2,107],72:[2,107],74:[2,107],76:[2,107],77:[2,107],81:[2,107],87:[2,107],88:[2,107],89:[2,107],94:[2,107],96:[2,107],105:[2,107],107:[2,107],108:[2,107],109:[2,107],113:[2,107],121:[2,107],129:[2,107],131:[2,107],132:[2,107],135:[2,107],136:[2,107],137:[2,107],138:[2,107],139:[2,107],140:[2,107]},{1:[2,40],6:[2,40],31:[2,40],32:[2,40],53:[2,40],58:[2,40],61:[2,40],76:[2,40],81:[2,40],89:[2,40],94:[2,40],96:[2,40],105:[2,40],106:91,107:[2,40],108:[2,40],109:[2,40],112:92,113:[2,40],114:73,121:[2,40],129:[2,40],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{8:248,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:249,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,113],6:[2,113],31:[2,113],32:[2,113],44:[2,113],53:[2,113],58:[2,113],61:[2,113],70:[2,113],71:[2,113],72:[2,113],74:[2,113],76:[2,113],77:[2,113],81:[2,113],83:[2,113],87:[2,113],88:[2,113],89:[2,113],94:[2,113],96:[2,113],105:[2,113],107:[2,113],108:[2,113],109:[2,113],113:[2,113],121:[2,113],129:[2,113],131:[2,113],132:[2,113],133:[2,113],134:[2,113],135:[2,113],136:[2,113],137:[2,113],138:[2,113],139:[2,113],140:[2,113],141:[2,113]},{6:[2,57],31:[2,57],57:250,58:[1,233],89:[2,57]},{6:[2,132],31:[2,132],32:[2,132],58:[2,132],61:[1,251],89:[2,132],94:[2,132],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{54:252,55:[1,64],56:[1,65]},{33:113,34:[1,77],48:114,59:253,60:112,62:115,63:116,79:[1,74],92:[1,117],93:[1,118]},{53:[2,63],58:[2,63]},{8:254,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,202],6:[2,202],31:[2,202],32:[2,202],53:[2,202],58:[2,202],61:[2,202],76:[2,202],81:[2,202],89:[2,202],94:[2,202],96:[2,202],105:[2,202],106:91,107:[2,202],108:[2,202],109:[2,202],112:92,113:[2,202],114:73,121:[2,202],129:[2,202],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{8:255,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,204],6:[2,204],31:[2,204],32:[2,204],53:[2,204],58:[2,204],61:[2,204],76:[2,204],81:[2,204],89:[2,204],94:[2,204],96:[2,204],105:[2,204],106:91,107:[2,204],108:[2,204],109:[2,204],112:92,113:[2,204],114:73,121:[2,204],129:[2,204],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,184],6:[2,184],31:[2,184],32:[2,184],53:[2,184],58:[2,184],61:[2,184],76:[2,184],81:[2,184],89:[2,184],94:[2,184],96:[2,184],105:[2,184],107:[2,184],108:[2,184],109:[2,184],113:[2,184],121:[2,184],129:[2,184],131:[2,184],132:[2,184],135:[2,184],136:[2,184],137:[2,184],138:[2,184],139:[2,184],140:[2,184]},{8:256,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,137],6:[2,137],31:[2,137],32:[2,137],53:[2,137],58:[2,137],61:[2,137],76:[2,137],81:[2,137],89:[2,137],94:[2,137],96:[2,137],101:[1,257],105:[2,137],107:[2,137],108:[2,137],109:[2,137],113:[2,137],121:[2,137],129:[2,137],131:[2,137],132:[2,137],135:[2,137],136:[2,137],137:[2,137],138:[2,137],139:[2,137],140:[2,137]},{5:258,31:[1,5]},{33:259,34:[1,77]},{123:260,125:223,126:[1,224]},{32:[1,261],124:[1,262],125:263,126:[1,224]},{32:[2,177],124:[2,177],126:[2,177]},{8:265,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],98:264,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,100],5:266,6:[2,100],31:[1,5],32:[2,100],53:[2,100],58:[2,100],61:[2,100],76:[2,100],81:[2,100],89:[2,100],94:[2,100],96:[2,100],105:[2,100],106:91,107:[1,69],108:[2,100],109:[1,70],112:92,113:[1,72],114:73,121:[2,100],129:[2,100],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,103],6:[2,103],31:[2,103],32:[2,103],53:[2,103],58:[2,103],61:[2,103],76:[2,103],81:[2,103],89:[2,103],94:[2,103],96:[2,103],105:[2,103],107:[2,103],108:[2,103],109:[2,103],113:[2,103],121:[2,103],129:[2,103],131:[2,103],132:[2,103],135:[2,103],136:[2,103],137:[2,103],138:[2,103],139:[2,103],140:[2,103]},{8:267,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,142],6:[2,142],31:[2,142],32:[2,142],53:[2,142],58:[2,142],61:[2,142],70:[2,142],71:[2,142],72:[2,142],74:[2,142],76:[2,142],77:[2,142],81:[2,142],87:[2,142],88:[2,142],89:[2,142],94:[2,142],96:[2,142],105:[2,142],107:[2,142],108:[2,142],109:[2,142],113:[2,142],121:[2,142],129:[2,142],131:[2,142],132:[2,142],135:[2,142],136:[2,142],137:[2,142],138:[2,142],139:[2,142],140:[2,142]},{6:[1,78],32:[1,268]},{8:269,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[2,69],12:[2,121],14:[2,121],17:[2,121],31:[2,69],34:[2,121],36:[2,121],37:[2,121],39:[2,121],40:[2,121],41:[2,121],42:[2,121],49:[2,121],50:[2,121],51:[2,121],55:[2,121],56:[2,121],58:[2,69],79:[2,121],82:[2,121],85:[2,121],86:[2,121],91:[2,121],92:[2,121],93:[2,121],94:[2,69],99:[2,121],103:[2,121],104:[2,121],107:[2,121],109:[2,121],111:[2,121],113:[2,121],122:[2,121],128:[2,121],130:[2,121],131:[2,121],132:[2,121],133:[2,121],134:[2,121]},{6:[1,271],31:[1,272],94:[1,270]},{6:[2,58],8:208,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[2,58],32:[2,58],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],89:[2,58],91:[1,62],92:[1,63],93:[1,61],94:[2,58],97:273,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[2,57],31:[2,57],32:[2,57],57:274,58:[1,233]},{1:[2,181],6:[2,181],31:[2,181],32:[2,181],53:[2,181],58:[2,181],61:[2,181],76:[2,181],81:[2,181],89:[2,181],94:[2,181],96:[2,181],105:[2,181],107:[2,181],108:[2,181],109:[2,181],113:[2,181],121:[2,181],124:[2,181],129:[2,181],131:[2,181],132:[2,181],135:[2,181],136:[2,181],137:[2,181],138:[2,181],139:[2,181],140:[2,181]},{8:275,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:276,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{119:[2,160],120:[2,160]},{33:166,34:[1,77],62:167,63:168,79:[1,74],93:[1,118],118:277},{1:[2,166],6:[2,166],31:[2,166],32:[2,166],53:[2,166],58:[2,166],61:[2,166],76:[2,166],81:[2,166],89:[2,166],94:[2,166],96:[2,166],105:[2,166],106:91,107:[2,166],108:[1,278],109:[2,166],112:92,113:[2,166],114:73,121:[1,279],129:[2,166],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,167],6:[2,167],31:[2,167],32:[2,167],53:[2,167],58:[2,167],61:[2,167],76:[2,167],81:[2,167],89:[2,167],94:[2,167],96:[2,167],105:[2,167],106:91,107:[2,167],108:[1,280],109:[2,167],112:92,113:[2,167],114:73,121:[2,167],129:[2,167],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{6:[1,282],31:[1,283],81:[1,281]},{6:[2,58],11:175,31:[2,58],32:[2,58],33:176,34:[1,77],35:177,36:[1,75],37:[1,76],45:284,46:174,48:178,50:[1,51],81:[2,58],92:[1,117]},{8:285,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,286],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,88],6:[2,88],31:[2,88],32:[2,88],44:[2,88],53:[2,88],58:[2,88],61:[2,88],70:[2,88],71:[2,88],72:[2,88],74:[2,88],76:[2,88],77:[2,88],81:[2,88],83:[2,88],87:[2,88],88:[2,88],89:[2,88],94:[2,88],96:[2,88],105:[2,88],107:[2,88],108:[2,88],109:[2,88],113:[2,88],121:[2,88],129:[2,88],131:[2,88],132:[2,88],133:[2,88],134:[2,88],135:[2,88],136:[2,88],137:[2,88],138:[2,88],139:[2,88],140:[2,88],141:[2,88]},{8:287,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,76:[2,124],79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{76:[2,125],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,41],6:[2,41],31:[2,41],32:[2,41],53:[2,41],58:[2,41],61:[2,41],76:[2,41],81:[2,41],89:[2,41],94:[2,41],96:[2,41],105:[2,41],106:91,107:[2,41],108:[2,41],109:[2,41],112:92,113:[2,41],114:73,121:[2,41],129:[2,41],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{32:[1,288],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{6:[1,271],31:[1,272],89:[1,289]},{6:[2,69],31:[2,69],32:[2,69],58:[2,69],89:[2,69],94:[2,69]},{5:290,31:[1,5]},{53:[2,61],58:[2,61]},{53:[2,64],58:[2,64],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{32:[1,291],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{5:292,31:[1,5],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{5:293,31:[1,5]},{1:[2,138],6:[2,138],31:[2,138],32:[2,138],53:[2,138],58:[2,138],61:[2,138],76:[2,138],81:[2,138],89:[2,138],94:[2,138],96:[2,138],105:[2,138],107:[2,138],108:[2,138],109:[2,138],113:[2,138],121:[2,138],129:[2,138],131:[2,138],132:[2,138],135:[2,138],136:[2,138],137:[2,138],138:[2,138],139:[2,138],140:[2,138]},{5:294,31:[1,5]},{32:[1,295],124:[1,296],125:263,126:[1,224]},{1:[2,175],6:[2,175],31:[2,175],32:[2,175],53:[2,175],58:[2,175],61:[2,175],76:[2,175],81:[2,175],89:[2,175],94:[2,175],96:[2,175],105:[2,175],107:[2,175],108:[2,175],109:[2,175],113:[2,175],121:[2,175],129:[2,175],131:[2,175],132:[2,175],135:[2,175],136:[2,175],137:[2,175],138:[2,175],139:[2,175],140:[2,175]},{5:297,31:[1,5]},{32:[2,178],124:[2,178],126:[2,178]},{5:298,31:[1,5],58:[1,299]},{31:[2,134],58:[2,134],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,101],6:[2,101],31:[2,101],32:[2,101],53:[2,101],58:[2,101],61:[2,101],76:[2,101],81:[2,101],89:[2,101],94:[2,101],96:[2,101],105:[2,101],107:[2,101],108:[2,101],109:[2,101],113:[2,101],121:[2,101],129:[2,101],131:[2,101],132:[2,101],135:[2,101],136:[2,101],137:[2,101],138:[2,101],139:[2,101],140:[2,101]},{1:[2,104],5:300,6:[2,104],31:[1,5],32:[2,104],53:[2,104],58:[2,104],61:[2,104],76:[2,104],81:[2,104],89:[2,104],94:[2,104],96:[2,104],105:[2,104],106:91,107:[1,69],108:[2,104],109:[1,70],112:92,113:[1,72],114:73,121:[2,104],129:[2,104],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{105:[1,301]},{94:[1,302],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,119],6:[2,119],31:[2,119],32:[2,119],44:[2,119],53:[2,119],58:[2,119],61:[2,119],70:[2,119],71:[2,119],72:[2,119],74:[2,119],76:[2,119],77:[2,119],81:[2,119],87:[2,119],88:[2,119],89:[2,119],94:[2,119],96:[2,119],105:[2,119],107:[2,119],108:[2,119],109:[2,119],113:[2,119],119:[2,119],120:[2,119],121:[2,119],129:[2,119],131:[2,119],132:[2,119],135:[2,119],136:[2,119],137:[2,119],138:[2,119],139:[2,119],140:[2,119]},{8:208,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],97:303,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:208,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,31:[1,154],33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,64:155,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],90:304,91:[1,62],92:[1,63],93:[1,61],97:153,99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[2,128],31:[2,128],32:[2,128],58:[2,128],89:[2,128],94:[2,128]},{6:[1,271],31:[1,272],32:[1,305]},{1:[2,145],6:[2,145],31:[2,145],32:[2,145],53:[2,145],58:[2,145],61:[2,145],76:[2,145],81:[2,145],89:[2,145],94:[2,145],96:[2,145],105:[2,145],106:91,107:[1,69],108:[2,145],109:[1,70],112:92,113:[1,72],114:73,121:[2,145],129:[2,145],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,147],6:[2,147],31:[2,147],32:[2,147],53:[2,147],58:[2,147],61:[2,147],76:[2,147],81:[2,147],89:[2,147],94:[2,147],96:[2,147],105:[2,147],106:91,107:[1,69],108:[2,147],109:[1,70],112:92,113:[1,72],114:73,121:[2,147],129:[2,147],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{119:[2,165],120:[2,165]},{8:306,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:307,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:308,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,92],6:[2,92],31:[2,92],32:[2,92],44:[2,92],53:[2,92],58:[2,92],61:[2,92],70:[2,92],71:[2,92],72:[2,92],74:[2,92],76:[2,92],77:[2,92],81:[2,92],87:[2,92],88:[2,92],89:[2,92],94:[2,92],96:[2,92],105:[2,92],107:[2,92],108:[2,92],109:[2,92],113:[2,92],119:[2,92],120:[2,92],121:[2,92],129:[2,92],131:[2,92],132:[2,92],135:[2,92],136:[2,92],137:[2,92],138:[2,92],139:[2,92],140:[2,92]},{11:175,33:176,34:[1,77],35:177,36:[1,75],37:[1,76],45:309,46:174,48:178,50:[1,51],92:[1,117]},{6:[2,93],11:175,31:[2,93],32:[2,93],33:176,34:[1,77],35:177,36:[1,75],37:[1,76],45:173,46:174,48:178,50:[1,51],58:[2,93],80:310,92:[1,117]},{6:[2,95],31:[2,95],32:[2,95],58:[2,95],81:[2,95]},{6:[2,44],31:[2,44],32:[2,44],58:[2,44],81:[2,44],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{8:311,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{76:[2,123],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,42],6:[2,42],31:[2,42],32:[2,42],53:[2,42],58:[2,42],61:[2,42],76:[2,42],81:[2,42],89:[2,42],94:[2,42],96:[2,42],105:[2,42],107:[2,42],108:[2,42],109:[2,42],113:[2,42],121:[2,42],129:[2,42],131:[2,42],132:[2,42],135:[2,42],136:[2,42],137:[2,42],138:[2,42],139:[2,42],140:[2,42]},{1:[2,114],6:[2,114],31:[2,114],32:[2,114],44:[2,114],53:[2,114],58:[2,114],61:[2,114],70:[2,114],71:[2,114],72:[2,114],74:[2,114],76:[2,114],77:[2,114],81:[2,114],83:[2,114],87:[2,114],88:[2,114],89:[2,114],94:[2,114],96:[2,114],105:[2,114],107:[2,114],108:[2,114],109:[2,114],113:[2,114],121:[2,114],129:[2,114],131:[2,114],132:[2,114],133:[2,114],134:[2,114],135:[2,114],136:[2,114],137:[2,114],138:[2,114],139:[2,114],140:[2,114],141:[2,114]},{1:[2,53],6:[2,53],31:[2,53],32:[2,53],53:[2,53],58:[2,53],61:[2,53],76:[2,53],81:[2,53],89:[2,53],94:[2,53],96:[2,53],105:[2,53],107:[2,53],108:[2,53],109:[2,53],113:[2,53],121:[2,53],129:[2,53],131:[2,53],132:[2,53],135:[2,53],136:[2,53],137:[2,53],138:[2,53],139:[2,53],140:[2,53]},{1:[2,203],6:[2,203],31:[2,203],32:[2,203],53:[2,203],58:[2,203],61:[2,203],76:[2,203],81:[2,203],89:[2,203],94:[2,203],96:[2,203],105:[2,203],107:[2,203],108:[2,203],109:[2,203],113:[2,203],121:[2,203],129:[2,203],131:[2,203],132:[2,203],135:[2,203],136:[2,203],137:[2,203],138:[2,203],139:[2,203],140:[2,203]},{1:[2,182],6:[2,182],31:[2,182],32:[2,182],53:[2,182],58:[2,182],61:[2,182],76:[2,182],81:[2,182],89:[2,182],94:[2,182],96:[2,182],105:[2,182],107:[2,182],108:[2,182],109:[2,182],113:[2,182],121:[2,182],124:[2,182],129:[2,182],131:[2,182],132:[2,182],135:[2,182],136:[2,182],137:[2,182],138:[2,182],139:[2,182],140:[2,182]},{1:[2,139],6:[2,139],31:[2,139],32:[2,139],53:[2,139],58:[2,139],61:[2,139],76:[2,139],81:[2,139],89:[2,139],94:[2,139],96:[2,139],105:[2,139],107:[2,139],108:[2,139],109:[2,139],113:[2,139],121:[2,139],129:[2,139],131:[2,139],132:[2,139],135:[2,139],136:[2,139],137:[2,139],138:[2,139],139:[2,139],140:[2,139]},{1:[2,140],6:[2,140],31:[2,140],32:[2,140],53:[2,140],58:[2,140],61:[2,140],76:[2,140],81:[2,140],89:[2,140],94:[2,140],96:[2,140],101:[2,140],105:[2,140],107:[2,140],108:[2,140],109:[2,140],113:[2,140],121:[2,140],129:[2,140],131:[2,140],132:[2,140],135:[2,140],136:[2,140],137:[2,140],138:[2,140],139:[2,140],140:[2,140]},{1:[2,173],6:[2,173],31:[2,173],32:[2,173],53:[2,173],58:[2,173],61:[2,173],76:[2,173],81:[2,173],89:[2,173],94:[2,173],96:[2,173],105:[2,173],107:[2,173],108:[2,173],109:[2,173],113:[2,173],121:[2,173],129:[2,173],131:[2,173],132:[2,173],135:[2,173],136:[2,173],137:[2,173],138:[2,173],139:[2,173],140:[2,173]},{5:312,31:[1,5]},{32:[1,313]},{6:[1,314],32:[2,179],124:[2,179],126:[2,179]},{8:315,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{1:[2,105],6:[2,105],31:[2,105],32:[2,105],53:[2,105],58:[2,105],61:[2,105],76:[2,105],81:[2,105],89:[2,105],94:[2,105],96:[2,105],105:[2,105],107:[2,105],108:[2,105],109:[2,105],113:[2,105],121:[2,105],129:[2,105],131:[2,105],132:[2,105],135:[2,105],136:[2,105],137:[2,105],138:[2,105],139:[2,105],140:[2,105]},{1:[2,143],6:[2,143],31:[2,143],32:[2,143],53:[2,143],58:[2,143],61:[2,143],70:[2,143],71:[2,143],72:[2,143],74:[2,143],76:[2,143],77:[2,143],81:[2,143],87:[2,143],88:[2,143],89:[2,143],94:[2,143],96:[2,143],105:[2,143],107:[2,143],108:[2,143],109:[2,143],113:[2,143],121:[2,143],129:[2,143],131:[2,143],132:[2,143],135:[2,143],136:[2,143],137:[2,143],138:[2,143],139:[2,143],140:[2,143]},{1:[2,122],6:[2,122],31:[2,122],32:[2,122],53:[2,122],58:[2,122],61:[2,122],70:[2,122],71:[2,122],72:[2,122],74:[2,122],76:[2,122],77:[2,122],81:[2,122],87:[2,122],88:[2,122],89:[2,122],94:[2,122],96:[2,122],105:[2,122],107:[2,122],108:[2,122],109:[2,122],113:[2,122],121:[2,122],129:[2,122],131:[2,122],132:[2,122],135:[2,122],136:[2,122],137:[2,122],138:[2,122],139:[2,122],140:[2,122]},{6:[2,129],31:[2,129],32:[2,129],58:[2,129],89:[2,129],94:[2,129]},{6:[2,57],31:[2,57],32:[2,57],57:316,58:[1,233]},{6:[2,130],31:[2,130],32:[2,130],58:[2,130],89:[2,130],94:[2,130]},{1:[2,168],6:[2,168],31:[2,168],32:[2,168],53:[2,168],58:[2,168],61:[2,168],76:[2,168],81:[2,168],89:[2,168],94:[2,168],96:[2,168],105:[2,168],106:91,107:[2,168],108:[2,168],109:[2,168],112:92,113:[2,168],114:73,121:[1,317],129:[2,168],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,170],6:[2,170],31:[2,170],32:[2,170],53:[2,170],58:[2,170],61:[2,170],76:[2,170],81:[2,170],89:[2,170],94:[2,170],96:[2,170],105:[2,170],106:91,107:[2,170],108:[1,318],109:[2,170],112:92,113:[2,170],114:73,121:[2,170],129:[2,170],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,169],6:[2,169],31:[2,169],32:[2,169],53:[2,169],58:[2,169],61:[2,169],76:[2,169],81:[2,169],89:[2,169],94:[2,169],96:[2,169],105:[2,169],106:91,107:[2,169],108:[2,169],109:[2,169],112:92,113:[2,169],114:73,121:[2,169],129:[2,169],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{6:[2,96],31:[2,96],32:[2,96],58:[2,96],81:[2,96]},{6:[2,57],31:[2,57],32:[2,57],57:319,58:[1,243]},{32:[1,320],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{32:[1,321]},{1:[2,176],6:[2,176],31:[2,176],32:[2,176],53:[2,176],58:[2,176],61:[2,176],76:[2,176],81:[2,176],89:[2,176],94:[2,176],96:[2,176],105:[2,176],107:[2,176],108:[2,176],109:[2,176],113:[2,176],121:[2,176],129:[2,176],131:[2,176],132:[2,176],135:[2,176],136:[2,176],137:[2,176],138:[2,176],139:[2,176],140:[2,176]},{32:[2,180],124:[2,180],126:[2,180]},{31:[2,135],58:[2,135],106:91,107:[1,69],109:[1,70],112:92,113:[1,72],114:73,129:[1,90],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{6:[1,271],31:[1,272],32:[1,322]},{8:323,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{8:324,9:121,10:22,11:23,12:[1,24],13:25,14:[1,52],16:21,17:[1,49],18:8,19:9,20:10,21:11,22:12,23:13,24:14,25:15,26:16,27:17,28:18,29:19,30:20,33:66,34:[1,77],35:55,36:[1,75],37:[1,76],38:27,39:[1,56],40:[1,57],41:[1,58],42:[1,59],43:26,48:67,49:[1,50],50:[1,51],51:[1,32],54:33,55:[1,64],56:[1,65],62:53,63:54,65:39,67:28,68:29,69:30,79:[1,74],82:[1,46],85:[1,31],86:[1,48],91:[1,62],92:[1,63],93:[1,61],99:[1,41],103:[1,47],104:[1,60],106:42,107:[1,69],109:[1,70],110:43,111:[1,71],112:44,113:[1,72],114:73,122:[1,45],127:40,128:[1,68],130:[1,34],131:[1,35],132:[1,36],133:[1,37],134:[1,38]},{6:[1,282],31:[1,283],32:[1,325]},{6:[2,45],31:[2,45],32:[2,45],58:[2,45],81:[2,45]},{1:[2,174],6:[2,174],31:[2,174],32:[2,174],53:[2,174],58:[2,174],61:[2,174],76:[2,174],81:[2,174],89:[2,174],94:[2,174],96:[2,174],105:[2,174],107:[2,174],108:[2,174],109:[2,174],113:[2,174],121:[2,174],129:[2,174],131:[2,174],132:[2,174],135:[2,174],136:[2,174],137:[2,174],138:[2,174],139:[2,174],140:[2,174]},{6:[2,131],31:[2,131],32:[2,131],58:[2,131],89:[2,131],94:[2,131]},{1:[2,171],6:[2,171],31:[2,171],32:[2,171],53:[2,171],58:[2,171],61:[2,171],76:[2,171],81:[2,171],89:[2,171],94:[2,171],96:[2,171],105:[2,171],106:91,107:[2,171],108:[2,171],109:[2,171],112:92,113:[2,171],114:73,121:[2,171],129:[2,171],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{1:[2,172],6:[2,172],31:[2,172],32:[2,172],53:[2,172],58:[2,172],61:[2,172],76:[2,172],81:[2,172],89:[2,172],94:[2,172],96:[2,172],105:[2,172],106:91,107:[2,172],108:[2,172],109:[2,172],112:92,113:[2,172],114:73,121:[2,172],129:[2,172],131:[1,84],132:[1,83],135:[1,82],136:[1,85],137:[1,86],138:[1,87],139:[1,88],140:[1,89]},{6:[2,97],31:[2,97],32:[2,97],58:[2,97],81:[2,97]}],defaultActions:{64:[2,55],65:[2,56],79:[2,3],98:[2,112],197:[2,91]},parseError:function(b,c){throw new Error(b)},parse:function(b){function o(a){d.length=d.length-2*a,e.length=e.length-a,f.length=f.length-a}function p(){var a;return a=c.lexer.lex()||1,typeof a!="number"&&(a=c.symbols_[a]||a),a}var c=this,d=[0],e=[null],f=[],g=this.table,h="",i=0,j=0,k=0,l=2,m=1;this.lexer.setInput(b),this.lexer.yy=this.yy,this.yy.lexer=this.lexer,typeof this.lexer.yylloc=="undefined"&&(this.lexer.yylloc={});var n=this.lexer.yylloc;f.push(n),typeof this.yy.parseError=="function"&&(this.parseError=this.yy.parseError);var q,r,s,t,u,v,w={},x,y,z,A;for(;;){s=d[d.length-1],this.defaultActions[s]?t=this.defaultActions[s]:(q==null&&(q=p()),t=g[s]&&g[s][q]);if(typeof t=="undefined"||!t.length||!t[0]){if(!k){A=[];for(x in g[s])this.terminals_[x]&&x>2&&A.push("'"+this.terminals_[x]+"'");var B="";this.lexer.showPosition?B="Parse error on line "+(i+1)+":\n"+this.lexer.showPosition()+"\nExpecting "+A.join(", ")+", got '"+this.terminals_[q]+"'":B="Parse error on line "+(i+1)+": Unexpected "+(q==1?"end of input":"'"+(this.terminals_[q]||q)+"'"),this.parseError(B,{text:this.lexer.match,token:this.terminals_[q]||q,line:this.lexer.yylineno,loc:n,expected:A})}if(k==3){if(q==m)throw new Error(B||"Parsing halted.");j=this.lexer.yyleng,h=this.lexer.yytext,i=this.lexer.yylineno,n=this.lexer.yylloc,q=p()}for(;;){if(l.toString()in g[s])break;if(s==0)throw new Error(B||"Parsing halted.");o(1),s=d[d.length-1]}r=q,q=l,s=d[d.length-1],t=g[s]&&g[s][l],k=3}if(t[0]instanceof Array&&t.length>1)throw new Error("Parse Error: multiple actions possible at state: "+s+", token: "+q);switch(t[0]){case 1:d.push(q),e.push(this.lexer.yytext),f.push(this.lexer.yylloc),d.push(t[1]),q=null,r?(q=r,r=null):(j=this.lexer.yyleng,h=this.lexer.yytext,i=this.lexer.yylineno,n=this.lexer.yylloc,k>0&&k--);break;case 2:y=this.productions_[t[1]][1],w.$=e[e.length-y],w._$={first_line:f[f.length-(y||1)].first_line,last_line:f[f.length-1].last_line,first_column:f[f.length-(y||1)].first_column,last_column:f[f.length-1].last_column},v=this.performAction.call(w,h,j,i,this.yy,t[1],e,f);if(typeof v!="undefined")return v;y&&(d=d.slice(0,-1*y*2),e=e.slice(0,-1*y),f=f.slice(0,-1*y)),d.push(this.productions_[t[1]][0]),e.push(w.$),f.push(w._$),z=g[d[d.length-2]][d[d.length-1]],d.push(z);break;case 3:return!0}}return!0}};return a}();typeof require!="undefined"&&typeof a!="undefined"&&(a.parser=b,a.parse=function(){return b.parse.apply(b,arguments)},a.main=function(c){if(!c[1])throw new Error("Usage: "+c[0]+" FILE");if(typeof process!="undefined")var d=require("fs").readFileSync(require("path").join(process.cwd(),c[1]),"utf8");else var e=require("file").path(require("file").cwd()),d=e.join(c[1]).read({charset:"utf-8"});return a.parser.parse(d)},typeof module!="undefined"&&require.main===module&&a.main(typeof process!="undefined"?process.argv.slice(1):require("system").args))},require["./scope"]=new function(){var a=this;((function(){var b,c,d,e;e=require("./helpers"),c=e.extend,d=e.last,a.Scope=b=function(){function a(b,c,d){this.parent=b,this.expressions=c,this.method=d,this.variables=[{name:"arguments",type:"arguments"}],this.positions={},this.parent||(a.root=this)}return a.name="Scope",a.root=null,a.prototype.add=function(a,b,c){return this.shared&&!c?this.parent.add(a,b,c):Object.prototype.hasOwnProperty.call(this.positions,a)?this.variables[this.positions[a]].type=b:this.positions[a]=this.variables.push({name:a,type:b})-1},a.prototype.find=function(a,b){return this.check(a,b)?!0:(this.add(a,"var"),!1)},a.prototype.parameter=function(a){if(this.shared&&this.parent.check(a,!0))return;return this.add(a,"param")},a.prototype.check=function(a,b){var c,d;return c=!!this.type(a),c||b?c:(d=this.parent)!=null?!!d.check(a):!!void 0},a.prototype.temporary=function(a,b){return a.length>1?"_"+a+(b>1?b:""):"_"+(b+parseInt(a,36)).toString(36).replace(/\d/g,"a")},a.prototype.type=function(a){var b,c,d,e;e=this.variables;for(c=0,d=e.length;c<d;c++){b=e[c];if(b.name===a)return b.type}return null},a.prototype.freeVariable=function(a,b){var c,d;b==null&&(b=!0),c=0;while(this.check(d=this.temporary(a,c)))c++;return b&&this.add(d,"var",!0),d},a.prototype.assign=function(a,b){return this.add(a,{value:b,assigned:!0},!0),this.hasAssignments=!0},a.prototype.hasDeclarations=function(){return!!this.declaredVariables().length},a.prototype.declaredVariables=function(){var a,b,c,d,e,f;a=[],b=[],f=this.variables;for(d=0,e=f.length;d<e;d++)c=f[d],c.type==="var"&&(c.name.charAt(0)==="_"?b:a).push(c.name);return a.sort().concat(b.sort())},a.prototype.assignedVariables=function(){var a,b,c,d,e;d=this.variables,e=[];for(b=0,c=d.length;b<c;b++)a=d[b],a.type.assigned&&e.push(""+a.name+" = "+a.type.value);return e},a}()})).call(this)},require["./iced"]=new function(){var a=this;((function(){var b,c,d,e,f,g,h,i,j,k,l,m=[].slice;a.transform=function(a){return a.icedTransform()},a["const"]=b={k:"__iced_k",param:"__iced_p_",ns:"iced",Deferrals:"Deferrals",deferrals:"__iced_deferrals",fulfill:"_fulfill",b_while:"_break",t_while:"_while",c_while:"_continue",n_while:"_next",n_arg:"__iced_next_arg",defer_method:"defer",slot:"__slot",assign_fn:"assign_fn",runtime:"icedrun",autocb:"autocb",retslot:"ret",trace:"__iced_trace",passed_deferral:"__iced_passed_deferral",findDeferral:"findDeferral",lineno:"lineno",parent:"parent",filename:"filename",funcname:"funcname",catchExceptions:"catchExceptions"},h=function(a,c,d,e){var f,g,h,i;h={};for(f in e)i=e[f],h[f]=i;return h[b.lineno]=c!=null?c[b.lineno]:void 0,g=function(){var b,e;return b=1<=arguments.length?m.call(arguments,0):[],c!=null&&(e=c.assign_fn)!=null&&e.apply(null,b),a._fulfill(d,h)},g[b.trace]=h,g},l=0,j=function(a){return l++,l%a===0?(l=0,!0):!1},k=null,c=function(){function a(a,b){this.trace=b,this.continuation=a,this.count=1,this.ret=null}return a.name="Deferrals",a.prototype._call=function(a){return k=a,this.continuation(this.ret)},a.prototype._fulfill=function(a,b){var c=this;if(--this.count===0)return j(500)?process.nextTick(function(){return c._call(b)}):this._call(b)},a.prototype.defer=function(a){var b;return this.count++,b=this,h(b,a,null,this.trace)},a}(),g=function(a){var c,d,e;for(d=0,e=a.length;d<e;d++){c=a[d];if(c!=null?c[b.trace]:void 0)return c}return null},d=function(){function c(){this.completed=[],this.waiters=[],this.defer_id=0,this[b.deferrals]=this}var a;return c.name="Rendezvous",a=function(){function a(a,b){this.rv=a,this.id=b}return a.name="RvId",a.prototype.defer=function(a){return this.rv._deferWithId(this.id,a)},a}(),c.prototype.wait=function(a){var b;return this.completed.length?(b=this.completed.shift(),a(b)):this.waiters.push(a)},c.prototype.defer=function(a){var b;return b=this.defer_id++,this.deferWithId(b,a)},c.prototype.id=function(c){var d;return d={},d[b.deferrals]=new a(this,c),d},c.prototype._fulfill=function(a,b){var c;return this.waiters.length?(c=this.waiters.shift(),c(a)):this.completed.push(a)},c.prototype._deferWithId=function(a,b){return this.count++,h(this,b,a,{})},c}(),i=function(a){var c,d,e,f,g;e=[],f=a?a[b.trace]:k;while(f)c=f[b.funcname]||"<anonymous>",d="   at "+c+" ("+f[b.filename]+":"+(f[b.lineno]+1)+")",e.push(d),f=f!=null?(g=f[b.parent])!=null?g[b.trace]:void 0:void 0;return e},f=function(a){var b;console.log(a.stack),b=i();if(b.length)return console.log("Iced 'stack' trace (w/ real line numbers):"),console.log(b.join("\n"))},e=function(){return process.on("uncaughtException",function(a){return f(a),process.exit(1)})},a.runtime={Deferrals:c,Rendezvous:d,findDeferral:g,stackWalk:i,exceptionHandler:f,catchExceptions:e}})).call(this)},require["./nodes"]=new function(){var a=this;((function(){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv={}.hasOwnProperty,bw=function(a,b){function d(){this.constructor=a}for(var c in b)bv.call(b,c)&&(a[c]=b[c]);return d.prototype=b.prototype,a.prototype=new d,a.__super__=b.prototype,a},bx=[].indexOf||function(a){for(var b=0,c=this.length;b<c;b++)if(b in this&&this[b]===a)return b;return-1};W=require("./scope").Scope,bt=require("./lexer"),R=bt.RESERVED,V=bt.STRICT_PROSCRIBED,bm=require("./iced"),bu=require("./helpers"),bh=bu.compact,bl=bu.flatten,bk=bu.extend,bo=bu.merge,bi=bu.del,bq=bu.starts,bj=bu.ends,bn=bu.last,a.extend=bk,bg=function(){return!0},L=function(){return!1},ba=function(){return this},K=function(){return this.negated=!this.negated,this},M=function(){return new be(new I("null"))},a.Base=f=function(){function a(){this.icedContinuationBlock=null,this.icedPrequels=[],this.icedLoopFlag=!1,this.icedNodeFlag=!1,this.icedGotCpsSplitFlag=!1,this.icedCpsPivotFlag=!1,this.icedHasAutocbFlag=!1,this.icedParentAwait=null,this.icedCallContinuationFlag=!1}return a.name="Base",a.prototype.compile=function(a,b){var c;return a=bk({},a),b&&(a.level=b),c=this.unfoldSoak(a)||this,c.tab=a.indent,c.icedHasContinuation()&&!c.icedGotCpsSplitFlag?c.compileCps(a):a.level===H||!c.isStatement(a)?c.compileNode(a):c.compileClosure(a)},a.prototype.compileClosure=function(a){if(this.jumps())throw SyntaxError("cannot use a pure statement in an expression.");return a.sharedScope=!0,this.icedClearAutocbFlags(),j.wrap(this).compileNode(a)},a.prototype.compileCps=function(a){var b,c,d,e;this.icedGotCpsSplitFlag=!0;if(d=this.icedPrequels.length){c=this.icedContinuationBlock?[this,this.icedContinuationBlock]:this.icedWrapContinuation()?new x(null,this):this;while(d--)e=this.icedPrequels[d],c=m.wrap(e.block,c,e.retval,a);b=c}else b=m.wrap(this,this.icedContinuationBlock,null,a);return b.compile(a)},a.prototype.cache=function(a,b,c){var e,f;return this.isComplex()?(e=new I(c||a.scope.freeVariable("ref")),f=new d(e,this),b?[f.compile(a,b),e.value]:[f,e]):(e=b?this.compile(a,b):this,[e,e])},a.prototype.compileLoopReference=function(a,b){var c,d;return c=d=this.compile(a,E),-Infinity<+c&&+c<Infinity||r.test(c)&&a.scope.check(c,!0)||(c=""+(d=a.scope.freeVariable(b))+" = "+c),[c,d]},a.prototype.makeReturn=function(a){var b;return b=this.unwrapAll(),a?new h(new I(""+a+".push"),[b]):new T(b,this.icedHasAutocbFlag)},a.prototype.contains=function(a){var b;return b=!1,this.traverseChildren(!1,function(c){if(a(c))return b=!0,!1}),b},a.prototype.containsType=function(a){return this instanceof a||this.contains(function(b){return b instanceof a})},a.prototype.lastNonComment=function(a){var b;b=a.length;while(b--)if(!(a[b]instanceof l))return a[b];return null},a.prototype.toString=function(a,b){var c,d,e,f,g,h,i;a==null&&(a=""),b==null&&(b=this.constructor.name),d="",this.icedNodeFlag&&(d+="A"),this.icedLoopFlag&&(d+="L"),this.icedCpsPivotFlag&&(d+="P"),this.icedHasAutocbFlag&&(d+="C"),this.icedParentAwait&&(d+="D"),d.length&&(d=" ("+d+")"),f="\n"+a+b,this.soak&&(f+="?"),f+=d,i=this.icedPrequels;for(g=0,h=i.length;g<h;g++)c=i[g],e=a+_,f+="\n"+e+"Prequel",f+=c.block.toString(e+_);return this.eachChild(function(b){return f+=b.toString(a+_)}),this.icedContinuationBlock&&(a+=_,f+="\n"+a+"Continuation",f+=this.icedContinuationBlock.toString(a+_)),f},a.prototype.eachChild=function(a){var b,c,d,e,f,g,h,i;if(!this.children)return this;h=this.children;for(d=0,f=h.length;d<f;d++){b=h[d];if(this[b]){i=bl([this[b]]);for(e=0,g=i.length;e<g;e++){c=i[e];if(a(c)===!1)return this}}}return this},a.prototype.traverseChildren=function(a,b){return this.eachChild(function(c){return b(c)===!1?!1:c.traverseChildren(a,b)})},a.prototype.invert=function(){return new O("!",this)},a.prototype.unwrapAll=function(){var a;a=this;while(a!==(a=a.unwrap()))continue;return a},a.prototype.flattenChildren=function(){var a,b,c,d,e,f,g,h,i;c=[],h=this.children;for(d=0,f=h.length;d<f;d++){a=h[d];if(this[a]){i=bl([this[a]]);for(e=0,g=i.length;e<g;e++)b=i[e],c.push(b)}}return c},a.prototype.icedWalkAst=function(a,b){var c,d,e,f;this.icedParentAwait=a,this.icedHasAutocbFlag=b.foundAutocb,f=this.flattenChildren();for(d=0,e=f.length;d<e;d++)c=f[d],c.icedWalkAst(a,b)&&(this.icedNodeFlag=!0);return this.icedNodeFlag},a.prototype.icedWalkAstLoops=function(a){var b,c,d,e;this.isLoop()&&this.icedNodeFlag&&(a=!0),this.icedLoopFlag=a,e=this.flattenChildren();for(c=0,d=e.length;c<d;c++)b=e[c],b.icedWalkAstLoops(a)&&(this.icedLoopFlag=!0);return this.icedLoopFlag},a.prototype.icedWalkCpsPivots=function(){var a,b,c,d;if(this.icedNodeFlag||this.icedLoopFlag&&this.icedIsJump())this.icedCpsPivotFlag=!0;d=this.flattenChildren();for(b=0,c=d.length;b<c;b++)a=d[b],a.icedWalkCpsPivots()&&(this.icedCpsPivotFlag=!0);return this.icedCpsPivotFlag},a.prototype.icedClearAutocbFlags=function(){return this.icedHasAutocbFlag=!1,this.traverseChildren(!1,function(a){return a.icedHasAutocbFlag=!1,!0})},a.prototype.children=[],a.prototype.icedCpsRotate=function(){var a,b,c,d;d=this.flattenChildren();for(b=0,c=d.length;b<c;b++)a=d[b],a.icedCpsRotate();return this},a.prototype.icedCpsExprRotate=function(a){var b;return b=a.icedIsIcedExpr(),b&&a.icedCallContinuation(),a.icedCpsRotate(),b?this.icedNestPrequelBlock(a):null},a.prototype.icedIsCpsPivot=function(){return this.icedCpsPivotFlag},a.prototype.icedNestContinuationBlock=function(a){return this.icedContinuationBlock=a},a.prototype.icedHasContinuation=function(){var a;return!!this.icedContinuationBlock||((a=this.icedPrequels)!=null?a.length:void 0)},a.prototype.icedCallContinuation=function(){return this.icedCallContinuationFlag=!0},a.prototype.icedWrapContinuation=L,a.prototype.icedIsJump=L,a.prototype.icedIsIcedExpr=function(){return!(this instanceof k)&&this.icedNodeFlag},a.prototype.icedNestPrequelBlock=function(a){var b,c;return c=new w,b=this.icedParentAwait||this,b.icedPrequels.push({block:a,retval:c}),c},a.prototype.icedUnwrap=function(a){return a.icedHasContinuation()&&this.icedHasContinuation()?this:(this.icedHasContinuation()&&(a.icedContinuationBlock=this.icedContinuationBlock,a.icedPrequels=this.icedPrequels),a)},a.prototype.isStatement=L,a.prototype.jumps=L,a.prototype.isComplex=bg,a.prototype.isChainable=L,a.prototype.isAssignable=L,a.prototype.isLoop=L,a.prototype.unwrap=ba,a.prototype.unfoldSoak=L,a.prototype.assigns=L,a}(),a.Block=g=function(a){function b(a){b.__super__.constructor.call(this),this.expressions=bh(bl(a||[]))}return bw(b,a),b.name="Block",b.prototype.children=["expressions"],b.prototype.push=function(a){return this.expressions.push(a),this},b.prototype.pop=function(){return this.expressions.pop()},b.prototype.unshift=function(a){return this.expressions.unshift(a),this},b.prototype.unwrap=function(){return this.expressions.length===1?this.icedUnwrap(this.expressions[0]):this},b.prototype.getSingle=function(){return this.expressions.length===1?this.expressions[0]:null},b.prototype.isEmpty=function(){return!this.expressions.length},b.prototype.isStatement=function(a){var b,c,d,e;e=this.expressions;for(c=0,d=e.length;c<d;c++){b=e[c];if(b.isStatement(a))return!0}return!1},b.prototype.jumps=function(a){var b,c,d,e;e=this.expressions;for(c=0,d=e.length;c<d;c++){b=e[c];if(b.jumps(a))return b}},b.prototype.icedThreadReturn=function(a){var b,c,d;a=a||new x,d=this.expressions.length,c=!1;while(d--){b=this.expressions[d];if(b.isStatement())break;if(!(b instanceof l)&&!(b instanceof T)){a.assignValue(b),this.expressions[d]=a;return}}return this.expressions.push(a)},b.prototype.makeReturn=function(a){var b,c,d;d=this.expressions.length,c=!1;while(d--){b=this.expressions[d];if(!(b instanceof l)){this.expressions[d]=b.makeReturn(a);if(b instanceof T&&!b.expression&&!b.icedHasAutocbFlag)this.expressions.splice(d,1),c=!0;else if(!(b instanceof y)||b.elseBody)c=!0;break}}return this.icedHasAutocbFlag&&!this.icedNodeFlag&&!c&&this.expressions.push(new T(null,!0)),this},b.prototype.compileCps=function(a){return this.icedGotCpsSplitFlag=!0,this.expressions.length>1?b.__super__.compileCps.call(this,a):this.compileNode(a)},b.prototype.compile=function(a,c){return a==null&&(a={}),a.scope?b.__super__.compile.call(this,a,c):this.compileRoot(a)},b.prototype.compileNode=function(a){var c,d,e,f,g,h,i;this.tab=a.indent,f=a.level===H,d=[],i=this.expressions;for(g=0,h=i.length;g<h;g++)e=i[g],e=e.unwrapAll(),e=e.unfoldSoak(a)||e,e instanceof b?d.push(e.compileNode(a)):f?(e.front=!0,c=e.compile(a),e.isStatement(a)||(c=""+this.tab+c+";",e instanceof I&&(c=""+c+"\n")),d.push(c)):d.push(e.compile(a,E));return f?this.spaced?"\n"+d.join("\n\n")+"\n":d.join("\n"):(c=d.join(", ")||"void 0",d.length>1&&a.level>=E?"("+c+")":c)},b.prototype.compileRoot=function(a){var b,c,d,e,f,g;return a.indent=a.bare?"":_,a.scope=new W(null,this,null),a.level=H,this.spaced=!0,e="",a.bare||(f=function(){var a,b,e,f;e=this.expressions,f=[];for(d=a=0,b=e.length;a<b;d=++a){c=e[d];if(!(c.unwrap()instanceof l))break;f.push(c)}return f}.call(this),g=this.expressions.slice(f.length),this.expressions=f,f.length&&(e=""+this.compileNode(bo(a,{indent:""}))+"\n"),this.expressions=g),b=this.compileWithDeclarations(a),a.bare?b:""+e+"(function() {\n"+b+"\n}).call(this);\n"},b.prototype.compileWithDeclarations=function(a){var b,c,d,e,f,g,h,i,j,k,m,n,o,p;c=g="",n=this.expressions;for(f=k=0,m=n.length;k<m;f=++k){e=n[f],e=e.unwrap();if(!(e instanceof l||e instanceof I))break}a=bo(a,{level:H}),f&&(h=this.expressions.splice(f,9e9),o=[this.spaced,!1],j=o[0],this.spaced=o[1],p=[this.compileNode(a),j],c=p[0],this.spaced=p[1],this.expressions=h),g=this.compileNode(a),i=a.scope;if(i.expressions===this){d=a.scope.hasDeclarations(),b=i.hasAssignments;if(d||b)f&&(c+="\n"),c+=""+this.tab+"var ",d&&(c+=i.declaredVariables().join(", ")),b&&(d&&(c+=",\n"+(this.tab+_)),c+=i.assignedVariables().join(",\n"+(this.tab+_))),c+=";\n"}return c+g},b.prototype.icedCpsRotate=function(){var a,c,d,e,f,g,h,i,j,k;e=null,k=this.expressions;for(d=g=0,i=k.length;g<i;d=++g){c=k[d],c.icedIsCpsPivot()&&(e=c,e.icedCallContinuation()),c.icedCpsRotate();if(e)break}if(!e)return this;if(e.icedContinuationBlock)throw SyntaxError("unexpected continuation block in node");f=this.expressions.slice(d+1),this.expressions=this.expressions.slice(0,d+1);if(f.length){a=new b(f),e.icedNestContinuationBlock(a);for(h=0,j=f.length;h<j;h++)c=f[h],c.icedNodeFlag&&(a.icedNodeFlag=!0),c.icedLoopFlag&&(a.icedLoopFlag=!0),c.icedCpsPivotFlag&&(a.icedCpsPivotFlag=!0),c.icedHasAutocbFlag&&(a.icedHasAutocbFlag=!0);a.icedCpsRotate()}return this},b.wrap=function(a){return a.length===1&&a[0]instanceof b?a[0]:new b(a)},b.prototype.endsInAwait=function(){var a;return((a=this.expressions)!=null?a.length:void 0)&&this.expressions[this.expressions.length-1]instanceof e},b.prototype.icedAddRuntime=function(){return this.expressions.unshift(new u)},b.prototype.icedTransform=function(){var a;return a={},this.icedWalkAst(null,a),a.foundAwait&&(a.foundDefer&&!a.foundRequire&&this.icedAddRuntime(),this.icedWalkAstLoops(!1),this.icedWalkCpsPivots(),this.icedCpsRotate()),this},b}(f),a.Literal=I=function(a){function b(a){this.value=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Literal",b.prototype.makeReturn=function(){return this.isStatement()?this:b.__super__.makeReturn.apply(this,arguments)},b.prototype.isAssignable=function(){return r.test(this.value)},b.prototype.isStatement=function(){var a;return(a=this.value)==="break"||a==="continue"||a==="debugger"},b.prototype.isComplex=L,b.prototype.icedIsJump=function(){return this.isStatement()},b.prototype.assigns=function(a){return a===this.value},b.prototype.compileIced=function(a){var c,d,e,f;return d={"continue":bm["const"].c_while,"break":bm["const"].b_while},f=d[this.value],e=new be(new b(f)),c=new h(e,[]),c.compile(a)},b.prototype.jumps=function(a){if(this.value==="break"&&!((a!=null?a.loop:void 0)||(a!=null?a.block:void 0)))return this;if(this.value==="continue"&&(a!=null?!a.loop:!void 0))return this},b.prototype.compileNode=function(a){var b,c;return b=this.isUndefined?a.level>=C?"(void 0)":"void 0":this.value==="this"?((c=a.scope.method)!=null?c.bound:void 0)?a.scope.method.context:this.value:this.value.reserved?'"'+this.value+'"':this.icedLoopFlag&&this.icedIsJump()?this.compileIced(a):this.value,this.isStatement()?""+this.tab+b+";":b},b.prototype.toString=function(){return' "'+this.value+'"'},b}(f),a.Return=T=function(a){function b(a,c){b.__super__.constructor.call(this),this.icedHasAutocbFlag=c,a&&!a.unwrap().isUndefined&&(this.expression=a)}return bw(b,a),b.name="Return",b.prototype.children=["expression"],b.prototype.isStatement=bg,b.prototype.makeReturn=ba,b.prototype.jumps=ba,b.prototype.compile=function(a,c){var d,e;return d=(e=this.expression)!=null?e.makeReturn():void 0,!d||d instanceof b?b.__super__.compile.call(this,a,c):d.compile(a,c)},b.prototype.compileNode=function(a){var b,c,d,e,f;return this.icedHasAutocbFlag?(e=new be(new I(bm["const"].autocb)),b=this.expression?[this.expression]:[],d=new h(e,b),f=new I("return"),c=new g([d,f]),c.compile(a)):this.tab+("return"+[this.expression?" "+this.expression.compile(a,G):void 0]+";")},b}(f),a.Value=be=function(a){function b(a,c,d){return b.__super__.constructor.call(this),!c&&a instanceof b?a:(this.base=a,this.properties=c||[],d&&(this[d]=!0),this)}return bw(b,a),b.name="Value",b.prototype.children=["base","properties"],b.prototype.copy=function(){return new b(this.base,this.properties)},b.prototype.add=function(a){return this.properties=this.properties.concat(a),this},b.prototype.hasProperties=function(){return!!this.properties.length},b.prototype.isArray=function(){return!this.properties.length&&this.base instanceof c},b.prototype.isComplex=function(){return this.hasProperties()||this.base.isComplex()},b.prototype.isAssignable=function(){return this.hasProperties()||this.base.isAssignable()},b.prototype.isSimpleNumber=function(){return this.base instanceof I&&U.test(this.base.value)},b.prototype.isString=function(){return this.base instanceof I&&t.test(this.base.value)},b.prototype.isAtomic=function(){var a,b,c,d;d=this.properties.concat(this.base);for(b=0,c=d.length;b<c;b++){a=d[b];if(a.soak||a instanceof h)return!1}return!0},b.prototype.isStatement=function(a){return!this.properties.length&&this.base.isStatement(a)},b.prototype.assigns=function(a){return!this.properties.length&&this.base.assigns(a)},b.prototype.jumps=function(a){return!this.properties.length&&this.base.jumps(a)},b.prototype.isObject=function(a){return this.properties.length?!1:this.base instanceof N&&(!a||this.base.generated)},b.prototype.isSplice=function(){return bn(this.properties)instanceof X},b.prototype.unwrap=function(){return this.properties.length?this:this.icedUnwrap(this.base)},b.prototype.toSlot=function(){var a,b;return a=null,this.properties&&this.properties.length&&(b=this.properties.pop()),new Y(this,b)},b.prototype.cacheReference=function(a){var c,e,f,g;return f=bn(this.properties),this.properties.length<2&&!this.base.isComplex()&&(f!=null?!f.isComplex():!void 0)?[this,this]:(c=new b(this.base,this.properties.slice(0,-1)),c.isComplex()&&(e=new I(a.scope.freeVariable("base")),c=new b(new Q(new d(e,c)))),f?(f.isComplex()&&(g=new I(a.scope.freeVariable("name")),f=new A(new d(g,f.index)),g=new A(g)),[c.add(f),new b(e||c.base,[g||f])]):[c,e])},b.prototype.icedWrapContinuation=bg,b.prototype.icedCpsRotate=function(){var a,c,d,e,f,g;if(!this.properties.length){b.__super__.icedCpsRotate.call(this);return}if(a=this.icedCpsExprRotate(this.base))this.base=a;f=this.properties,g=[];for(d=0,e=f.length;d<e;d++)c=f[d],c.index!=null&&this.icedCpsExprRotate(c.index)?g.push(c.index=v):g.push(void 0);return g},b.prototype.compileNode=function(a){var b,c,d,e,f;this.base.front=this.front,d=this.properties,b=this.base.compile(a,d.length?C:null),(this.base instanceof Q||d.length)&&U.test(b)&&(b=""+b+".");for(e=0,f=d.length;e<f;e++)c=d[e],b+=c.compile(a);return b},b.prototype.unfoldSoak=function(a){var c,e=this;return this.unfoldedSoak!=null?this.unfoldedSoak:(c=function(){var c,f,g,h,i,j,k,l,m;if(g=e.base.unfoldSoak(a))return Array.prototype.push.apply(g.body.properties,e.properties),g;m=e.properties;for(f=k=0,l=m.length;k<l;f=++k){h=m[f];if(!h.soak)continue;return h.soak=!1,c=new b(e.base,e.properties.slice(0,f)),j=new b(e.base,e.properties.slice(f)),c.isComplex()&&(i=new I(a.scope.freeVariable("ref")),c=new Q(new d(i,c)),j.base=i),new y(new o(c),j,{soak:!0})}return null}(),this.unfoldedSoak=c||!1)},b}(f),a.Comment=l=function(a){function b(a){this.comment=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Comment",b.prototype.isStatement=bg,b.prototype.makeReturn=ba,b.prototype.compileNode=function(a,b){var c;return c="/*"+bp(this.comment,this.tab)+("\n"+this.tab+"*/\n"),(b||a.level)===H&&(c=a.indent+c),c},b}(f),a.Call=h=function(a){function c(a,b,d){this.args=b!=null?b:[],this.soak=d,c.__super__.constructor.call(this),this.isNew=!1,this.isSuper=a==="super",this.variable=this.isSuper?null:a}return bw(c,a),c.name="Call",c.prototype.children=["variable","args"],c.prototype.newInstance=function(){var a,b;return a=((b=this.variable)!=null?b.base:void 0)||this.variable,a instanceof c&&!a.isNew?a.newInstance():this.isNew=!0,this},c.prototype.superReference=function(a){var c,d,e;d=a.scope.method;if(!d)throw SyntaxError("cannot call super outside of a function.");e=d.name;if(e==null)throw SyntaxError("cannot call super on an anonymous function.");return d.klass?(c=[new b(new I("__super__"))],d["static"]&&c.push(new b(new I("constructor"))),c.push(new b(new I(e))),(new be(new I(d.klass),c)).compile(a)):""+e+".__super__.constructor"},c.prototype.icedWrapContinuation=bg,c.prototype.icedCpsRotate=function(){var a,b,c,d,e,f;f=this.args;for(b=d=0,e=f.length;d<e;b=++d){a=f[b];if(c=this.icedCpsExprRotate(a))this.args[b]=c}if(this.variable&&(c=this.icedCpsExprRotate(this.variable)))return this.variable=c},c.prototype.unfoldSoak=function(a){var b,d,e,f,g,h,i,j,k;if(this.soak){if(this.variable){if(d=br(a,this,"variable"))return d;j=(new be(this.variable)).cacheReference(a),e=j[0],g=j[1]}else e=new I(this.superReference(a)),g=new be(e);return g=new c(g,this.args),g.isNew=this.isNew,e=new I("typeof "+e.compile(a)+' === "function"'),new y(e,new be(g),{soak:!0})}b=this,f=[];for(;;){if(b.variable instanceof c){f.push(b),b=b.variable;continue}if(!(b.variable instanceof be))break;f.push(b);if(!((b=b.variable.base)instanceof c))break}k=f.reverse();for(h=0,i=k.length;h<i;h++)b=k[h],d&&(b.variable instanceof c?b.variable=d:b.variable.base=d),d=br(a,b,"variable");return d},c.prototype.filterImplicitObjects=function(a){var b,c,e,f,g,h,i,j,k,m;c=[];for(h=0,j=a.length;h<j;h++){b=a[h];if(!((typeof b.isObject=="function"?b.isObject():void 0)&&b.base.generated)){c.push(b);continue}e=null,m=b.base.properties;for(i=0,k=m.length;i<k;i++)f=m[i],f instanceof d||f instanceof l?(e||c.push(e=new N(g=[],!0)),g.push(f)):(c.push(f),e=null)}return c},c.prototype.compileNode=function(a){var b,c,d,e;return(e=this.variable)!=null&&(e.front=this.front),(d=Z.compileSplattedArray(a,this.args,!0))?this.compileSplat(a,d):(c=this.filterImplicitObjects(this.args),c=function(){var d,e,f;f=[];for(d=0,e=c.length;d<e;d++)b=c[d],f.push(b.compile(a,E));return f}().join(", "),this.isSuper?this.superReference(a)+(".call(this"+(c&&", "+c)+")"):(this.isNew?"new ":"")+this.variable.compile(a,C)+("("+c+")"))},c.prototype.compileSuper=function(a,b){return""+this.superReference(b)+".call(this"+(a.length?", ":"")+a+")"},c.prototype.compileSplat=function(a,b){var c,d,e,f,g;return this.isSuper?""+this.superReference(a)+".apply(this, "+b+")":this.isNew?(e=this.tab+_,"(function(func, args, ctor) {\n"+e+"ctor.prototype = func.prototype;\n"+e+"var child = new ctor, result = func.apply(child, args);\n"+e+'return typeof result === "object" ? result : child;\n'+this.tab+"})("+this.variable.compile(a,E)+", "+b+", function() {})"):(c=new be(this.variable),(f=c.properties.pop())&&c.isComplex()?(g=a.scope.freeVariable("ref"),d="("+g+" = "+c.compile(a,E)+")"+f.compile(a)):(d=c.compile(a,C),U.test(d)&&(d="("+d+")"),f?(g=d,d+=f.compile(a)):g="null"),""+d+".apply("+g+", "+b+")")},c}(f),a.Extends=p=function(a){function b(a,c){this.child=a,this.parent=c,b.__super__.constructor.call(this)}return bw(b,a),b.name="Extends",b.prototype.children=["child","parent"],b.prototype.compile=function(a){return(new h(new be(new I(bs("extends"))),[this.child,this.parent])).compile(a)},b}(f),a.Access=b=function(a){function b(a,c){this.name=a,b.__super__.constructor.call(this),this.name.asKey=!0,this.soak=c==="soak"}return bw(b,a),b.name="Access",b.prototype.children=["name"],b.prototype.compile=function(a){var b;return b=this.name.compile(a),r.test(b)||this.name instanceof n?"."+b:"["+b+"]"},b.prototype.isComplex=L,b}(f),a.Index=A=function(a){function b(a){this.index=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Index",b.prototype.children=["index"],b.prototype.compile=function(a){return"["+this.index.compile(a,G)+"]"},b.prototype.isComplex=function(){return this.index.isComplex()},b}(f),a.Range=S=function(a){function b(a,c,d){this.from=a,this.to=c,b.__super__.constructor.call(this),this.exclusive=d==="exclusive",this.equals=this.exclusive?"":"="}return bw(b,a),b.name="Range",b.prototype.children=["from","to"],b.prototype.compileVariables=function(a){var b,c,d,e,f;a=bo(a,{top:!0}),c=this.from.cache(a,E),this.fromC=c[0],this.fromVar=c[1],d=this.to.cache(a,E),this.toC=d[0],this.toVar=d[1];if(b=bi(a,"step"))e=b.cache(a,E),this.step=e[0],this.stepVar=e[1];f=[this.fromVar.match(U),this.toVar.match(U)],this.fromNum=f[0],this.toNum=f[1];if(this.stepVar)return this.stepNum=this.stepVar.match(U)},b.prototype.compileNode=function(a){var b,c,d,e,f,g,h,i,j,k,l,m,n,o;return this.fromVar||this.compileVariables(a),a.index?(h=this.fromNum&&this.toNum,f=bi(a,"index"),g=bi(a,"name"),j=g&&g!==f,m=""+f+" = "+this.fromC,this.toC!==this.toVar&&(m+=", "+this.toC),this.step!==this.stepVar&&(m+=", "+this.step),n=[""+f+" <"+this.equals,""+f+" >"+this.equals],i=n[0],e=n[1],c=this.stepNum?+this.stepNum>0?""+i+" "+this.toVar:""+e+" "+this.toVar:h?(o=[+this.fromNum,+this.toNum],d=o[0],l=o[1],o,d<=l?""+i+" "+l:""+e+" "+l):(b=""+this.fromVar+" <= "+this.toVar,""+b+" ? "+i+" "+this.toVar+" : "+e+" "+this.toVar),k=this.stepVar?""+f+" += "+this.stepVar:h?j?d<=l?"++"+f:"--"+f:d<=l?""+f+"++":""+f+"--":j?""+b+" ? ++"+f+" : --"+f:""+b+" ? "+f+"++ : "+f+"--",j&&(m=""+g+" = "+m),j&&(k=""+g+" = "+k),""+m+"; "+c+"; "+k):this.compileArray(a)},b.prototype.compileArray=function(a){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p;if(this.fromNum&&this.toNum&&Math.abs(this.fromNum-this.toNum)<=20)return j=function(){p=[];for(var a=n=+this.fromNum,b=+this.toNum;n<=b?a<=b:a>=b;n<=b?a++:a--)p.push(a);return p}.apply(this),this.exclusive&&j.pop(),"["+j.join(", ")+"]";g=this.tab+_,f=a.scope.freeVariable("i"),k=a.scope.freeVariable("results"),i="\n"+g+k+" = [];",this.fromNum&&this.toNum?(a.index=f,c=this.compileNode(a)):(l=""+f+" = "+this.fromC+(this.toC!==this.toVar?", "+this.toC:""),d=""+this.fromVar+" <= "+this.toVar,c="var "+l+"; "+d+" ? "+f+" <"+this.equals+" "+this.toVar+" : "+f+" >"+this.equals+" "+this.toVar+"; "+d+" ? "+f+"++ : "+f+"--"),h="{ "+k+".push("+f+"); }\n"+g+"return "+k+";\n"+a.indent,e=function(a){return a!=null?a.contains(function(a){return a instanceof I&&a.value==="arguments"&&!a.asKey}):void 0};if(e(this.from)||e(this.to))b=", arguments";return"(function() {"+i+"\n"+g+"for ("+c+")"+h+"}).apply(this"+(b!=null?b:"")+")"},b}(f),a.Slice=X=function(a){function b(a){this.range=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Slice",b.prototype.children=["range"],b.prototype.compileNode=function(a){var b,c,d,e,f,g;return g=this.range,e=g.to,c=g.from,d=c&&c.compile(a,G)||"0",b=e&&e.compile(a,G),e&&(!!this.range.exclusive||+b!==-1)&&(f=", "+(this.range.exclusive?b:U.test(b)?""+(+b+1):(b=e.compile(a,C),""+b+" + 1 || 9e9"))),".slice("+d+(f||"")+")"},b}(f),a.Obj=N=function(a){function b(a,c){this.generated=c!=null?c:!1,b.__super__.constructor.call(this),this.objects=this.properties=a||[]}return bw(b,a),b.name="Obj",b.prototype.children=["properties"],b.prototype.icedWrapContinuation=bg,b.prototype.icedCpsRotate=function(){var a,b,c,e,f,g;f=this.properties,g=[];for(c=0,e=f.length;c<e;c++)a=f[c],a instanceof d&&((b=this.icedCpsExprRotate(a.value))?g.push(a.value=b):g.push(void 0));return g},b.prototype.compileNode=function(a){var b,c,e,f,g,h,i,j,k,m,n,o,p,q,r,s;n=this.properties,m=[],s=this.properties;for(o=0,q=s.length;o<q;o++){j=s[o],j.isComplex()&&(j=j.variable);if(j!=null){k=j.unwrapAll().value.toString();if(bx.call(m,k)>=0)throw SyntaxError('multiple object literal properties named "'+k+'"');m.push(k)}}if(!n.length)return this.front?"({})":"{}";if(this.generated)for(p=0,r=n.length;p<r;p++){h=n[p];if(h instanceof be)throw new Error("cannot have an implicit value in an implicit object")}return c=a.indent+=_,g=this.lastNonComment(this.properties),n=function(){var h,i,k;k=[];for(b=h=0,i=n.length;h<i;b=++h)j=n[b],f=b===n.length-1?"":j===g||j instanceof l?"\n":",\n",e=j instanceof l?"":c,j instanceof be&&j["this"]&&(j=new d(j.properties[0].name,j,"object")),j instanceof l||(j instanceof d||(j=new d(j,j,"object")),(j.variable.base||j.variable).asKey=!0),k.push(e+j.compile(a,H)+f);return k}(),n=n.join(""),i="{"+(n&&"\n"+n+"\n"+this.tab)+"}",this.front?"("+i+")":i},b.prototype.assigns=function(a){var b,c,d,e;e=this.properties;for(c=0,d=e.length;c<d;c++){b=e[c];if(b.assigns(a))return!0}return!1},b}(f),a.Arr=c=function(a){function b(a){b.__super__.constructor.call(this),this.objects=a||[]}return bw(b,a),b.name="Arr",b.prototype.children=["objects"],b.prototype.filterImplicitObjects=h.prototype.filterImplicitObjects,b.prototype.icedWrapContinuation=bg,b.prototype.icedCpsRotate=function(){var a,b,c,d,e,f,g;f=this.objects,g=[];for(a=d=0,e=f.length;d<e;a=++d)b=f[a],(c=this.icedCpsExprRotate(b))?g.push(this.objects[a]=c):g.push(void 0);return g},b.prototype.compileNode=function(a){var b,c,d;return this.objects.length?(a.indent+=_,d=this.filterImplicitObjects(this.objects),(b=Z.compileSplattedArray(a,d))?b:(b=function(){var b,e,f;f=[];for(b=0,e=d.length;b<e;b++)c=d[b],f.push(c.compile(a,E));return f}().join(", "),b.indexOf("\n")>=0?"[\n"+a.indent+b+"\n"+this.tab+"]":"["+b+"]")):"[]"},b.prototype.assigns=function(a){var b,c,d,e;e=this.objects;for(c=0,d=e.length;c<d;c++){b=e[c];if(b.assigns(a))return!0}return!1},b}(f),a.Class=i=function(a){function c(a,b,d){this.variable=a,this.parent=b,this.body=d!=null?d:new g,c.__super__.constructor.call(this),this.boundFuncs=[],this.body.classBody=!0}return bw(c,a),c.name="Class",c.prototype.children=["variable","parent","body"],c.prototype.determineName=function(){var a,c;if(!this.variable)return null;a=(c=bn(this.variable.properties))?c instanceof b&&c.name.value:this.variable.base.value;if(bx.call(V,a)>=0)throw SyntaxError("variable name may not be "+a);return a&&(a=r.test(a)&&a)},c.prototype.setContext=function(a){return this.body.traverseChildren(!1,function(b){if(b.classBody)return!1;if(b instanceof I&&b.value==="this")return b.value=a;if(b instanceof k){b.klass=a;if(b.bound)return b.context=a}})},c.prototype.addBoundFunctions=function(a){var c,d,e,f,g,h;if(this.boundFuncs.length){g=this.boundFuncs,h=[];for(e=0,f=g.length;e<f;e++)c=g[e],d=(new be(new I("this"),[new b(c)])).compile(a),h.push(this.ctor.body.unshift(new I(""+d+" = "+bs("bind")+"("+d+", this)")));return h}},c.prototype.addProperties=function(a,c,e){var f,g,h,i,j;return j=a.base.properties.slice(0),h=function(){var a;a=[];while(f=j.shift()){if(f instanceof d){g=f.variable.base,delete f.context,i=f.value;if(g.value==="constructor"){if(this.ctor)throw new Error("cannot define more than one constructor in a class");if(i.bound)throw new Error("cannot define a constructor as a bound function");i instanceof k?f=this.ctor=i:(this.externalCtor=e.scope.freeVariable("class"),f=new d(new I(this.externalCtor),i))}else f.variable["this"]?(i["static"]=!0,i.bound&&(i.context=c)):(f.variable=new be(new I(c),[new b(new I("prototype")),new b(g)]),i instanceof k&&i.bound&&(this.boundFuncs.push(g),i.bound=!1))}a.push(f)}return a}.call(this),bh(h)},c.prototype.walkBody=function(a,b){var d=this;return this.traverseChildren(!1,function(e){var f,h,i,j,k,l;if(e instanceof c)return!1;if(e instanceof g){l=f=e.expressions;for(h=j=0,k=l.length;j<k;h=++j)i=l[h],i instanceof be&&i.isObject(!0)&&(f[h]=d.addProperties(i,a,b));return e.expressions=f=bl(f)}})},c.prototype.hoistDirectivePrologue=function(){var a,b,c;b=0,a=this.body.expressions;while((c=a[b])&&c instanceof l||c instanceof be&&c.isString())++b;return this.directives=a.splice(0,b)},c.prototype.ensureConstructor=function(a){return this.ctor||(this.ctor=new k,this.parent&&this.ctor.body.push(new I(""+a+".__super__.constructor.apply(this, arguments)")),this.externalCtor&&this.ctor.body.push(new I(""+this.externalCtor+".apply(this, arguments)")),this.ctor.body.makeReturn(),this.body.expressions.unshift(this.ctor)),this.ctor.ctor=this.ctor.name=a,this.ctor.klass=null,this.ctor.noReturn=!0},c.prototype.compileNode=function(a){var c,e,f,g,h,i,l;return e=this.determineName(),h=e||"_Class",h.reserved&&(h="_"+h),g=new I(h),this.hoistDirectivePrologue(),this.setContext(h),this.walkBody(h,a),this.ensureConstructor(h),this.body.spaced=!0,this.ctor instanceof k||this.body.expressions.unshift(this.ctor),e&&this.body.expressions.unshift(new d(new be(new I(h),[new b(new I("name"))]),new I("'"+h+"'"))),this.body.expressions.push(g),(l=this.body.expressions).unshift.apply(l,this.directives),this.addBoundFunctions(a),c=j.wrap(this.body),this.parent&&(this.superClass=new I(a.scope.freeVariable("super",!1)),this.body.expressions.unshift(new p(g,this.superClass)),c.args.push(this.parent),i=c.variable.params||c.variable.base.params,i.push(new P(this.superClass))),f=new Q(c,!0),this.variable&&(f=new d(this.variable,f)),f.compile(a)},c}(f),a.Assign=d=function(a){function c(a,b,d,e){var f,g,h;this.variable=a,this.value=b,this.context=d,c.__super__.constructor.call(this),this.param=e&&e.param,this.subpattern=e&&e.subpattern,f=(h=g=this.variable.unwrapAll().value,bx.call(V,h)>=0);if(f&&this.context!=="object")throw SyntaxError('variable name may not be "'+g+'"');this.icedlocal=e&&e.icedlocal}return bw(c,a),c.name="Assign",c.prototype.children=["variable","value"],c.prototype.isStatement=function(a){return(a!=null?a.level:void 0)===H&&this.context!=null&&bx.call(this.context,"?")>=0},c.prototype.assigns=function(a){return this[this.context==="object"?"value":"variable"].assigns(a)},c.prototype.unfoldSoak=function(a){return br(a,this,"variable")},c.prototype.icedCpsRotate=function(){var a;if(a=this.icedCpsExprRotate(this.value))return this.value=a},c.prototype.compileNode=function(a){var b,c,d,e,f,g,h,i,j;if(b=this.variable instanceof be){if(this.variable.isArray()||this.variable.isObject())return this.compilePatternMatch(a);if(this.variable.isSplice())return this.compileSplice(a);if((g=this.context)==="||="||g==="&&="||g==="?=")return this.compileConditional(a)}d=this.variable.compile(a,E);if(!this.context){if(!(f=this.variable.unwrapAll()).isAssignable())throw SyntaxError('"'+this.variable.compile(a)+'" cannot be assigned.');if(typeof f.hasProperties=="function"?!f.hasProperties():!void 0)this.param||this.icedlocal?a.scope.add(d,"var",this.icedlocal):a.scope.find(d)}return this.value instanceof k&&(c=J.exec(d))&&(c[1]&&(this.value.klass=c[1]),this.value.name=(h=(i=(j=c[2])!=null?j:c[3])!=null?i:c[4])!=null?h:c[5]),e=this.value.compile(a,E),this.context==="object"?""+d+": "+e:(e=d+(" "+(this.context||"=")+" ")+e,a.level<=E?e:"("+e+")")},c.prototype.compilePatternMatch=function(a){var d,e,f,g,h,i,j,k,l,m,n,o,p,q,s,t,u,v,w,x,y,z,B,C,D,G,J;s=a.level===H,u=this.value,m=this.variable.base.objects;if(!(n=m.length))return f=u.compile(a),a.level>=F?"("+f+")":f;i=this.variable.isObject();if(s&&n===1&&!((l=m[0])instanceof Z)){l instanceof c?(y=l,z=y.variable,h=z.base,l=y.value):l.base instanceof Q?(B=(new be(l.unwrapAll())).cacheReference(a),l=B[0],h=B[1]):h=i?l["this"]?l.properties[0].name:l:new I(0),d=r.test(h.unwrap().value||0),u=new be(u),u.properties.push(new(d?b:A)(h));if(C=l.unwrap().value,bx.call(R,C)>=0)throw new SyntaxError("assignment to a reserved word: "+l.compile(a)+" = "+u.compile(a));return(new c(l,u,null,{param:this.param})).compile(a,H)}v=u.compile(a,E),e=[],q=!1;if(!r.test(v)||this.variable.assigns(v))e.push(""+(o=a.scope.freeVariable("ref"))+" = "+v),v=o;for(g=w=0,x=m.length;w<x;g=++w){l=m[g],h=g,i&&(l instanceof c?(D=l,G=D.variable,h=G.base,l=D.value):l.base instanceof Q?(J=(new be(l.unwrapAll())).cacheReference(a),l=J[0],h=J[1]):h=l["this"]?l.properties[0].name:l);if(!q&&l instanceof Z)k=l.name.unwrap().value,l=l.unwrap(),t=""+n+" <= "+v+".length ? "+bs("slice")+".call("+v+", "+g,(p=n-g-1)?(j=a.scope.freeVariable("i"),t+=", "+j+" = "+v+".length - "+p+") : ("+j+" = "+g+", [])"):t+=") : []",t=new I(t),q=""+j+"++";else{k=l.unwrap().value;if(l instanceof Z)throw l=l.name.compile(a),new SyntaxError("multiple splats are disallowed in an assignment: "+l+"...");typeof h=="number"?(h=new I(q||h),d=!1):d=i&&r.test(h.unwrap().value||0),t=new be(new I(v),[new(d?b:A)(h)])}if(k!=null&&bx.call(R,k)>=0)throw new SyntaxError("assignment to a reserved word: "+l.compile(a)+" = "+t.compile(a));e.push((new c(l,t,null,{param:this.param,subpattern:!0})).compile(a,E))}return!s&&!this.subpattern&&e.push(v),f=e.join(", "),a.level<E?f:"("+f+")"},c.prototype.compileConditional=function(a){var b,d,e;return e=this.variable.cacheReference(a),b=e[0],d=e[1],bx.call(this.context,"?")>=0&&(a.isExistentialEquals=!0),(new O(this.context.slice(0,-1),b,new c(d,this.value,"="))).compile(a)},c.prototype.compileSplice=function(a){var b,c,d,e,f,g,h,i,j,k,l,m;return k=this.variable.properties.pop().range,d=k.from,h=k.to,c=k.exclusive,g=this.variable.compile(a),l=(d!=null?d.cache(a,F):void 0)||["0","0"],e=l[0],f=l[1],h?(d!=null?d.isSimpleNumber():void 0)&&h.isSimpleNumber()?(h=+h.compile(a)- +f,c||(h+=1)):(h=h.compile(a,C)+" - "+f,c||(h+=" + 1")):h="9e9",m=this.value.cache(a,E),i=m[0],j=m[1],b="[].splice.apply("+g+", ["+e+", "+h+"].concat("+i+")), "+j,a.level>H?"("+b+")":b},c}(f),a.Code=k=function(a){function e(a,b,c){e.__super__.constructor.call(this),this.params=a||[],this.body=b||new g,this.icedgen=c==="icedgen",this.bound=c==="boundfunc"||this.icedgen;if(this.bound||this.icedgen)this.context="_this";this.icedPassedDeferral=null}return bw(e,a),e.name="Code",e.prototype.children=["params","body"],e.prototype.isStatement=function(){return!!this.ctor},e.prototype.traceName=function(){var a;return a=[],this.klass&&a.push(this.klass),this.name&&a.push(this.name),a.join(".")},e.prototype.jumps=L,e.prototype.compileNode=function(a){var e,f,g,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,z,A,B,D,E,F,G,H,J,K,L,M,N,P,Q,R,S,T;a.scope=new W(a.scope,this.body,this),a.scope.shared=bi(a,"sharedScope")||this.icedgen,a.indent+=_,delete a.bare,q=[],f=[],M=this.paramNames();for(x=0,D=M.length;x<D;x++)n=M[x],a.scope.check(n)||a.scope.parameter(n);N=this.params;for(z=0,E=N.length;z<E;z++){p=N[z];if(!p.splat)continue;P=this.params;for(A=0,F=P.length;A<F;A++)o=P[A],o.name.value&&a.scope.add(o.name.value,"var",!0);t=new d(new be(new c(function(){var b,c,d,e;d=this.params,e=[];for(b=0,c=d.length;b<c;b++)o=d[b],e.push(o.asReference(a));return e}.call(this))),new be(new I("arguments")));break}Q=this.params;for(B=0,G=Q.length;B<G;B++)p=Q[B],p.isComplex()?(v=r=p.asReference(a),p.value&&(v=new O("?",r,p.value)),f.push(new d(new be(p.name),v,"=",{param:!0}))):(r=p,p.value&&(m=new I(r.name.value+" == null"),v=new d(new be(p.name),p.value,"="),f.push(new y(m,v)))),t||q.push(r);w=this.body.isEmpty(),t&&f.unshift(t),f.length&&(R=this.body.expressions).unshift.apply(R,f);for(i=K=0,H=q.length;K<H;i=++K)o=q[i],a.scope.parameter(q[i]=o.compile(a));u=[],S=this.paramNames();for(L=0,J=S.length;L<J;L++){n=S[L];if(bx.call(u,n)>=0)throw SyntaxError("multiple parameters named '"+n+"'");u.push(n)}return this.icedHasAutocbFlag&&(w=!1),!w&&!this.noReturn&&this.body.makeReturn(),this.bound&&(((T=a.scope.parent.method)!=null?T.bound:void 0)?this.bound=this.context=a.scope.parent.method.context:this["static"]||a.scope.parent.assign("_this","this")),j=a.indent,e="function",this.ctor&&(e+=" "+this.name),e+="("+q.join(", ")+") {",this.icedNodeFlag&&!this.icedgen&&(this.icedPassedDeferral=a.scope.freeVariable(bm["const"].passed_deferral),l=new be(new I(this.icedPassedDeferral)),g=new be(new I(bm["const"].ns)),g.add(new b(new be(new I(bm["const"].findDeferral)))),s=new h(g,[new be(new I("arguments"))]),this.body.unshift(new d(l,s))),this.icedNodeFlag&&(a.iced_scope=a.scope),!this.icedgen&&this.icedNodeFlag&&this.icedHasAutocbFlag&&(s=new be(new I(bm["const"].autocb)),k=new be(new I(bm["const"].k)),this.body.unshift(new d(k,s,null,{param:!0}))),this.body.isEmpty()||(e+="\n"+this.body.compileWithDeclarations(a)+"\n"+this.tab),e+="}",this.ctor?this.tab+e:this.front||a.level>=C?"("+e+")":e},e.prototype.paramNames=function(){var a,b,c,d,e;a=[],e=this.params;for(c=0,d=e.length;c<d;c++)b=e[c],a.push.apply(a,b.names());return a},e.prototype.traverseChildren=function(a,b){if(a)return e.__super__.traverseChildren.call(this,a,b)},e.prototype.icedWalkAst=function(a,b){var c,d,f,g,h,i;this.icedParentAwait=a,d=b.foundAutocb,c=b.currFunc,b.foundAutocb=!1,b.currFunc=this,i=this.params;for(g=0,h=i.length;g<h;g++){f=i[g];if(f.name instanceof I&&f.name.value===bm["const"].autocb){b.foundAutocb=!0;break}}return this.icedHasAutocbFlag=b.foundAutocb,e.__super__.icedWalkAst.call(this,a,b),b.foundAutocb=d,b.currFunc=c,!1},e.prototype.icedWalkAstLoops=function(a){return e.__super__.icedWalkAstLoops.call(this,!1)&&(this.icedLoopFlag=!0),!1},e.prototype.icedWalkCpsPivots=function(){return e.__super__.icedWalkCpsPivots.call(this),this.icedCpsPivotFlag=!1},e}(f),a.Param=P=function(a){function b(a,c,d){var e,f;this.name=a,this.value=c,this.splat=d,b.__super__.constructor.call(this);if(a=(e=(f=this.name)!=null?f.unwrapAll().value:void 0,bx.call(V,e)>=0))throw SyntaxError('parameter name "'+a+'" is not allowed')}return bw(b,a),b.name="Param",b.prototype.children=["name","value"],b.prototype.compile=function(a){return this.name.compile(a,E)},b.prototype.asReference=function(a){var b;return this.reference?this.reference:(b=this.name,b["this"]?(b=b.properties[0].name,b.value.reserved&&(b=new I(a.scope.freeVariable(b.value)))):b.isComplex()&&(b=new I(a.scope.freeVariable("arg"))),b=new be(b),this.splat&&(b=new Z(b)),this.reference=b)},b.prototype.isComplex=function(){return this.name.isComplex()},b.prototype.names=function(a){var b,c,e,f,g,h;a==null&&(a=this.name),b=function(a){var b;return b=a.properties[0].name.value,b.reserved?[]:[b]};if(a instanceof I)return[a.value];if(a instanceof be)return b(a);c=[],h=a.objects;for(f=0,g=h.length;f<g;f++)e=h[f],e instanceof d?c.push(e.variable.base.value):e.isArray()||e.isObject()?c.push.apply(c,this.names(e.base)):e["this"]?c.push.apply(c,b(e)):c.push(e.base.value);return c},b}(f),a.Splat=Z=function(a){function b(a){b.__super__.constructor.call(this),this.name=a.compile?a:new I(a)}return bw(b,a),b.name="Splat",b.prototype.children=["name"],b.prototype.isAssignable=bg,b.prototype.assigns=function(a){return this.name.assigns(a)},b.prototype.compile=function(a){return this.index!=null?this.compileParam(a):this.name.compile(a)},b.prototype.unwrap=function(){return this.name},b.prototype.toSlot=function(){return new Y(new be(this.name),null,!0)},b.compileSplattedArray=function(a,c,d){var e,f,g,h,i,j,k,l;i=-1;while((j=c[++i])&&!(j instanceof b))continue;if(i>=c.length)return"";if(c.length===1)return g=c[0].compile(a,E),d?g:""+bs("slice")+".call("+g+")";e=c.slice(i);for(h=k=0,l=e.length;k<l;h=++k)j=e[h],g=j.compile(a,E),e[h]=j instanceof b?""+bs("slice")+".call("+g+")":"["+g+"]";return i===0?e[0]+(".concat("+e.slice(1).join(", ")+")"):(f=function(){var b,d,e,f;e=c.slice(0,i),f=[];for(b=0,d=e.length;b<d;b++)j=e[b],f.push(j.compile(a,E));return f}(),"["+f.join(", ")+"].concat("+e.join(", ")+")")},b}(f),a.While=bf=function(a){function e(a,b){e.__super__.constructor.call(this),this.condition=(b!=null?b.invert:void 0)?a.invert():a,this.guard=b!=null?b.guard:void 0}return bw(e,a),e.name="While",e.prototype.children=["condition","guard","body"],e.prototype.isStatement=bg,e.prototype.isLoop=bg,e.prototype.makeReturn=function(a){return a?e.__super__.makeReturn.apply(this,arguments):(this.returns=!this.jumps({loop:!0}),this)},e.prototype.addBody=function(a){return this.body=a,this},e.prototype.jumps=function(){var a,b,c,d;a=this.body.expressions;if(!a.length)return!1;for(c=0,d=a.length;c<d;c++){b=a[c];if(b.jumps({loop:!0}))return b}return!1},e.prototype.icedWrap=function(a){var e,f,i,j,l,m,n,o,p,q,r,s,t,u,v,w,x,z,A,B,C,D,E,F,G,H,J,K,L,M,N,O,Q;return q=a.condition,e=a.body,F=a.rvar,E=[],F&&(H=new be(new I(F))),O=new be(new I(bm["const"].t_while)),w=new be(new I(bm["const"].k)),x=new P(new I(bm["const"].k)),m=new be(new I(bm["const"].b_while)),F?(l=new h(w,[H]),i=new g([l]),j=new k([],i,"icedgen"),f=new d(m,j,null,{icedlocal:!0})):f=new d(m,w,null,{icedlocal:!0}),u=new be(new I(bm["const"].c_while)),s=new g([new h(O,[w])]),a.step&&s.unshift(a.step),t=new k([],s,"icedgen"),r=new d(u,t,null,{icedlocal:!0}),D=new be(new I(bm["const"].n_while)),F?(z=new P(new I(bm["const"].n_arg)),v=H.copy(),v.add(new b(new be(new I("push")))),n=new h(v,[z]),o=new h(u,[]),B=new g([n,o]),C=new k([z],B,"icedgen"),A=new d(D,C,null,{icedlocal:!0})):A=new d(D,u),p=new y(q.invert(),new g([new h(m,[])])),a.guard?(p.addElse(new y(a.guard,e)),p.addElse(new g([new h(u,[])]))):p.addElse(e),L=new g([f,r,A,p]),N=new k([x],L,"icedgen"),J=new d(O,N,null,{icedlocal:!0}),M=new h(O,[w]),Q=[],a.init&&(Q=Q.concat(a.init)),F&&(G=new d(H,new c),Q.push(G)),Q=Q.concat([J,M]),K=new g(Q)},e.prototype.icedCallContinuation=function(){return this.body.icedThreadReturn(new x(bm["const"].n_while))},e.prototype.compileIced=function(a){var b,c;return this.icedNodeFlag?(c={condition:this.condition,body:this.body,guard:this.guard},this.returns&&(c.rvar=a.scope.freeVariable("results")),b=this.icedWrap(c),b.compile(a)):null},e.prototype.compileNode=function(a){var b,c,d,e;return(c=this.compileIced(a))?c:(a.indent+=_,e="",b=this.body,b.isEmpty()?b="":(this.returns&&(b.makeReturn(d=a.scope.freeVariable("results")),e=""+this.tab+d+" = [];\n"),this.guard&&(b.expressions.length>1?b.expressions.unshift(new y((new Q(this.guard)).invert(),new I("continue"))):this.guard&&(b=g.wrap([new y(this.guard,b)]))),b="\n"+b.compile(a,H)+"\n"+this.tab),c=e+this.tab+("while ("+this.condition.compile(a,G)+") {"+b+"}"),this.returns&&(this.icedHasAutocbFlag?(c+="\n"+this.tab+bm["const"].autocb+"("+d+");",c+="\n"+this.tab+"return;"):c+="\n"+this.tab+"return "+d+";"),c)},e}(f),a.Op=O=function(a){function e(a,c,d,f){e.__super__.constructor.call(this);if(a==="in")return new z(c,d);if(a==="do")return this.generateDo(c);if(a==="new"){if(c instanceof h&&!c["do"]&&!c.isNew)return c.newInstance();if(c instanceof k&&c.bound||c["do"])c=new Q(c)}return this.operator=b[a]||a,this.first=c,this.second=d,this.flip=!!f,this}var b,c;return bw(e,a),e.name="Op",e.prototype.icedWrapContinuation=function(){return this.icedCallContinuationFlag},b={"==":"===","!=":"!==",of:"in"},c={"!==":"===","===":"!=="},e.prototype.children=["first","second"],e.prototype.isSimpleNumber=L,e.prototype.isUnary=function(){return!this.second},e.prototype.isComplex=function(){var a;return!this.isUnary()||(a=this.operator)!=="+"&&a!=="-"||this.first.isComplex()},e.prototype.isChainable=function(){var a;return(a=this.operator)==="<"||a===">"||a===">="||a==="<="||a==="==="||a==="!=="},e.prototype.icedCpsRotate=function(){var a,b;this.first&&(a=this.icedCpsExprRotate(this.first))&&(this.first=a);if(this.second&&(b=this.icedCpsExprRotate(this.second)))return this.second=b},e.prototype.invert=function(){var a,b,d,f,g;if(this.isChainable()&&this.first.isChainable()){a=!0,b=this;while(b&&b.operator)a&&(a=b.operator in c),b=b.first;if(!a)return(new Q(this)).invert();b=this;while(b&&b.operator)b.invert=!b.invert,b.operator=c[b.operator],b=b.first;return this}return(f=c[this.operator])?(this.operator=f,this.first.unwrap()instanceof e&&this.first.invert(),this):this.second?(new Q(this)).invert():this.operator==="!"&&(d=this.first.unwrap())instanceof e&&((g=d.operator)==="!"||g==="in"||g==="instanceof")?d:new e("!",this)},e.prototype.unfoldSoak=function(a){var b;return((b=this.operator)==="++"||b==="--"||b==="delete")&&br(a,this,"first")},e.prototype.generateDo=function(a){var b,c,e,f,g,i,j,l;f=[],c=a instanceof d&&(g=a.value.unwrap())instanceof k?g:a,l=c.params||[];for(i=0,j=l.length;i<j;i++)e=l[i],e.value?(f.push(e.value),delete e.value):f.push(e);return b=new h(a,f),b["do"]=!0,b},e.prototype.compileNode=function(a){var b,c,d,e;c=this.isChainable()&&this.first.isChainable(),c||(this.first.front=this.front);if(this.operator==="delete"&&a.scope.check(this.first.unwrapAll().value))throw SyntaxError("delete operand may not be argument or var");if(((d=this.operator)==="--"||d==="++")&&(e=this.first.unwrapAll().value,bx.call(V,e)>=0))throw SyntaxError("prefix increment/decrement may not have eval or arguments operand");return this.isUnary()?this.compileUnary(a):c?this.compileChain(a):this.operator==="?"?this.compileExistence(a):(b=this.first.compile(a,F)+" "+this.operator+" "+this.second.compile(a,F),a.level<=F?b:"("+b+")")},e.prototype.compileChain=function(a){var b,c,d,e;return e=this.first.second.cache(a),this.first.second=e[0],d=e[1],c=this.first.compile(a,F),b=""+c+" "+(this.invert?"&&":"||")+" "+d.compile(a)+" "+this.operator+" "+this.second.compile(a,F),"("+b+")"},e.prototype.compileExistence=function(a){var b,c;return this.first.isComplex()&&a.level>H?(c=new I(a.scope.freeVariable("ref")),b=new Q(new d(c,this.first))):(b=this.first,c=b),(new y(new o(b),c,{type:"if"})).addElse(this.second).compile(a)},e.prototype.compileUnary=function(a){var b,c,d;if(a.level>=C)return(new Q(this)).compile(a);c=[b=this.operator],d=b==="+"||b==="-",(b==="new"||b==="typeof"||b==="delete"||d&&this.first instanceof e&&this.first.operator===b)&&c.push(" ");if(d&&this.first instanceof e||b==="new"&&this.first.isStatement(a))this.first=new Q(this.first);return c.push(this.first.compile(a,F)),this.flip&&c.reverse(),c.join("")},e.prototype.toString=function(a){return e.__super__.toString.call(this,a,this.constructor.name+" "+this.operator)},e}(f),a.In=z=function(a){function b(a,c){this.object=a,this.array=c,b.__super__.constructor.call(this)}return bw(b,a),b.name="In",b.prototype.children=["object","array"],b.prototype.invert=K,b.prototype.compileNode=function(a){var b,c,d,e,f;if(this.array instanceof be&&this.array.isArray()){f=this.array.base.objects;for(d=0,e=f.length;d<e;d++){c=f[d];if(c instanceof Z){b=!0;break}continue}if(!b)return this.compileOrTest(a)}return this.compileLoopTest(a)},b.prototype.compileOrTest=function(a){var b,c,d,e,f,g,h,i,j;return this.array.base.objects.length===0?""+!!this.negated:(i=this.object.cache(a,F),g=i[0],f=i[1],j=this.negated?[" !== "," && "]:[" === "," || "],b=j[0],c=j[1],h=function(){var c,h,i,j;i=this.array.base.objects,j=[];for(d=c=0,h=i.length;c<h;d=++c)e=i[d],j.push((d?f:g)+b+e.compile(a,C));return j}.call(this),h=h.join(c),a.level<F?h:"("+h+")")},b.prototype.compileLoopTest=function(a){var b,c,d,e;return e=this.object.cache(a,E),d=e[0],c=e[1],b=bs("indexOf")+(".call("+this.array.compile(a,E)+", "+c+") ")+(this.negated?"< 0":">= 0"),d===c?b:(b=d+", "+b,a.level<E?b:"("+b+")")},b.prototype.toString=function(a){return b.__super__.toString.call(this,a,this.constructor.name+(this.negated?"!":""))},b}(f),a.Slot=Y=function(a){function b(a,c,d){b.__super__.constructor.call(this),this.value=a,this.suffix=c,this.splat=d}return bw(b,a),b.name="Slot",b.prototype.children=["value","suffix"],b}(f),a.Defer=n=function(a){function c(a,b){var d;this.lineno=b,c.__super__.constructor.call(this),this.slots=function(){var b,c,e;e=[];for(b=0,c=a.length;b<c;b++)d=a[b],e.push(d.toSlot());return e}(),this.params=[],this.vars=[]}return bw(c,a),c.name="Defer",c.prototype.children=["slots"],c.prototype.newParam=function(){var a;return a=""+bm["const"].slot+"_"+(this.params.length+1),this.params.push(new P(new I(a))),new be(new I(a))},c.prototype.makeAssignFn=function(a){var c,e,f,i,j,l,m,n,o,p,q,r,s,t,u,v,w,x,y;if(this.slots.length===0)return null;i=[],e=[],n=0,y=this.slots;for(w=0,x=y.length;w<x;w++)u=y[w],c=new be(new I("arguments")),o=new be(new I(n)),u.splat?(m=new be(new I(bs("slice"))),m.add(new b(new be(new I("call")))),l=new h(m,[c,o]),v=u.value,this.vars.push(v),f=new d(v,l)):(c.add(new A(o)),u.suffix?(e.push(u.value),v=this.newParam(),u.suffix instanceof A?(t=new A(this.newParam()),e.push(u.suffix.index)):t=u.suffix,v.add(t)):(q=u.value.compile(a,H),q==="_"?(v=new be(new I(bm["const"].deferrals)),v.add(new b(new be(new I(bm["const"].retslot))))):(v=u.value,this.vars.push(v))),f=new d(v,c)),i.push(f),n++;return j=new g(i),p=new k([],j,"icedgen"),r=new g([new T(p)]),s=new k(this.params,r,"icedgen"),l=new h(s,e)},c.prototype.transform=function(a){var c,e,f,g,i,j,k;return f=new be(new I(bm["const"].deferrals)),k=new be(new I(bm["const"].defer_method)),f.add(new b(k)),e=[],(c=this.makeAssignFn(a))&&e.push(new d(new be(new I(bm["const"].assign_fn)),c,"object")),i=new be(new I(bm["const"].lineno)),j=new be(new I(this.lineno)),g=new d(i,j,"object"),e.push(g),a=new N(e),new h(f,[new be(a)])},c.prototype.compileNode=function(a){var b,c,d,e,f,g,h;b=this.transform(a),h=this.vars;for(f=0,g=h.length;f<g;f++)e=h[f],c=e.compile(a,E),d=a.scope,d.add(c,"var");return b.compile(a)},c.prototype.icedWalkAst=function(a,b){return this.icedHasAutocbFlag=b.foundAutocb,b.foundDefer=!0,this.parentFunc=b.currFunc,c.__super__.icedWalkAst.call(this,a,b)},c}(f),a.Await=e=function(a){function c(a){this.body=a,c.__super__.constructor.call(this)}return bw(c,a),c.name="Await",c.prototype.transform=function(a){var c,e,f,g,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z;f=this.body,v=bm["const"].deferrals,a.scope.add(v,"var"),s=new be(new I(v)),l=new be(new I(bm["const"].ns)),l.add(new b(new be(new I(bm["const"].Deferrals)))),e=[];if(u=(y=this.parentFunc)!=null?y.icedPassedDeferral:void 0)j=new be(new I(bm["const"].parent)),k=new be(new I(u)),i=new d(j,k,"object"),e.push(i);a.filename!=null&&(n=new be(new I(bm["const"].filename)),o=new be(new I("'"+a.filename+"'")),m=new d(n,o,"object"),e.push(m));if(u=(z=this.parentFunc)!=null?z.traceName():void 0)q=new be(new I(bm["const"].funcname)),r=new be(new I("'"+u+"'")),p=new d(q,r,"object"),e.push(p);return x=new N(e,!0),g=new h(l,[new be(new I(bm["const"].k)),x]),w=new O("new",g),c=new d(s,w),f.unshift(c),t=s.copy().add(new b(new be(new I(bm["const"].fulfill)))),g=new h(t,[]),f.push(g),this.body=f},c.prototype.children=["body"],c.prototype.isStatement=function(){return bg},c.prototype.makeReturn=ba,c.prototype.compileNode=function(a){return this.transform(a),this.body.compile(a)},c.prototype.icedWalkAst=function(a,b){return this.icedHasAutocbFlag=b.foundAutocb,this.parentFunc=b.currFunc,a=a||this,this.icedParentAwait=a,c.__super__.icedWalkAst.call(this,a,b),this.icedNodeFlag=b.foundAwait=!0},c}(f),a.IcedRequire=u=function(a){function e(a){var b;e.__super__.constructor.call(this),this.typ=null,b=["inline","node","window","none","xnode"],this.usage="icedRequire takes one of {"+b.join(",")+"}";if(a&&a.length>2)throw SyntaxError(this.usage);a&&a.length===1&&(this.typ=a[0])}var c;return bw(e,a),e.name="IcedRequire",e.prototype.compileNode=function(a){var c,e,f,i,j,l,m,n,o,p,q,r,s,t,u,v;return this.tab=a.indent,t=this.typ?this.typ.compile(a):a.bare?"none":"inline",u=!1,v=null,m=null,m=function(){switch(t){case"inline":case"window":return t==="window"&&(u=!0),u&&(v=new be(new I(t))),B.generate(v?v.copy():null);case"node":case"xnode":return j=new I("'iced-coffee-script'"),c=new b(new I(bm["const"].ns)),r=new be(new I("require")),f=new h(r,[j]),i=new be(f),i.add(c),p=new be(new I(bm["const"].ns)),e=new g([new d(p,i)]),t==="xnode"&&(l=new be(new I(bm["const"].ns)),l.add(new b(new be(new I(bm["const"].catchExceptions)))),f=new h(l,[]),e.push(f)),e;case"none":return null;default:throw SyntaxError(this.usage)}}.call(this),q=m?""+this.tab+m.compile(a,H)+"\n":"",s=new k([],new g([])),o=new be(new I(bm["const"].k)),v&&(v.add(new b(o)),o=v),n=new d(o,s),q+(""+this.tab)+n.compile(a,H)},c=["typ"],e.prototype.icedWalkAst=function(a,b){return this.icedHasAutocbFlag=b.foundAutocb,b.foundRequire=!0,e.__super__.icedWalkAst.call(this,a,b)},e}(f),a.Try=bc=function(a){function b(a,c,d,e){this.attempt=a,this.error=c,this.recovery=d,this.ensure=e,b.__super__.constructor.call(this)}return bw(b,a),b.name="Try",b.prototype.children=["attempt","recovery","ensure"],b.prototype.isStatement=bg,b.prototype.jumps=function(a){var b;return this.attempt.jumps(a)||((b=this.recovery)!=null?b.jumps(a):void 0)},b.prototype.makeReturn=function(a){return this.attempt&&(this.attempt=this.attempt.makeReturn(a)),this.recovery&&(this.recovery=this.recovery.makeReturn(a)),this},b.prototype.compileNode=function(a){var b,c,d,e;return a.indent+=_,d=this.error?" ("+this.error.compile(a)+") ":" ",e=this.attempt.compile(a,H),b=function(){var b;if(this.recovery){if(b=this.error.value,bx.call(V,b)>=0)throw SyntaxError('catch variable may not be "'+this.error.value+'"');return a.scope.check(this.error.value)||a.scope.add(this.error.value,"param")," catch"+d+"{\n"+this.recovery.compile(a,H)+"\n"+this.tab+"}"}if(!this.ensure&&!this.recovery)return" catch (_error) {}"}.call(this),c=this.ensure?" finally {\n"+this.ensure.compile(a,H)+"\n"+this.tab+"}":"",""+this.tab+"try {\n"+e+"\n"+this.tab+"}"+(b||"")+c},b}(f),a.Throw=bb=function(a){function b(a){this.expression=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Throw",b.prototype.children=["expression"],b.prototype.isStatement=bg,b.prototype.jumps=L,b.prototype.makeReturn=ba,b.prototype.compileNode=function(a){return this.tab+("throw "+this.expression.compile(a)+";")},b}(f),a.Existence=o=function(a){function b(a){this.expression=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Existence",b.prototype.children=["expression"],b.prototype.invert=K,b.prototype.compileNode=function(a){var b,c,d,e;return this.expression.front=this.front,d=this.expression.compile(a,F),r.test(d)&&!a.scope.check(d)?(e=this.negated?["===","||"]:["!==","&&"],b=e[0],c=e[1],d="typeof "+d+" "+b+' "undefined" '+c+" "+d+" "+b+" null"):d=""+d+" "+(this.negated?"==":"!=")+" null",a.level<=D?d:"("+d+")"},b}(f),a.Parens=Q=function(a){function b(a){this.body=a,b.__super__.constructor.call(this)}return bw(b,a),b.name="Parens",b.prototype.children=["body"],b.prototype.unwrap=function(){return this.icedUnwrap(this.body)},b.prototype.isComplex=function(){return this.body.isComplex()},b.prototype.compileNode=function(a){var b,c,d;return d=this.body.unwrap(),d instanceof be&&d.isAtomic()?(d.front=this.front,d.compile(a)):(c=d.compile(a,G),b=a.level<F&&(d instanceof O||d instanceof h||d instanceof q&&d.returns),b?c:"("+c+")")},b}(f),a.For=q=function(a){function e(a,b){var c;e.__super__.constructor.call(this),this.condition=null,this.source=b.source,this.guard=b.guard,this.step=b.step,this.name=b.name,this.index=b.index,this.body=g.wrap([a]),this.own=!!b.own,this.object=!!b.object,this.object&&(c=[this.index,this.name],this.name=c[0],this.index=c[1]);if(this.index instanceof be)throw SyntaxError("index cannot be a pattern matching expression");this.range=this.source instanceof be&&this.source.base instanceof S&&!this.source.properties.length,this.pattern=this.name instanceof be;if(this.range&&this.index)throw SyntaxError("indexes do not apply to range loops");if(this.range&&this.pattern)throw SyntaxError("cannot pattern match over range loops");this.returns=!1}return bw(e,a),e.name="For",e.prototype.children=["body","source","guard","step"],e.prototype.compileIced=function(a,f){var h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,B,C,D,E,F,G,H,J,K,L,M,N,P,Q,R;return this.icedNodeFlag?(n=f.body,o=null,s=[],R=null,P=a.scope,this.object?(K=P.freeVariable("ref"),L=new be(new I(K)),h=new d(L,this.source),x=P.freeVariable("keys"),B=new be(new I(x)),u=P.freeVariable("k"),v=new I(u),w=new be(v),p=new be(new c),G=new g([w]),J={object:!0,name:v,source:L},H=new e(G,J),i=new d(B,H),r=P.freeVariable("i"),t=new be(new I(r)),j=new d(t,new be(new I(0))),s=[h,i,j],z=B.copy(),z.add(new b(new be(new I("length")))),o=new O("<",t,z),R=new O("++",t),this.name&&(Q=L.copy(),Q.add(new A(this.index)),l=new d(this.name,Q),n.unshift(l)),y=B.copy(),y.add(new A(t)),k=new d(this.index,y),n.unshift(k)):this.range&&this.name?(o=new O("<=",this.name,this.source.base.to),s=[new d(this.name,this.source.base.from)],R=new O("++",this.name)):!this.range&&this.name&&(C=new be(new I(f.kvar)),D=P.freeVariable("len"),K=P.freeVariable("ref"),L=new be(new I(K)),F=new be(new I(D)),h=new d(L,this.source),E=L.copy().add(new b(new be(new I("length")))),i=new d(F,E),j=new d(C,new be(new I(0))),s=[h,i,j],o=new O("<",C,F),R=new O("++",C),M=L.copy(),M.add(new A(C)),k=new d(this.name,M),n.unshift(k)),N=f.rvar,q=f.guard,m=this.icedWrap({condition:o,body:n,init:s,step:R,rvar:N,guard:q}),m.compile(a)):null},e.prototype.compileNode=function(a){var b,c,e,f,h,i,j,k,l,m,n,o,p,q,s,t,u,v,w,x,z,A,B,C,D,G;return b=g.wrap([this.body]),o=(G=bn(b.expressions))!=null?G.jumps():void 0,o&&o instanceof T&&(this.returns=!1),z=this.range?this.source.base:this.source,x=a.scope,q=this.name&&this.name.compile(a,E),k=this.index&&this.index.compile(a,E),q&&!this.pattern&&x.find(q,{immediate:!0}),k&&x.find(k,{immediate:!0}),this.returns&&(w=x.freeVariable("results")),l=this.object&&k||x.freeVariable("i"),m=this.range&&q||k||l,n=m!==l?""+m+" = ":"",this.step&&!this.range&&(B=x.freeVariable("step")),this.pattern&&(q=l),D="",i="",e="",j=this.tab+_,(c=this.compileIced(a,{stepvar:B,body:b,rvar:w,kvar:m,guard:this.guard}))?c:(this.range?f=z.compile(bo(a,{index:l,name:q,step:this.step})):(C=this.source.compile(a,E),(q||this.own)&&!r.test(C)&&(e=""+this.tab+(t=x.freeVariable("ref"))+" = "+C+";\n",C=t),q&&!this.pattern&&(s=""+q+" = "+C+"["+m+"]"),this.object||(p=x.freeVariable("len"),h=""+n+l+" = 0, "+p+" = "+C+".length",this.step&&(h+=", "+B+" = "+this.step.compile(a,F)),A=""+n+(this.step?""+l+" += "+B:m!==l?"++"+l:""+l+"++"),f=""+h+"; "+l+" < "+p+"; "+A)),this.returns&&(u=""+this.tab+w+" = [];\n",v=this.icedHasAutocbFlag?"\n"+this.tab+bm["const"].autocb+"("+w+"); return;":"\n"+this.tab+"return "+w+";",b.makeReturn(w)),this.guard&&(b.expressions.length>1?b.expressions.unshift(new y((new Q(this.guard)).invert(),new I("continue"))):this.guard&&(b=g.wrap([new y(this.guard,b)]))),this.pattern&&b.expressions.unshift(new d(this.name,new I(""+C+"["+m+"]"))),e+=this.pluckDirectCall(a,b),s&&(D="\n"+j+s+";"),this.object&&(f=""+m+" in "+C,this.own&&(i="\n"+j+"if (!"+bs("hasProp")+".call("+C+", "+m+")) continue;")),b=b.compile(bo(a,{indent:j}),H),b&&(b="\n"+b+"\n"),""+e+(u||"")+this.tab+"for ("+f+") {"+i+D+b+this.tab+"}"+(v||""))},e.prototype.pluckDirectCall=function(a,b){var c,e,f,g,i,j,l,m,n,o,p,q,r,s,t;e="",o=b.expressions;for(i=m=0,n=o.length;m<n;i=++m){f=o[i],f=f.unwrapAll();if(!(f instanceof h))continue;l=f.variable.unwrapAll();if(!(l instanceof k||l instanceof be&&((p=l.base)!=null?p.unwrapAll():void 0)instanceof k&&l.properties.length===1&&((q=(r=l.properties[0].name)!=null?r.value:void 0)==="call"||q==="apply")))continue;g=((s=l.base)!=null?s.unwrapAll():void 0)||l,j=new I(a.scope.freeVariable("fn")),c=new be(j),l.base&&(t=[c,l],l.base=t[0],c=t[1]),b.expressions[i]=new h(c,f.args),e+=this.tab+(new d(j,g)).compile(a,H)+";\n"}return e},e}(bf),a.Switch=$=function(a){function b(a,c,d){this.subject=a,this.cases=c,this.otherwise=d,b.__super__.constructor.call(this)}return bw(b,a),b.name="Switch",b.prototype.children=["subject","cases","otherwise"],b.prototype.isStatement=bg,b.prototype.jumps=function(a){var b,c,d,e,f,g,h;a==null&&(a={block:!0}),f=this.cases;for(d=0,e=f.length;d<e;d++){g=f[d],c=g[0],b=g[1];if(b.jumps(a))return b}return(h=this.otherwise)!=null?h.jumps(a):void 0},b.prototype.makeReturn=function(a){var b,c,d,e,f;e=this.cases;for(c=0,d=e.length;c<d;c++)b=e[c],b[1].makeReturn(a);return a&&(this.otherwise||(this.otherwise=new g([new I("void 0")]))),(f=this.otherwise)!=null&&f.makeReturn(a),this},b.prototype.icedCallContinuation=function(){var a,b,c,d,e,f,g;e=this.cases;for(c=0,d=e.length;c<d;c++)f=e[c],b=f[0],a=f[1],a.icedThreadReturn();return(g=this.otherwise)!=null?g.icedThreadReturn():void 0},b.prototype.compileNode=function(a){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r;i=a.indent+_,j=a.indent=i+_,d=this.tab+("switch ("+(((o=this.subject)!=null?o.compile(a,G):void 0)||!1)+") {\n"),p=this.cases;for(h=k=0,m=p.length;k<m;h=++k){q=p[h],f=q[0],b=q[1],r=bl([f]);for(l=0,n=r.length;l<n;l++)e=r[l],this.subject||(e=e.invert()),d+=i+("case "+e.compile(a,G)+":\n");if(c=b.compile(a,H))d+=c+"\n";if(h===this.cases.length-1&&!this.otherwise)break;g=this.lastNonComment(b.expressions);if(g instanceof T||g instanceof I&&g.jumps()&&g.value!=="debugger")continue;d+=j+"break;\n"}return this.otherwise&&this.otherwise.expressions.length&&(d+=i+("default:\n"+this.otherwise.compile(a,H)+"\n")),d+this.tab+"}"},b}(f),a.If=y=function(a){function b(a,c,d){this.body=c,d==null&&(d={}),b.__super__.constructor.call(this),this.condition=d.type==="unless"?a.invert():a,this.elseBody=null,this.isChain=!1,this.soak=d.soak}return bw(b,a),b.name="If",b.prototype.children=["condition","body","elseBody"],b.prototype.bodyNode=function(){var a;return(a=this.body)!=null?a.unwrap():void 0},b.prototype.elseBodyNode=function(){var a;return(a=this.elseBody)!=null?a.unwrap():void 0},b.prototype.addElse=function(a){return this.isChain?this.elseBodyNode().addElse(a):(this.isChain=a instanceof b,this.elseBody=this.ensureBlock(a)),this},b.prototype.icedCallContinuation=function(){return this.elseBody?(this.elseBody.icedThreadReturn(),this.isChain=!1):this.addElse(new x),this.body.icedThreadReturn()},b.prototype.isStatement=function(a){var b;return(a!=null?a.level:void 0)===H||this.bodyNode().isStatement(a)||((b=this.elseBodyNode())!=null?b.isStatement(a):void 0)||this.icedHasContinuation()},b.prototype.jumps=function(a){var b;return this.body.jumps(a)||((b=this.elseBody)!=null?b.jumps(a):void 0)},b.prototype.compileNode=function(a){return this.isStatement(a||this.icedIsCpsPivot())?this.compileStatement(a):this.compileExpression(a)},b.prototype.makeReturn=function(a){return a&&(this.elseBody||(this.elseBody=new g([new I("void 0")]))),this.body&&(this.body=new g([this.body.makeReturn(a)])),this.elseBody&&(this.elseBody=new g([this.elseBody.makeReturn(a)])),this},b.prototype.ensureBlock=function(a){return a instanceof g?a:new g([a])},b.prototype.compileStatement=function(a){var c,d,e,f,g,h,i;return e=bi(a,"chainChild"),g=bi(a,"isExistentialEquals"),g?(new b(this.condition.invert(),this.elseBodyNode(),{type:"if"})).compile(a):(f=this.condition.compile(a,G),a.indent+=_,c=this.ensureBlock(this.body),d=c.compile(a),1===((i=c.expressions)!=null?i.length:void 0)&&!this.elseBody&&!e&&d&&f&&-1===d.indexOf("\n")&&80>f.length+d.length?""+this.tab+"if ("+f+") "+d.replace(/^\s+/,""):(d&&(d="\n"+d+"\n"+this.tab),h="if ("+f+") {"+d+"}",e||(h=this.tab+h),this.elseBody?h+" else "+(this.isChain?(a.indent=this.tab,a.chainChild=!0,this.elseBody.unwrap().compile(a,H)):"{\n"+this.elseBody.compile(a,H)+"\n"+this.tab+"}"):h))},b.prototype.compileExpression=function(a){var b,c,d,e;return e=this.condition.compile(a,D),c=this.bodyNode().compile(a,E),b=this.elseBodyNode()?this.elseBodyNode().compile(a,E):"void 0",d=""+e+" ? "+c+" : "+b,a.level>=D?"("+d+")":d},b.prototype.unfoldSoak=function(){return this.soak&&this},b}(f),j={wrap:function(a,c,d){var e,f,i,j,l;if(a.jumps())return a;i=new k([],g.wrap([a])),e=[];if((j=a.contains(this.literalArgs))||a.contains(this.literalThis))l=new I(j?"apply":"call"),e=[new I("this")],j&&e.push(new I("arguments")),i=new be(i,[new b(l)]);return i.noReturn=d,f=new h(i,e),c?g.wrap([f]):f},literalArgs:function(a){return a instanceof I&&a.value==="arguments"&&!a.asKey},literalThis:function(a){return a instanceof I&&a.value==="this"&&!a.asKey||a instanceof k&&a.bound}},m={wrap:function(a,b,c,d){var e,f,i,j,l,m;return m=new k([new P(new I(bm["const"].k))],g.wrap([a]),"icedgen"),e=[],c&&(c.bindName(d),e.push(c)),f=g.wrap([b]),(l=f.getSingle())&&l instanceof x&&l.canInline()?j=l.extractFunc():j=new k(e,f,"icedgen"),i=new h(m,[j]),new g([i])}},x=function(a){function b(a,c){this.func=a,c==null&&(c=null),b.__super__.constructor.call(this),this.func||(this.func=bm["const"].k),this.value=c}return bw(b,a),b.name="IcedTailCall",b.prototype.children=["value"],b.prototype.assignValue=function(a){return this.value=a},b.prototype.canInline=function(){return!this.value||this.value instanceof w},b.prototype.literalFunc=function(){return new I(this.func)},b.prototype.extractFunc=function(){return new be(this.literalFunc())},b.prototype.icedCpsRotate=function(){var a;if(this.value)if(a=this.icedCpsExprRotate(this.value))return this.value=a},b.prototype.compileNode=function(a){var b,c,d;return c=this.literalFunc(),d=a.level===H?this.value?new g([this.value,new h(c)]):new h(c):(b=this.value?[this.value]:[],new h(c,b)),d.compileNode(a)},b}(f),w=function(a){function b(){b.__super__.constructor.call(this,null,null,!1)}return bw(b,a),b.name="IcedReturnValue",b.counter=0,b.prototype.bindName=function(a){var c;return c=""+a.scope.freeVariable(bm["const"].param,!1)+"_"+b.counter++,this.name=new I(c)},b.prototype.compile=function(a){return this.name||this.bindName(a),b.__super__.compile.call(this,a)},b}(P),B={generate:function(a){var c,e,f,j,l,m,n,o,p,q,r,s,t,u,v,w,x,z,A,B,C,D,E,F,G,H,J,K,L,Q,R,S,T,U,V,W,X,Y,Z,$,_,ba,bb,bc,bd,bf,bg,bh,bi,bj,bk,bl,bn,bo;return V=new I("continuation"),p=new I("count"),o=new be(new I(bm["const"].Deferrals)),ba=new be(new I(bm["const"].ns)),a&&(a.add(new b(ba)),ba=a),W=new be(new I("this")),W.add(new b(V)),bg=new P(W),q=new be(new I("this")),q.add(new b(p)),bh=new be(new I("this")),bh.add(new b(new be(new I(bm["const"].retslot)))),c=new d(q,new be(new I(1))),e=new d(bh,M()),v=[bg],s=new g([c,e]),t=new k(v,s),u=new be(new I("constructor")),r=new d(u,t),L=new h(W,[bh]),J=new g([L]),w=new O("--",q),K=new O("!",w),$=new y(K,J),bj=new g([$]),bl=new k([],bj),bo=new be(new I(bm["const"].fulfill)),bi=new d(bo,bl),Q=new O("++",q),U=new I("inner_params"),D=new I("defer_params"),E=new be(D),n=new be(D),f=new I(bm["const"].assign_fn),n.add(new b(f,"soak")),Z=new I("apply"),n.add(new b(Z,"soak")),_=M(),j=new h(n,[_,new be(U)]),bn=new be(new I("this")),bn.add(new b(new I(bm["const"].fulfill))),bk=new h(bn,[]),R=new g([j,bk]),T=[new P(U,null,!0)],S=new k(T,R,"boundfunc"),z=new g([Q,S]),C=[new P(D)],A=new k(C,z),B=new be(new I(bm["const"].defer_method)),x=new d(B,A),l=[r,bi,x],bd=new N(l,!0),m=new g([new be(bd)]),X=new i(null,null,m),Y=new d(o,X,"object"),bf=new g([M()]),G=new k([],bf),H=new be(new I(bm["const"].findDeferral)),F=new d(H,G,"object"),bb=new N([Y,F],!0),bc=new be(bb),new d(ba,bc)}},br=function(a,b,c){var d;if(!(d=b[c].unfoldSoak(a)))return;return b[c]=d.body,d.body=new be(b),d},bd={"extends":function(){return"function(child, parent) { for (var key in parent) { if ("+bs("hasProp")+".call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }"},bind:function(){return"function(fn, me){ return function(){ return fn.apply(me, arguments); }; }"},indexOf:function(){return"[].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; }"},hasProp:function(){return"{}.hasOwnProperty"},slice:function(){return"[].slice"}},H=1,G=2,E=3,D=4,F=5,C=6,_="  ",s="[$A-Za-z_\\x7f-\\uffff][$\\w\\x7f-\\uffff]*",r=RegExp("^"+s+"$"),U=/^[+-]?\d+$/,J=RegExp("^(?:("+s+")\\.prototype(?:\\.("+s+")|\\[(\"(?:[^\\\\\"\\r\\n]|\\\\.)*\"|'(?:[^\\\\'\\r\\n]|\\\\.)*')\\]|\\[(0x[\\da-fA-F]+|\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)\\]))|("+s+")$"),t=/^['"]/,bs=function(a){var b;return b="__"+a,W.root.assign(b,bd[a]()),b},bp=function(a,b){return a=a.replace(/\n/g,"$&"+b),a.replace(/\s+$/,"")}})).call(this)},require["./coffee-script"]=new function(){var a=this;((function(){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s={}.hasOwnProperty;g=require("fs"),l=require("path"),r=require("./lexer"),c=r.Lexer,d=r.RESERVED,k=require("./parser").parser,h=require("./iced"),m=require("vm"),a.EXTENSIONS=b=[".coffee",".iced"],i=function(a){var c,d,e;for(d=0,e=b.length;d<e;d++){c=b[d];if(l.extname(a)===c)return!0}return!1};if(require.extensions)for(n=0,p=b.length;n<p;n++)f=b[n],require.extensions[f]=function(a,b){var c;return c=e(g.readFileSync(b,"utf8"),{filename:b}),a._compile(c,b)};else if(require.registerExtension)for(o=0,q=b.length;o<q;o++)f=b[o],require.registerExtension(f,function(a){return e(a)});a.VERSION="1.2.0e",a.RESERVED=d,a.helpers=require("./helpers"),a.compile=e=function(b,c){var d,e,f;c==null&&(c={}),f=a.helpers.merge;try{e=h.transform(k.parse(j.tokenize(b))).compile(c);if(!c.header)return e}catch(g){throw c.filename&&(g.message="In "+c.filename+", "+g.message),g}return d="Generated by IcedCoffeeScript "+this.VERSION,"// "+d+"\n"+e},a.tokens=function(a,b){return j.tokenize(a,b)},a.nodes=function(a,b){return typeof a=="string"?h.transform(k.parse(j.tokenize(a,b))):h.transform(k.parse(a))},a.run=function(a,b){var c;return b==null&&(b={}),c=require.main,c.filename=process.argv[1]=b.filename?g.realpathSync(b.filename):".",c.moduleCache&&(c.moduleCache={}),c.paths=require("module")._nodeModulePaths(l.dirname(b.filename)),!i(c.filename)||require.extensions?c._compile(e(a,b),c.filename):c._compile(a,c.filename)},a.eval=function(a,b){var c,d,f,g,h,i,j,k,n,o,p,q,r,t;b==null&&(b={});if(!(a=a.trim()))return;d=m.Script;if(d){if(b.sandbox!=null){if(b.sandbox instanceof d.createContext().constructor)j=b.sandbox;else{j=d.createContext(),q=b.sandbox;for(g in q){if(!s.call(q,g))continue;k=q[g],j[g]=k}}j.global=j.root=j.GLOBAL=j}else j=global;j.__filename=b.filename||"eval",j.__dirname=l.dirname(j.__filename);if(j===global&&!j.module&&!j.require){c=require("module"),j.module=p=new c(b.modulename||"eval"),j.require=t=function(a){return c._load(a,p,!0)},p.filename=j.__filename,r=Object.getOwnPropertyNames(require);for(n=0,o=r.length;n<o;n++)i=r[n],i!=="paths"&&(t[i]=require[i]);t.paths=p.paths=c._nodeModulePaths(process.cwd()),t.resolve=function(a){return c._resolveFilename(a,p)}}}h={};for(g in b){if(!s.call(b,g))continue;k=b[g],h[g]=k}return h.bare=!0,f=e(a,h),j===global?m.runInThisContext(f):m.runInContext(f,j)},j=new c,k.lexer={lex:function(){var a,b;return b=this.tokens[this.pos++]||[""],a=b[0],this.yytext=b[1],this.yylineno=b[2],a},setInput:function(a){return this.tokens=a,this.pos=0},upcomingInput:function(){return""}},k.yy=require("./nodes"),a.iced=h.runtime})).call(this)},require["./browser"]=new function(){var exports=this;((function(){var CoffeeScript,runScripts;CoffeeScript=require("./coffee-script"),CoffeeScript.require=require,CoffeeScript.eval=function(code,options){return eval(CoffeeScript.compile(code,options))},CoffeeScript.run=function(a,b){return b==null&&(b={}),b.bare=!0,Function(CoffeeScript.compile(a,b))()};if(typeof window=="undefined"||window===null)return;CoffeeScript.load=function(a,b){var c;return c=new(window.ActiveXObject||XMLHttpRequest)("Microsoft.XMLHTTP"),c.open("GET",a,!0),"overrideMimeType"in c&&c.overrideMimeType("text/plain"),c.onreadystatechange=function(){var d;if(c.readyState===4){if((d=c.status)!==0&&d!==200)throw new Error("Could not load "+a);CoffeeScript.run(c.responseText);if(b)return b()}},c.send(null)},runScripts=function(){var a,b,c,d,e,f;return f=document.getElementsByTagName("script"),a=function(){var a,b,c;c=[];for(a=0,b=f.length;a<b;a++)e=f[a],e.type==="text/coffeescript"&&c.push(e);return c}(),c=0,d=a.length,(b=function(){var d;d=a[c++];if((d!=null?d.type:void 0)==="text/coffeescript")return d.src?CoffeeScript.load(d.src,b):(CoffeeScript.run(d.innerHTML),b())})(),null},window.addEventListener?addEventListener("DOMContentLoaded",runScripts,!1):attachEvent("onload",runScripts)})).call(this)},require["./icedlib"]=new function(){var a=this;((function(){var b,c,d,e,f,g=[].slice;e=function(){},d=require("./iced"),c=d.runtime,f=function(a,b,d,e){var f,h,i,j,k,l=this;j=c.findDeferral(arguments),h=new c.Rendezvous,e[0]=h.id(!0).__iced_deferrals.defer({assign_fn:function(){return function(){return f=g.call(arguments,0)}}(),lineno:18}),setTimeout(h.id(!1).__iced_deferrals.defer({lineno:19}),b),function(a){k=new c.Deferrals(a,{parent:j,filename:"src/icedlib.coffee",funcname:"_timeout"}),h.wait(k.defer({assign_fn:function(){return function(){return i=arguments[0]}}(),lineno:21})),k._fulfill()}(function(){return d&&(d[0]=i),a.apply(null,f)})},a.timeout=function(a,b,c){var d;return d=[],f(a,b,c,d),d[0]},a.Pipeliner=b=function(){function a(a,b){this.window=a||1,this.delay=b||0,this.queue=[],this.n_out=0,this.cb=null,this[d["const"].deferrals]=this,this.defer=this._defer}return a.name="Pipeliner",a.prototype.waitInQueue=function(a){var b,d,e=this;b=c.findDeferral(arguments),function(a){var f,g;f=[],g=function(a){var h,i,j;h=function(){return a(f)},i=function(){return g(a)},j=function(a){return f.push(a),i()};if(!(e.n_out>e.window))return h();(function(a){d=new c.Deferrals(a,{parent:b,filename:"src/icedlib.coffee",funcname:"Pipeliner.waitInQueue"}),e.cb=d.defer({lineno:57}),d._fulfill()})(j)},g(a)}(function(){e.n_out++,function(a){if(!e.delay)return a();(function(a){d=new c.Deferrals(a,{parent:b,filename:"src/icedlib.coffee",funcname:"Pipeliner.waitInQueue"}),setTimeout(d.defer({lineno:65}),e.delay),d._fulfill()})(a)}(function(){return a()})})},a.prototype.__defer=function(a,b){var d,e,f,h,i=this;f=c.findDeferral(arguments),function(d){h=new c.Deferrals(d,{parent:f,filename:"src/icedlib.coffee",funcname:"Pipeliner.__defer"}),e=h.defer({lineno:78}),a[0]=function(){var a,c;return a=1<=arguments.length?g.call(arguments,0):[],(c=b.assign_fn)!=null&&c.apply(null,a),e()},h._fulfill()}(function(){i.n_out--;if(i.cb)return d=i.cb,i.cb=null,d()})},a.prototype._defer=function(a){var b;return b=[],this.__defer(b,a),b[0]},a.prototype.flush=function(a){var b,d,f,g,h=this;e=a,b=c.findDeferral(arguments),f=[],g=function(a){var e,i,j;e=function(){return a(f)},i=function(){return g(a)},j=function(a){return f.push(a),i()};if(!h.n_out)return e();(function(a){d=new c.Deferrals(a,{parent:b,filename:"src/icedlib.coffee",funcname:"Pipeliner.flush"}),h.cb=d.defer({lineno:105}),d._fulfill()})(j)},g(e)},a}()})).call(this)},require["./coffee-script"]}();typeof define=="function"&&define.amd?define(function(){return CoffeeScript}):root.CoffeeScript=CoffeeScript})(this)
+(function(root) {
+  var CoffeeScript = function() {
+    function require(path){ return require[path]; }
+    require['./helpers'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var extend, flatten;
+
+  exports.starts = function(string, literal, start) {
+    return literal === string.substr(start, literal.length);
+  };
+
+  exports.ends = function(string, literal, back) {
+    var len;
+    len = literal.length;
+    return literal === string.substr(string.length - len - (back || 0), len);
+  };
+
+  exports.compact = function(array) {
+    var item, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = array.length; _i < _len; _i++) {
+      item = array[_i];
+      if (item) _results.push(item);
+    }
+    return _results;
+  };
+
+  exports.count = function(string, substr) {
+    var num, pos;
+    num = pos = 0;
+    if (!substr.length) return 1 / 0;
+    while (pos = 1 + string.indexOf(substr, pos)) {
+      num++;
+    }
+    return num;
+  };
+
+  exports.merge = function(options, overrides) {
+    return extend(extend({}, options), overrides);
+  };
+
+  extend = exports.extend = function(object, properties) {
+    var key, val;
+    for (key in properties) {
+      val = properties[key];
+      object[key] = val;
+    }
+    return object;
+  };
+
+  exports.flatten = flatten = function(array) {
+    var element, flattened, _i, _len;
+    flattened = [];
+    for (_i = 0, _len = array.length; _i < _len; _i++) {
+      element = array[_i];
+      if (element instanceof Array) {
+        flattened = flattened.concat(flatten(element));
+      } else {
+        flattened.push(element);
+      }
+    }
+    return flattened;
+  };
+
+  exports.del = function(obj, key) {
+    var val;
+    val = obj[key];
+    delete obj[key];
+    return val;
+  };
+
+  exports.last = function(array, back) {
+    return array[array.length - (back || 0) - 1];
+  };
+
+}).call(this);
+
+};require['./rewriter'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var BALANCED_PAIRS, EXPRESSION_CLOSE, EXPRESSION_END, EXPRESSION_START, IMPLICIT_BLOCK, IMPLICIT_CALL, IMPLICIT_END, IMPLICIT_FUNC, IMPLICIT_UNSPACED_CALL, INVERSES, LINEBREAKS, SINGLE_CLOSERS, SINGLE_LINERS, left, rite, _i, _len, _ref,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __slice = [].slice;
+
+  exports.Rewriter = (function() {
+
+    Rewriter.name = 'Rewriter';
+
+    function Rewriter() {}
+
+    Rewriter.prototype.rewrite = function(tokens) {
+      this.tokens = tokens;
+      this.removeLeadingNewlines();
+      this.removeMidExpressionNewlines();
+      this.closeOpenCalls();
+      this.closeOpenIndexes();
+      this.addImplicitIndentation();
+      this.tagPostfixConditionals();
+      this.addImplicitBraces();
+      this.addImplicitParentheses();
+      return this.tokens;
+    };
+
+    Rewriter.prototype.scanTokens = function(block) {
+      var i, token, tokens;
+      tokens = this.tokens;
+      i = 0;
+      while (token = tokens[i]) {
+        i += block.call(this, token, i, tokens);
+      }
+      return true;
+    };
+
+    Rewriter.prototype.detectEnd = function(i, condition, action) {
+      var levels, token, tokens, _ref, _ref2;
+      tokens = this.tokens;
+      levels = 0;
+      while (token = tokens[i]) {
+        if (levels === 0 && condition.call(this, token, i)) {
+          return action.call(this, token, i);
+        }
+        if (!token || levels < 0) return action.call(this, token, i - 1);
+        if (_ref = token[0], __indexOf.call(EXPRESSION_START, _ref) >= 0) {
+          levels += 1;
+        } else if (_ref2 = token[0], __indexOf.call(EXPRESSION_END, _ref2) >= 0) {
+          levels -= 1;
+        }
+        i += 1;
+      }
+      return i - 1;
+    };
+
+    Rewriter.prototype.removeLeadingNewlines = function() {
+      var i, tag, _i, _len, _ref;
+      _ref = this.tokens;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        tag = _ref[i][0];
+        if (tag !== 'TERMINATOR') break;
+      }
+      if (i) return this.tokens.splice(0, i);
+    };
+
+    Rewriter.prototype.removeMidExpressionNewlines = function() {
+      return this.scanTokens(function(token, i, tokens) {
+        var _ref;
+        if (!(token[0] === 'TERMINATOR' && (_ref = this.tag(i + 1), __indexOf.call(EXPRESSION_CLOSE, _ref) >= 0))) {
+          return 1;
+        }
+        tokens.splice(i, 1);
+        return 0;
+      });
+    };
+
+    Rewriter.prototype.closeOpenCalls = function() {
+      var action, condition;
+      condition = function(token, i) {
+        var _ref;
+        return ((_ref = token[0]) === ')' || _ref === 'CALL_END') || token[0] === 'OUTDENT' && this.tag(i - 1) === ')';
+      };
+      action = function(token, i) {
+        return this.tokens[token[0] === 'OUTDENT' ? i - 1 : i][0] = 'CALL_END';
+      };
+      return this.scanTokens(function(token, i) {
+        if (token[0] === 'CALL_START') this.detectEnd(i + 1, condition, action);
+        return 1;
+      });
+    };
+
+    Rewriter.prototype.closeOpenIndexes = function() {
+      var action, condition;
+      condition = function(token, i) {
+        var _ref;
+        return (_ref = token[0]) === ']' || _ref === 'INDEX_END';
+      };
+      action = function(token, i) {
+        return token[0] = 'INDEX_END';
+      };
+      return this.scanTokens(function(token, i) {
+        if (token[0] === 'INDEX_START') this.detectEnd(i + 1, condition, action);
+        return 1;
+      });
+    };
+
+    Rewriter.prototype.addImplicitBraces = function() {
+      var action, condition, sameLine, stack, start, startIndent, startsLine;
+      stack = [];
+      start = null;
+      startsLine = null;
+      sameLine = true;
+      startIndent = 0;
+      condition = function(token, i) {
+        var one, tag, three, two, _ref, _ref2;
+        _ref = this.tokens.slice(i + 1, (i + 3) + 1 || 9e9), one = _ref[0], two = _ref[1], three = _ref[2];
+        if ('HERECOMMENT' === (one != null ? one[0] : void 0)) return false;
+        tag = token[0];
+        if (__indexOf.call(LINEBREAKS, tag) >= 0) sameLine = false;
+        return (((tag === 'TERMINATOR' || tag === 'OUTDENT') || (__indexOf.call(IMPLICIT_END, tag) >= 0 && sameLine)) && ((!startsLine && this.tag(i - 1) !== ',') || !((two != null ? two[0] : void 0) === ':' || (one != null ? one[0] : void 0) === '@' && (three != null ? three[0] : void 0) === ':'))) || (tag === ',' && one && ((_ref2 = one[0]) !== 'IDENTIFIER' && _ref2 !== 'NUMBER' && _ref2 !== 'STRING' && _ref2 !== '@' && _ref2 !== 'TERMINATOR' && _ref2 !== 'OUTDENT'));
+      };
+      action = function(token, i) {
+        var tok;
+        tok = this.generate('}', '}', token[2]);
+        return this.tokens.splice(i, 0, tok);
+      };
+      return this.scanTokens(function(token, i, tokens) {
+        var ago, idx, prevTag, tag, tok, value, _ref, _ref2;
+        if (_ref = (tag = token[0]), __indexOf.call(EXPRESSION_START, _ref) >= 0) {
+          stack.push([(tag === 'INDENT' && this.tag(i - 1) === '{' ? '{' : tag), i]);
+          return 1;
+        }
+        if (__indexOf.call(EXPRESSION_END, tag) >= 0) {
+          start = stack.pop();
+          return 1;
+        }
+        if (!(tag === ':' && ((ago = this.tag(i - 2)) === ':' || ((_ref2 = stack[stack.length - 1]) != null ? _ref2[0] : void 0) !== '{'))) {
+          return 1;
+        }
+        sameLine = true;
+        stack.push(['{']);
+        idx = ago === '@' ? i - 2 : i - 1;
+        while (this.tag(idx - 2) === 'HERECOMMENT') {
+          idx -= 2;
+        }
+        prevTag = this.tag(idx - 1);
+        startsLine = !prevTag || (__indexOf.call(LINEBREAKS, prevTag) >= 0);
+        value = new String('{');
+        value.generated = true;
+        tok = this.generate('{', value, token[2]);
+        tokens.splice(idx, 0, tok);
+        this.detectEnd(i + 2, condition, action);
+        return 2;
+      });
+    };
+
+    Rewriter.prototype.addImplicitParentheses = function() {
+      var action, condition, noCall, seenControl, seenSingle;
+      noCall = seenSingle = seenControl = false;
+      condition = function(token, i) {
+        var post, tag, _ref, _ref2;
+        tag = token[0];
+        if (!seenSingle && token.fromThen) return true;
+        if (tag === 'IF' || tag === 'ELSE' || tag === 'CATCH' || tag === '->' || tag === '=>' || tag === 'CLASS') {
+          seenSingle = true;
+        }
+        if (tag === 'IF' || tag === 'ELSE' || tag === 'SWITCH' || tag === 'TRY' || tag === '=') {
+          seenControl = true;
+        }
+        if ((tag === '.' || tag === '?.' || tag === '::') && this.tag(i - 1) === 'OUTDENT') {
+          return true;
+        }
+        return !token.generated && this.tag(i - 1) !== ',' && (__indexOf.call(IMPLICIT_END, tag) >= 0 || (tag === 'INDENT' && !seenControl)) && (tag !== 'INDENT' || (((_ref = this.tag(i - 2)) !== 'CLASS' && _ref !== 'EXTENDS') && (_ref2 = this.tag(i - 1), __indexOf.call(IMPLICIT_BLOCK, _ref2) < 0) && !((post = this.tokens[i + 1]) && post.generated && post[0] === '{')));
+      };
+      action = function(token, i) {
+        return this.tokens.splice(i, 0, this.generate('CALL_END', ')', token[2]));
+      };
+      return this.scanTokens(function(token, i, tokens) {
+        var callObject, current, next, prev, tag, _ref, _ref2, _ref3;
+        tag = token[0];
+        if (tag === 'CLASS' || tag === 'IF') noCall = true;
+        _ref = tokens.slice(i - 1, (i + 1) + 1 || 9e9), prev = _ref[0], current = _ref[1], next = _ref[2];
+        callObject = !noCall && tag === 'INDENT' && next && next.generated && next[0] === '{' && prev && (_ref2 = prev[0], __indexOf.call(IMPLICIT_FUNC, _ref2) >= 0);
+        seenSingle = false;
+        seenControl = false;
+        if (__indexOf.call(LINEBREAKS, tag) >= 0) noCall = false;
+        if (prev && !prev.spaced && tag === '?') token.call = true;
+        if (token.fromThen) return 1;
+        if (!(callObject || (prev != null ? prev.spaced : void 0) && (prev.call || (_ref3 = prev[0], __indexOf.call(IMPLICIT_FUNC, _ref3) >= 0)) && (__indexOf.call(IMPLICIT_CALL, tag) >= 0 || !(token.spaced || token.newLine) && __indexOf.call(IMPLICIT_UNSPACED_CALL, tag) >= 0))) {
+          return 1;
+        }
+        tokens.splice(i, 0, this.generate('CALL_START', '(', token[2]));
+        this.detectEnd(i + 1, condition, action);
+        if (prev[0] === '?') prev[0] = 'FUNC_EXIST';
+        return 2;
+      });
+    };
+
+    Rewriter.prototype.addImplicitIndentation = function() {
+      var action, condition, indent, outdent, starter;
+      starter = indent = outdent = null;
+      condition = function(token, i) {
+        var _ref;
+        return token[1] !== ';' && (_ref = token[0], __indexOf.call(SINGLE_CLOSERS, _ref) >= 0) && !(token[0] === 'ELSE' && (starter !== 'IF' && starter !== 'THEN'));
+      };
+      action = function(token, i) {
+        return this.tokens.splice((this.tag(i - 1) === ',' ? i - 1 : i), 0, outdent);
+      };
+      return this.scanTokens(function(token, i, tokens) {
+        var tag, _ref, _ref2;
+        tag = token[0];
+        if (tag === 'TERMINATOR' && this.tag(i + 1) === 'THEN') {
+          tokens.splice(i, 1);
+          return 0;
+        }
+        if (tag === 'ELSE' && this.tag(i - 1) !== 'OUTDENT') {
+          tokens.splice.apply(tokens, [i, 0].concat(__slice.call(this.indentation(token))));
+          return 2;
+        }
+        if (tag === 'CATCH' && ((_ref = this.tag(i + 2)) === 'OUTDENT' || _ref === 'TERMINATOR' || _ref === 'FINALLY')) {
+          tokens.splice.apply(tokens, [i + 2, 0].concat(__slice.call(this.indentation(token))));
+          return 4;
+        }
+        if (__indexOf.call(SINGLE_LINERS, tag) >= 0 && this.tag(i + 1) !== 'INDENT' && !(tag === 'ELSE' && this.tag(i + 1) === 'IF')) {
+          starter = tag;
+          _ref2 = this.indentation(token, true), indent = _ref2[0], outdent = _ref2[1];
+          if (starter === 'THEN') indent.fromThen = true;
+          tokens.splice(i + 1, 0, indent);
+          this.detectEnd(i + 2, condition, action);
+          if (tag === 'THEN') tokens.splice(i, 1);
+          return 1;
+        }
+        return 1;
+      });
+    };
+
+    Rewriter.prototype.tagPostfixConditionals = function() {
+      var action, condition, original;
+      original = null;
+      condition = function(token, i) {
+        var _ref;
+        return (_ref = token[0]) === 'TERMINATOR' || _ref === 'INDENT';
+      };
+      action = function(token, i) {
+        if (token[0] !== 'INDENT' || (token.generated && !token.fromThen)) {
+          return original[0] = 'POST_' + original[0];
+        }
+      };
+      return this.scanTokens(function(token, i) {
+        if (token[0] !== 'IF') return 1;
+        original = token;
+        this.detectEnd(i + 1, condition, action);
+        return 1;
+      });
+    };
+
+    Rewriter.prototype.indentation = function(token, implicit) {
+      var indent, outdent;
+      if (implicit == null) implicit = false;
+      indent = ['INDENT', 2, token[2]];
+      outdent = ['OUTDENT', 2, token[2]];
+      if (implicit) indent.generated = outdent.generated = true;
+      return [indent, outdent];
+    };
+
+    Rewriter.prototype.generate = function(tag, value, line) {
+      var tok;
+      tok = [tag, value, line];
+      tok.generated = true;
+      return tok;
+    };
+
+    Rewriter.prototype.tag = function(i) {
+      var _ref;
+      return (_ref = this.tokens[i]) != null ? _ref[0] : void 0;
+    };
+
+    return Rewriter;
+
+  })();
+
+  BALANCED_PAIRS = [['(', ')'], ['[', ']'], ['{', '}'], ['INDENT', 'OUTDENT'], ['CALL_START', 'CALL_END'], ['PARAM_START', 'PARAM_END'], ['INDEX_START', 'INDEX_END']];
+
+  exports.INVERSES = INVERSES = {};
+
+  EXPRESSION_START = [];
+
+  EXPRESSION_END = [];
+
+  for (_i = 0, _len = BALANCED_PAIRS.length; _i < _len; _i++) {
+    _ref = BALANCED_PAIRS[_i], left = _ref[0], rite = _ref[1];
+    EXPRESSION_START.push(INVERSES[rite] = left);
+    EXPRESSION_END.push(INVERSES[left] = rite);
+  }
+
+  EXPRESSION_CLOSE = ['CATCH', 'WHEN', 'ELSE', 'FINALLY'].concat(EXPRESSION_END);
+
+  IMPLICIT_FUNC = ['IDENTIFIER', 'SUPER', ')', 'CALL_END', ']', 'INDEX_END', '@', 'THIS', 'DEFER', 'TAMEREQUIRE'];
+
+  IMPLICIT_CALL = ['IDENTIFIER', 'NUMBER', 'STRING', 'JS', 'REGEX', 'NEW', 'PARAM_START', 'CLASS', 'IF', 'TRY', 'SWITCH', 'THIS', 'BOOL', 'UNARY', 'SUPER', 'DEFER', 'TAMEREQUIRE', '@', '->', '=>', '[', '(', '{', '--', '++'];
+
+  IMPLICIT_UNSPACED_CALL = ['+', '-'];
+
+  IMPLICIT_BLOCK = ['->', '=>', '{', '[', ','];
+
+  IMPLICIT_END = ['POST_IF', 'FOR', 'WHILE', 'UNTIL', 'WHEN', 'BY', 'LOOP', 'TERMINATOR', 'AWAIT'];
+
+  SINGLE_LINERS = ['ELSE', '->', '=>', 'TRY', 'FINALLY', 'THEN'];
+
+  SINGLE_CLOSERS = ['TERMINATOR', 'CATCH', 'FINALLY', 'ELSE', 'OUTDENT', 'LEADING_WHEN'];
+
+  LINEBREAKS = ['TERMINATOR', 'INDENT', 'OUTDENT'];
+
+}).call(this);
+
+};require['./lexer'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var BOOL, CALLABLE, CODE, COFFEE_ALIASES, COFFEE_ALIAS_MAP, COFFEE_KEYWORDS, COMMENT, COMPARE, COMPOUND_ASSIGN, HEREDOC, HEREDOC_ILLEGAL, HEREDOC_INDENT, HEREGEX, HEREGEX_OMIT, IDENTIFIER, INDEXABLE, INVERSES, JSTOKEN, JS_FORBIDDEN, JS_KEYWORDS, LINE_BREAK, LINE_CONTINUER, LOGIC, Lexer, MATH, MULTILINER, MULTI_DENT, NOT_REGEX, NOT_SPACED_REGEX, NUMBER, OPERATOR, REGEX, RELATION, RESERVED, Rewriter, SHIFT, SIMPLESTR, STRICT_PROSCRIBED, TRAILING_SPACES, UNARY, WHITESPACE, compact, count, key, last, starts, _ref, _ref2,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  _ref = require('./rewriter'), Rewriter = _ref.Rewriter, INVERSES = _ref.INVERSES;
+
+  _ref2 = require('./helpers'), count = _ref2.count, starts = _ref2.starts, compact = _ref2.compact, last = _ref2.last;
+
+  exports.Lexer = Lexer = (function() {
+
+    Lexer.name = 'Lexer';
+
+    function Lexer() {}
+
+    Lexer.prototype.tokenize = function(code, opts) {
+      var debug, i, ret, t, tag;
+      if (opts == null) opts = {};
+      if (WHITESPACE.test(code)) code = "\n" + code;
+      code = code.replace(/\r/g, '').replace(TRAILING_SPACES, '');
+      this.code = code;
+      this.line = opts.line || 0;
+      this.indent = 0;
+      this.indebt = 0;
+      this.outdebt = 0;
+      this.indents = [];
+      this.ends = [];
+      this.tokens = [];
+      i = 0;
+      while (this.chunk = code.slice(i)) {
+        i += this.identifierToken() || this.commentToken() || this.whitespaceToken() || this.lineToken() || this.heredocToken() || this.stringToken() || this.numberToken() || this.regexToken() || this.jsToken() || this.literalToken();
+      }
+      this.closeIndentation();
+      if (tag = this.ends.pop()) this.error("missing " + tag);
+      if (opts.rewrite === false) return this.tokens;
+      debug = false;
+      if (debug) {
+        console.log(((function() {
+          var _i, _len, _ref3, _results;
+          _ref3 = this.tokens;
+          _results = [];
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            t = _ref3[_i];
+            _results.push(t[0] + '/' + t[1]);
+          }
+          return _results;
+        }).call(this)).join(' '));
+      }
+      ret = (new Rewriter).rewrite(this.tokens);
+      if (debug) {
+        console.log(((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = ret.length; _i < _len; _i++) {
+            t = ret[_i];
+            _results.push(t[0] + '/' + t[1]);
+          }
+          return _results;
+        })()).join(' '));
+      }
+      return ret;
+    };
+
+    Lexer.prototype.identifierToken = function() {
+      var colon, forcedIdentifier, id, input, match, prev, tag, _ref3, _ref4;
+      if (!(match = IDENTIFIER.exec(this.chunk))) return 0;
+      input = match[0], id = match[1], colon = match[2];
+      if (id === 'own' && this.tag() === 'FOR') {
+        this.token('OWN', id);
+        return id.length;
+      }
+      forcedIdentifier = colon || (prev = last(this.tokens)) && (((_ref3 = prev[0]) === '.' || _ref3 === '?.' || _ref3 === '::') || !prev.spaced && prev[0] === '@') && id !== 'defer';
+      tag = 'IDENTIFIER';
+      if (!forcedIdentifier && (__indexOf.call(JS_KEYWORDS, id) >= 0 || __indexOf.call(COFFEE_KEYWORDS, id) >= 0)) {
+        tag = id.toUpperCase();
+        if (tag === 'WHEN' && (_ref4 = this.tag(), __indexOf.call(LINE_BREAK, _ref4) >= 0)) {
+          tag = 'LEADING_WHEN';
+        } else if (tag === 'FOR') {
+          this.seenFor = true;
+        } else if (tag === 'UNLESS') {
+          tag = 'IF';
+        } else if (__indexOf.call(UNARY, tag) >= 0) {
+          tag = 'UNARY';
+        } else if (__indexOf.call(RELATION, tag) >= 0) {
+          if (tag !== 'INSTANCEOF' && this.seenFor) {
+            tag = 'FOR' + tag;
+            this.seenFor = false;
+          } else {
+            tag = 'RELATION';
+            if (this.value() === '!') {
+              this.tokens.pop();
+              id = '!' + id;
+            }
+          }
+        }
+      }
+      if (__indexOf.call(JS_FORBIDDEN, id) >= 0) {
+        if (forcedIdentifier) {
+          tag = 'IDENTIFIER';
+          id = new String(id);
+          id.reserved = true;
+        } else if (__indexOf.call(RESERVED, id) >= 0) {
+          this.error("reserved word \"" + id + "\"");
+        }
+      }
+      if (!forcedIdentifier) {
+        if (__indexOf.call(COFFEE_ALIASES, id) >= 0) id = COFFEE_ALIAS_MAP[id];
+        tag = (function() {
+          switch (id) {
+            case '!':
+              return 'UNARY';
+            case '==':
+            case '!=':
+              return 'COMPARE';
+            case '&&':
+            case '||':
+              return 'LOGIC';
+            case 'true':
+            case 'false':
+            case 'null':
+            case 'undefined':
+              return 'BOOL';
+            case 'break':
+            case 'continue':
+              return 'STATEMENT';
+            default:
+              return tag;
+          }
+        })();
+      }
+      this.token(tag, id);
+      if (colon) this.token(':', ':');
+      return input.length;
+    };
+
+    Lexer.prototype.numberToken = function() {
+      var binaryLiteral, lexedLength, match, number, octalLiteral;
+      if (!(match = NUMBER.exec(this.chunk))) return 0;
+      number = match[0];
+      if (/E/.test(number)) {
+        this.error("exponential notation '" + number + "' must be indicated with a lowercase 'e'");
+      } else if (/[BOX]/.test(number)) {
+        this.error("radix prefixes must be lowercase '" + number + "'");
+      } else if (/^0[89]/.test(number)) {
+        this.error("decimal literals '" + number + "' must not be prefixed with '0'");
+      } else if (/^0[0-7]/.test(number)) {
+        this.error("octal literals '" + number + "' must be prefixed with '0o'");
+      }
+      lexedLength = number.length;
+      if (octalLiteral = /0o([0-7]+)/.exec(number)) {
+        number = (parseInt(octalLiteral[1], 8)).toString();
+      }
+      if (binaryLiteral = /0b([01]+)/.exec(number)) {
+        number = (parseInt(binaryLiteral[1], 2)).toString();
+      }
+      this.token('NUMBER', number);
+      return lexedLength;
+    };
+
+    Lexer.prototype.stringToken = function() {
+      var match, octalEsc, string;
+      switch (this.chunk.charAt(0)) {
+        case "'":
+          if (!(match = SIMPLESTR.exec(this.chunk))) return 0;
+          this.token('STRING', (string = match[0]).replace(MULTILINER, '\\\n'));
+          break;
+        case '"':
+          if (!(string = this.balancedString(this.chunk, '"'))) return 0;
+          if (0 < string.indexOf('#{', 1)) {
+            this.interpolateString(string.slice(1, -1));
+          } else {
+            this.token('STRING', this.escapeLines(string));
+          }
+          break;
+        default:
+          return 0;
+      }
+      if (octalEsc = /^(?:\\.|[^\\])*\\[0-7]/.test(string)) {
+        this.error("octal escape sequences " + string + " are not allowed");
+      }
+      this.line += count(string, '\n');
+      return string.length;
+    };
+
+    Lexer.prototype.heredocToken = function() {
+      var doc, heredoc, match, quote;
+      if (!(match = HEREDOC.exec(this.chunk))) return 0;
+      heredoc = match[0];
+      quote = heredoc.charAt(0);
+      doc = this.sanitizeHeredoc(match[2], {
+        quote: quote,
+        indent: null
+      });
+      if (quote === '"' && 0 <= doc.indexOf('#{')) {
+        this.interpolateString(doc, {
+          heredoc: true
+        });
+      } else {
+        this.token('STRING', this.makeString(doc, quote, true));
+      }
+      this.line += count(heredoc, '\n');
+      return heredoc.length;
+    };
+
+    Lexer.prototype.commentToken = function() {
+      var comment, here, match;
+      if (!(match = this.chunk.match(COMMENT))) return 0;
+      comment = match[0], here = match[1];
+      if (here) {
+        this.token('HERECOMMENT', this.sanitizeHeredoc(here, {
+          herecomment: true,
+          indent: Array(this.indent + 1).join(' ')
+        }));
+      }
+      this.line += count(comment, '\n');
+      return comment.length;
+    };
+
+    Lexer.prototype.jsToken = function() {
+      var match, script;
+      if (!(this.chunk.charAt(0) === '`' && (match = JSTOKEN.exec(this.chunk)))) {
+        return 0;
+      }
+      this.token('JS', (script = match[0]).slice(1, -1));
+      return script.length;
+    };
+
+    Lexer.prototype.regexToken = function() {
+      var flags, length, match, prev, regex, _ref3, _ref4;
+      if (this.chunk.charAt(0) !== '/') return 0;
+      if (match = HEREGEX.exec(this.chunk)) {
+        length = this.heregexToken(match);
+        this.line += count(match[0], '\n');
+        return length;
+      }
+      prev = last(this.tokens);
+      if (prev && (_ref3 = prev[0], __indexOf.call((prev.spaced ? NOT_REGEX : NOT_SPACED_REGEX), _ref3) >= 0)) {
+        return 0;
+      }
+      if (!(match = REGEX.exec(this.chunk))) return 0;
+      _ref4 = match, match = _ref4[0], regex = _ref4[1], flags = _ref4[2];
+      if (regex.slice(0, 2) === '/*') {
+        this.error('regular expressions cannot begin with `*`');
+      }
+      if (regex === '//') regex = '/(?:)/';
+      this.token('REGEX', "" + regex + flags);
+      return match.length;
+    };
+
+    Lexer.prototype.heregexToken = function(match) {
+      var body, flags, heregex, re, tag, tokens, value, _i, _len, _ref3, _ref4, _ref5, _ref6;
+      heregex = match[0], body = match[1], flags = match[2];
+      if (0 > body.indexOf('#{')) {
+        re = body.replace(HEREGEX_OMIT, '').replace(/\//g, '\\/');
+        if (re.match(/^\*/)) {
+          this.error('regular expressions cannot begin with `*`');
+        }
+        this.token('REGEX', "/" + (re || '(?:)') + "/" + flags);
+        return heregex.length;
+      }
+      this.token('IDENTIFIER', 'RegExp');
+      this.tokens.push(['CALL_START', '(']);
+      tokens = [];
+      _ref3 = this.interpolateString(body, {
+        regex: true
+      });
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        _ref4 = _ref3[_i], tag = _ref4[0], value = _ref4[1];
+        if (tag === 'TOKENS') {
+          tokens.push.apply(tokens, value);
+        } else {
+          if (!(value = value.replace(HEREGEX_OMIT, ''))) continue;
+          value = value.replace(/\\/g, '\\\\');
+          tokens.push(['STRING', this.makeString(value, '"', true)]);
+        }
+        tokens.push(['+', '+']);
+      }
+      tokens.pop();
+      if (((_ref5 = tokens[0]) != null ? _ref5[0] : void 0) !== 'STRING') {
+        this.tokens.push(['STRING', '""'], ['+', '+']);
+      }
+      (_ref6 = this.tokens).push.apply(_ref6, tokens);
+      if (flags) this.tokens.push([',', ','], ['STRING', '"' + flags + '"']);
+      this.token(')', ')');
+      return heregex.length;
+    };
+
+    Lexer.prototype.lineToken = function() {
+      var diff, indent, match, noNewlines, prev, size;
+      if (!(match = MULTI_DENT.exec(this.chunk))) return 0;
+      indent = match[0];
+      this.line += count(indent, '\n');
+      this.seenFor = false;
+      prev = last(this.tokens, 1);
+      size = indent.length - 1 - indent.lastIndexOf('\n');
+      noNewlines = this.unfinished();
+      if (size - this.indebt === this.indent) {
+        if (noNewlines) {
+          this.suppressNewlines();
+        } else {
+          this.newlineToken();
+        }
+        return indent.length;
+      }
+      if (size > this.indent) {
+        if (noNewlines) {
+          this.indebt = size - this.indent;
+          this.suppressNewlines();
+          return indent.length;
+        }
+        diff = size - this.indent + this.outdebt;
+        this.token('INDENT', diff);
+        this.indents.push(diff);
+        this.ends.push('OUTDENT');
+        this.outdebt = this.indebt = 0;
+      } else {
+        this.indebt = 0;
+        this.outdentToken(this.indent - size, noNewlines);
+      }
+      this.indent = size;
+      return indent.length;
+    };
+
+    Lexer.prototype.outdentToken = function(moveOut, noNewlines) {
+      var dent, len;
+      while (moveOut > 0) {
+        len = this.indents.length - 1;
+        if (this.indents[len] === void 0) {
+          moveOut = 0;
+        } else if (this.indents[len] === this.outdebt) {
+          moveOut -= this.outdebt;
+          this.outdebt = 0;
+        } else if (this.indents[len] < this.outdebt) {
+          this.outdebt -= this.indents[len];
+          moveOut -= this.indents[len];
+        } else {
+          dent = this.indents.pop() - this.outdebt;
+          moveOut -= dent;
+          this.outdebt = 0;
+          this.pair('OUTDENT');
+          this.token('OUTDENT', dent);
+        }
+      }
+      if (dent) this.outdebt -= moveOut;
+      while (this.value() === ';') {
+        this.tokens.pop();
+      }
+      if (!(this.tag() === 'TERMINATOR' || noNewlines)) {
+        this.token('TERMINATOR', '\n');
+      }
+      return this;
+    };
+
+    Lexer.prototype.whitespaceToken = function() {
+      var match, nline, prev;
+      if (!((match = WHITESPACE.exec(this.chunk)) || (nline = this.chunk.charAt(0) === '\n'))) {
+        return 0;
+      }
+      prev = last(this.tokens);
+      if (prev) prev[match ? 'spaced' : 'newLine'] = true;
+      if (match) {
+        return match[0].length;
+      } else {
+        return 0;
+      }
+    };
+
+    Lexer.prototype.newlineToken = function() {
+      while (this.value() === ';') {
+        this.tokens.pop();
+      }
+      if (this.tag() !== 'TERMINATOR') this.token('TERMINATOR', '\n');
+      return this;
+    };
+
+    Lexer.prototype.suppressNewlines = function() {
+      if (this.value() === '\\') this.tokens.pop();
+      return this;
+    };
+
+    Lexer.prototype.literalToken = function() {
+      var match, prev, tag, value, _ref3, _ref4, _ref5, _ref6;
+      if (match = OPERATOR.exec(this.chunk)) {
+        value = match[0];
+        if (CODE.test(value)) this.tagParameters();
+      } else {
+        value = this.chunk.charAt(0);
+      }
+      tag = value;
+      prev = last(this.tokens);
+      if (value === '=' && prev) {
+        if (!prev[1].reserved && (_ref3 = prev[1], __indexOf.call(JS_FORBIDDEN, _ref3) >= 0)) {
+          this.error("reserved word \"" + (this.value()) + "\" can't be assigned");
+        }
+        if ((_ref4 = prev[1]) === '||' || _ref4 === '&&') {
+          prev[0] = 'COMPOUND_ASSIGN';
+          prev[1] += '=';
+          return value.length;
+        }
+      }
+      if (value === ';') {
+        this.seenFor = false;
+        tag = 'TERMINATOR';
+      } else if (__indexOf.call(MATH, value) >= 0) {
+        tag = 'MATH';
+      } else if (__indexOf.call(COMPARE, value) >= 0) {
+        tag = 'COMPARE';
+      } else if (__indexOf.call(COMPOUND_ASSIGN, value) >= 0) {
+        tag = 'COMPOUND_ASSIGN';
+      } else if (__indexOf.call(UNARY, value) >= 0) {
+        tag = 'UNARY';
+      } else if (__indexOf.call(SHIFT, value) >= 0) {
+        tag = 'SHIFT';
+      } else if (__indexOf.call(LOGIC, value) >= 0 || value === '?' && (prev != null ? prev.spaced : void 0)) {
+        tag = 'LOGIC';
+      } else if (prev && !prev.spaced) {
+        if (value === '(' && (_ref5 = prev[0], __indexOf.call(CALLABLE, _ref5) >= 0)) {
+          if (prev[0] === '?') prev[0] = 'FUNC_EXIST';
+          tag = 'CALL_START';
+        } else if (value === '[' && (_ref6 = prev[0], __indexOf.call(INDEXABLE, _ref6) >= 0)) {
+          tag = 'INDEX_START';
+          switch (prev[0]) {
+            case '?':
+              prev[0] = 'INDEX_SOAK';
+          }
+        }
+      }
+      switch (value) {
+        case '(':
+        case '{':
+        case '[':
+          this.ends.push(INVERSES[value]);
+          break;
+        case ')':
+        case '}':
+        case ']':
+          this.pair(value);
+      }
+      this.token(tag, value);
+      return value.length;
+    };
+
+    Lexer.prototype.sanitizeHeredoc = function(doc, options) {
+      var attempt, herecomment, indent, match, _ref3;
+      indent = options.indent, herecomment = options.herecomment;
+      if (herecomment) {
+        if (HEREDOC_ILLEGAL.test(doc)) {
+          this.error("block comment cannot contain \"*/\", starting");
+        }
+        if (doc.indexOf('\n') <= 0) return doc;
+      } else {
+        while (match = HEREDOC_INDENT.exec(doc)) {
+          attempt = match[1];
+          if (indent === null || (0 < (_ref3 = attempt.length) && _ref3 < indent.length)) {
+            indent = attempt;
+          }
+        }
+      }
+      if (indent) doc = doc.replace(RegExp("\\n" + indent, "g"), '\n');
+      if (!herecomment) doc = doc.replace(/^\n/, '');
+      return doc;
+    };
+
+    Lexer.prototype.tagParameters = function() {
+      var i, stack, tok, tokens;
+      if (this.tag() !== ')') return this;
+      stack = [];
+      tokens = this.tokens;
+      i = tokens.length;
+      tokens[--i][0] = 'PARAM_END';
+      while (tok = tokens[--i]) {
+        switch (tok[0]) {
+          case ')':
+            stack.push(tok);
+            break;
+          case '(':
+          case 'CALL_START':
+            if (stack.length) {
+              stack.pop();
+            } else if (tok[0] === '(') {
+              tok[0] = 'PARAM_START';
+              return this;
+            } else {
+              return this;
+            }
+        }
+      }
+      return this;
+    };
+
+    Lexer.prototype.closeIndentation = function() {
+      return this.outdentToken(this.indent);
+    };
+
+    Lexer.prototype.balancedString = function(str, end) {
+      var continueCount, i, letter, match, prev, stack, _i, _ref3;
+      continueCount = 0;
+      stack = [end];
+      for (i = _i = 1, _ref3 = str.length; 1 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 1 <= _ref3 ? ++_i : --_i) {
+        if (continueCount) {
+          --continueCount;
+          continue;
+        }
+        switch (letter = str.charAt(i)) {
+          case '\\':
+            ++continueCount;
+            continue;
+          case end:
+            stack.pop();
+            if (!stack.length) return str.slice(0, i + 1 || 9e9);
+            end = stack[stack.length - 1];
+            continue;
+        }
+        if (end === '}' && (letter === '"' || letter === "'")) {
+          stack.push(end = letter);
+        } else if (end === '}' && letter === '/' && (match = HEREGEX.exec(str.slice(i)) || REGEX.exec(str.slice(i)))) {
+          continueCount += match[0].length - 1;
+        } else if (end === '}' && letter === '{') {
+          stack.push(end = '}');
+        } else if (end === '"' && prev === '#' && letter === '{') {
+          stack.push(end = '}');
+        }
+        prev = letter;
+      }
+      return this.error("missing " + (stack.pop()) + ", starting");
+    };
+
+    Lexer.prototype.interpolateString = function(str, options) {
+      var expr, heredoc, i, inner, interpolated, len, letter, nested, pi, regex, tag, tokens, value, _i, _len, _ref3, _ref4, _ref5;
+      if (options == null) options = {};
+      heredoc = options.heredoc, regex = options.regex;
+      tokens = [];
+      pi = 0;
+      i = -1;
+      while (letter = str.charAt(i += 1)) {
+        if (letter === '\\') {
+          i += 1;
+          continue;
+        }
+        if (!(letter === '#' && str.charAt(i + 1) === '{' && (expr = this.balancedString(str.slice(i + 1), '}')))) {
+          continue;
+        }
+        if (pi < i) tokens.push(['NEOSTRING', str.slice(pi, i)]);
+        inner = expr.slice(1, -1);
+        if (inner.length) {
+          nested = new Lexer().tokenize(inner, {
+            line: this.line,
+            rewrite: false
+          });
+          nested.pop();
+          if (((_ref3 = nested[0]) != null ? _ref3[0] : void 0) === 'TERMINATOR') {
+            nested.shift();
+          }
+          if (len = nested.length) {
+            if (len > 1) {
+              nested.unshift(['(', '(', this.line]);
+              nested.push([')', ')', this.line]);
+            }
+            tokens.push(['TOKENS', nested]);
+          }
+        }
+        i += expr.length;
+        pi = i + 1;
+      }
+      if ((i > pi && pi < str.length)) tokens.push(['NEOSTRING', str.slice(pi)]);
+      if (regex) return tokens;
+      if (!tokens.length) return this.token('STRING', '""');
+      if (tokens[0][0] !== 'NEOSTRING') tokens.unshift(['', '']);
+      if (interpolated = tokens.length > 1) this.token('(', '(');
+      for (i = _i = 0, _len = tokens.length; _i < _len; i = ++_i) {
+        _ref4 = tokens[i], tag = _ref4[0], value = _ref4[1];
+        if (i) this.token('+', '+');
+        if (tag === 'TOKENS') {
+          (_ref5 = this.tokens).push.apply(_ref5, value);
+        } else {
+          this.token('STRING', this.makeString(value, '"', heredoc));
+        }
+      }
+      if (interpolated) this.token(')', ')');
+      return tokens;
+    };
+
+    Lexer.prototype.pair = function(tag) {
+      var size, wanted;
+      if (tag !== (wanted = last(this.ends))) {
+        if ('OUTDENT' !== wanted) this.error("unmatched " + tag);
+        this.indent -= size = last(this.indents);
+        this.outdentToken(size, true);
+        return this.pair(tag);
+      }
+      return this.ends.pop();
+    };
+
+    Lexer.prototype.token = function(tag, value) {
+      return this.tokens.push([tag, value, this.line]);
+    };
+
+    Lexer.prototype.tag = function(index, tag) {
+      var tok;
+      return (tok = last(this.tokens, index)) && (tag ? tok[0] = tag : tok[0]);
+    };
+
+    Lexer.prototype.value = function(index, val) {
+      var tok;
+      return (tok = last(this.tokens, index)) && (val ? tok[1] = val : tok[1]);
+    };
+
+    Lexer.prototype.unfinished = function() {
+      var _ref3;
+      return LINE_CONTINUER.test(this.chunk) || ((_ref3 = this.tag()) === '\\' || _ref3 === '.' || _ref3 === '?.' || _ref3 === 'UNARY' || _ref3 === 'MATH' || _ref3 === '+' || _ref3 === '-' || _ref3 === 'SHIFT' || _ref3 === 'RELATION' || _ref3 === 'COMPARE' || _ref3 === 'LOGIC' || _ref3 === 'THROW' || _ref3 === 'EXTENDS');
+    };
+
+    Lexer.prototype.escapeLines = function(str, heredoc) {
+      return str.replace(MULTILINER, heredoc ? '\\n' : '');
+    };
+
+    Lexer.prototype.makeString = function(body, quote, heredoc) {
+      if (!body) return quote + quote;
+      body = body.replace(/\\([\s\S])/g, function(match, contents) {
+        if (contents === '\n' || contents === quote) {
+          return contents;
+        } else {
+          return match;
+        }
+      });
+      body = body.replace(RegExp("" + quote, "g"), '\\$&');
+      return quote + this.escapeLines(body, heredoc) + quote;
+    };
+
+    Lexer.prototype.error = function(message) {
+      throw SyntaxError("" + message + " on line " + (this.line + 1));
+    };
+
+    return Lexer;
+
+  })();
+
+  JS_KEYWORDS = ['true', 'false', 'null', 'this', 'new', 'delete', 'typeof', 'in', 'instanceof', 'return', 'throw', 'break', 'continue', 'debugger', 'if', 'else', 'switch', 'for', 'while', 'do', 'try', 'catch', 'finally', 'class', 'extends', 'super'];
+
+  COFFEE_KEYWORDS = ['undefined', 'then', 'unless', 'until', 'loop', 'of', 'by', 'when', 'await', 'defer'];
+
+  COFFEE_ALIAS_MAP = {
+    and: '&&',
+    or: '||',
+    is: '==',
+    isnt: '!=',
+    not: '!',
+    yes: 'true',
+    no: 'false',
+    on: 'true',
+    off: 'false'
+  };
+
+  COFFEE_ALIASES = (function() {
+    var _results;
+    _results = [];
+    for (key in COFFEE_ALIAS_MAP) {
+      _results.push(key);
+    }
+    return _results;
+  })();
+
+  COFFEE_KEYWORDS = COFFEE_KEYWORDS.concat(COFFEE_ALIASES);
+
+  RESERVED = ['case', 'default', 'function', 'var', 'void', 'with', 'const', 'let', 'enum', 'export', 'import', 'native', '__hasProp', '__extends', '__slice', '__bind', '__indexOf', 'implements', 'interface', 'let', 'package', 'private', 'protected', 'public', 'static', 'yield'];
+
+  STRICT_PROSCRIBED = ['arguments', 'eval'];
+
+  JS_FORBIDDEN = JS_KEYWORDS.concat(RESERVED).concat(STRICT_PROSCRIBED);
+
+  exports.RESERVED = RESERVED.concat(JS_KEYWORDS).concat(COFFEE_KEYWORDS).concat(STRICT_PROSCRIBED);
+
+  exports.STRICT_PROSCRIBED = STRICT_PROSCRIBED;
+
+  IDENTIFIER = /^([$A-Za-z_\x7f-\uffff][$\w\x7f-\uffff]*)([^\n\S]*:(?!:))?/;
+
+  NUMBER = /^0b[01]+|^0o[0-7]+|^0x[\da-f]+|^\d*\.?\d+(?:e[+-]?\d+)?/i;
+
+  HEREDOC = /^("""|''')([\s\S]*?)(?:\n[^\n\S]*)?\1/;
+
+  OPERATOR = /^(?:[-=]>|[-+*\/%<>&|^!?=]=|>>>=?|([-+:])\1|([&|<>])\2=?|\?\.|\.{2,3})/;
+
+  WHITESPACE = /^[^\n\S]+/;
+
+  COMMENT = /^###([^#][\s\S]*?)(?:###[^\n\S]*|(?:###)?$)|^(?:\s*#(?!##[^#]).*)+/;
+
+  CODE = /^[-=]>/;
+
+  MULTI_DENT = /^(?:\n[^\n\S]*)+/;
+
+  SIMPLESTR = /^'[^\\']*(?:\\.[^\\']*)*'/;
+
+  JSTOKEN = /^`[^\\`]*(?:\\.[^\\`]*)*`/;
+
+  REGEX = /^(\/(?![\s=])[^[\/\n\\]*(?:(?:\\[\s\S]|\[[^\]\n\\]*(?:\\[\s\S][^\]\n\\]*)*])[^[\/\n\\]*)*\/)([imgy]{0,4})(?!\w)/;
+
+  HEREGEX = /^\/{3}([\s\S]+?)\/{3}([imgy]{0,4})(?!\w)/;
+
+  HEREGEX_OMIT = /\s+(?:#.*)?/g;
+
+  MULTILINER = /\n/g;
+
+  HEREDOC_INDENT = /\n+([^\n\S]*)/g;
+
+  HEREDOC_ILLEGAL = /\*\//;
+
+  LINE_CONTINUER = /^\s*(?:,|\??\.(?![.\d])|::)/;
+
+  TRAILING_SPACES = /\s+$/;
+
+  COMPOUND_ASSIGN = ['-=', '+=', '/=', '*=', '%=', '||=', '&&=', '?=', '<<=', '>>=', '>>>=', '&=', '^=', '|='];
+
+  UNARY = ['!', '~', 'NEW', 'TYPEOF', 'DELETE', 'DO'];
+
+  LOGIC = ['&&', '||', '&', '|', '^'];
+
+  SHIFT = ['<<', '>>', '>>>'];
+
+  COMPARE = ['==', '!=', '<', '>', '<=', '>='];
+
+  MATH = ['*', '/', '%'];
+
+  RELATION = ['IN', 'OF', 'INSTANCEOF'];
+
+  BOOL = ['TRUE', 'FALSE', 'NULL', 'UNDEFINED'];
+
+  NOT_REGEX = ['NUMBER', 'REGEX', 'BOOL', '++', '--', ']'];
+
+  NOT_SPACED_REGEX = NOT_REGEX.concat(')', '}', 'THIS', 'IDENTIFIER', 'STRING');
+
+  CALLABLE = ['IDENTIFIER', 'STRING', 'REGEX', ')', ']', '}', '?', '::', '@', 'THIS', 'SUPER', 'DEFER'];
+
+  INDEXABLE = CALLABLE.concat('NUMBER', 'BOOL');
+
+  LINE_BREAK = ['INDENT', 'OUTDENT', 'TERMINATOR'];
+
+}).call(this);
+
+};require['./parser'] = new function() {
+  var exports = this;
+  /* Jison generated parser */
+var parser = (function(){
+undefined
+var parser = {trace: function trace() { },
+yy: {},
+symbols_: {"error":2,"Root":3,"Body":4,"Block":5,"TERMINATOR":6,"Line":7,"Expression":8,"Statement":9,"Return":10,"Comment":11,"STATEMENT":12,"Await":13,"AWAIT":14,"Value":15,"Invocation":16,"Code":17,"Operation":18,"Assign":19,"If":20,"Try":21,"While":22,"For":23,"Switch":24,"Class":25,"Throw":26,"Defer":27,"INDENT":28,"OUTDENT":29,"Identifier":30,"IDENTIFIER":31,"AlphaNumeric":32,"NUMBER":33,"STRING":34,"Literal":35,"JS":36,"REGEX":37,"DEBUGGER":38,"BOOL":39,"Assignable":40,"=":41,"AssignObj":42,"ObjAssignable":43,":":44,"ThisProperty":45,"RETURN":46,"HERECOMMENT":47,"PARAM_START":48,"ParamList":49,"PARAM_END":50,"FuncGlyph":51,"->":52,"=>":53,"OptComma":54,",":55,"Param":56,"ParamVar":57,"...":58,"Array":59,"Object":60,"Splat":61,"SimpleAssignable":62,"Accessor":63,"Parenthetical":64,"Range":65,"This":66,".":67,"?.":68,"::":69,"Index":70,"INDEX_START":71,"IndexValue":72,"INDEX_END":73,"INDEX_SOAK":74,"Slice":75,"{":76,"AssignList":77,"}":78,"CLASS":79,"EXTENDS":80,"OptFuncExist":81,"Arguments":82,"SUPER":83,"DEFER":84,"FUNC_EXIST":85,"CALL_START":86,"CALL_END":87,"ArgList":88,"THIS":89,"@":90,"[":91,"]":92,"RangeDots":93,"..":94,"Arg":95,"SimpleArgs":96,"TRY":97,"Catch":98,"FINALLY":99,"CATCH":100,"THROW":101,"(":102,")":103,"WhileSource":104,"WHILE":105,"WHEN":106,"UNTIL":107,"Loop":108,"LOOP":109,"ForBody":110,"FOR":111,"ForStart":112,"ForSource":113,"ForVariables":114,"OWN":115,"ForValue":116,"FORIN":117,"FOROF":118,"BY":119,"SWITCH":120,"Whens":121,"ELSE":122,"When":123,"LEADING_WHEN":124,"IfBlock":125,"IF":126,"POST_IF":127,"UNARY":128,"-":129,"+":130,"--":131,"++":132,"?":133,"MATH":134,"SHIFT":135,"COMPARE":136,"LOGIC":137,"RELATION":138,"COMPOUND_ASSIGN":139,"$accept":0,"$end":1},
+terminals_: {2:"error",6:"TERMINATOR",12:"STATEMENT",14:"AWAIT",28:"INDENT",29:"OUTDENT",31:"IDENTIFIER",33:"NUMBER",34:"STRING",36:"JS",37:"REGEX",38:"DEBUGGER",39:"BOOL",41:"=",44:":",46:"RETURN",47:"HERECOMMENT",48:"PARAM_START",50:"PARAM_END",52:"->",53:"=>",55:",",58:"...",67:".",68:"?.",69:"::",71:"INDEX_START",73:"INDEX_END",74:"INDEX_SOAK",76:"{",78:"}",79:"CLASS",80:"EXTENDS",83:"SUPER",84:"DEFER",85:"FUNC_EXIST",86:"CALL_START",87:"CALL_END",89:"THIS",90:"@",91:"[",92:"]",94:"..",97:"TRY",99:"FINALLY",100:"CATCH",101:"THROW",102:"(",103:")",105:"WHILE",106:"WHEN",107:"UNTIL",109:"LOOP",111:"FOR",115:"OWN",117:"FORIN",118:"FOROF",119:"BY",120:"SWITCH",122:"ELSE",124:"LEADING_WHEN",126:"IF",127:"POST_IF",128:"UNARY",129:"-",130:"+",131:"--",132:"++",133:"?",134:"MATH",135:"SHIFT",136:"COMPARE",137:"LOGIC",138:"RELATION",139:"COMPOUND_ASSIGN"},
+productions_: [0,[3,0],[3,1],[3,2],[4,1],[4,3],[4,2],[7,1],[7,1],[9,1],[9,1],[9,1],[13,2],[13,2],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[8,1],[5,2],[5,3],[30,1],[32,1],[32,1],[35,1],[35,1],[35,1],[35,1],[35,1],[19,3],[19,4],[19,5],[42,1],[42,3],[42,5],[42,1],[43,1],[43,1],[43,1],[10,2],[10,1],[11,1],[17,5],[17,2],[51,1],[51,1],[54,0],[54,1],[49,0],[49,1],[49,3],[56,1],[56,2],[56,3],[57,1],[57,1],[57,1],[57,1],[61,2],[62,1],[62,2],[62,2],[62,1],[40,1],[40,1],[40,1],[15,1],[15,1],[15,1],[15,1],[15,1],[63,2],[63,2],[63,2],[63,2],[63,1],[63,1],[70,3],[70,2],[72,1],[72,1],[60,4],[77,0],[77,1],[77,3],[77,4],[77,6],[25,1],[25,2],[25,3],[25,4],[25,2],[25,3],[25,4],[25,5],[16,3],[16,3],[16,1],[16,2],[27,2],[81,0],[81,1],[82,2],[82,4],[66,1],[66,1],[45,2],[59,2],[59,4],[93,1],[93,1],[65,5],[75,3],[75,2],[75,2],[75,1],[88,1],[88,3],[88,4],[88,4],[88,6],[95,1],[95,1],[96,1],[96,3],[21,2],[21,3],[21,4],[21,5],[98,3],[26,2],[64,3],[64,5],[104,2],[104,4],[104,2],[104,4],[22,2],[22,2],[22,2],[22,1],[108,2],[108,2],[23,2],[23,2],[23,2],[110,2],[110,2],[112,2],[112,3],[116,1],[116,1],[116,1],[114,1],[114,3],[113,2],[113,2],[113,4],[113,4],[113,4],[113,6],[113,6],[24,5],[24,7],[24,4],[24,6],[121,1],[121,2],[123,3],[123,4],[125,3],[125,5],[20,1],[20,3],[20,3],[20,3],[18,2],[18,2],[18,2],[18,2],[18,2],[18,2],[18,2],[18,2],[18,3],[18,3],[18,3],[18,3],[18,3],[18,3],[18,3],[18,3],[18,5],[18,3]],
+performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
+
+var $0 = $$.length - 1;
+switch (yystate) {
+case 1:return this.$ = new yy.Block;
+break;
+case 2:return this.$ = $$[$0];
+break;
+case 3:return this.$ = $$[$0-1];
+break;
+case 4:this.$ = yy.Block.wrap([$$[$0]]);
+break;
+case 5:this.$ = $$[$0-2].push($$[$0]);
+break;
+case 6:this.$ = $$[$0-1];
+break;
+case 7:this.$ = $$[$0];
+break;
+case 8:this.$ = $$[$0];
+break;
+case 9:this.$ = $$[$0];
+break;
+case 10:this.$ = $$[$0];
+break;
+case 11:this.$ = new yy.Literal($$[$0]);
+break;
+case 12:this.$ = new yy.Await($$[$0]);
+break;
+case 13:this.$ = new yy.Await(yy.Block.wrap([$$[$0]]));
+break;
+case 14:this.$ = $$[$0];
+break;
+case 15:this.$ = $$[$0];
+break;
+case 16:this.$ = $$[$0];
+break;
+case 17:this.$ = $$[$0];
+break;
+case 18:this.$ = $$[$0];
+break;
+case 19:this.$ = $$[$0];
+break;
+case 20:this.$ = $$[$0];
+break;
+case 21:this.$ = $$[$0];
+break;
+case 22:this.$ = $$[$0];
+break;
+case 23:this.$ = $$[$0];
+break;
+case 24:this.$ = $$[$0];
+break;
+case 25:this.$ = $$[$0];
+break;
+case 26:this.$ = $$[$0];
+break;
+case 27:this.$ = $$[$0];
+break;
+case 28:this.$ = new yy.Block;
+break;
+case 29:this.$ = $$[$0-1];
+break;
+case 30:this.$ = new yy.Literal($$[$0]);
+break;
+case 31:this.$ = new yy.Literal($$[$0]);
+break;
+case 32:this.$ = new yy.Literal($$[$0]);
+break;
+case 33:this.$ = $$[$0];
+break;
+case 34:this.$ = new yy.Literal($$[$0]);
+break;
+case 35:this.$ = new yy.Literal($$[$0]);
+break;
+case 36:this.$ = new yy.Literal($$[$0]);
+break;
+case 37:this.$ = (function () {
+        var val;
+        val = new yy.Literal($$[$0]);
+        if ($$[$0] === 'undefined') val.isUndefined = true;
+        return val;
+      }());
+break;
+case 38:this.$ = new yy.Assign($$[$0-2], $$[$0]);
+break;
+case 39:this.$ = new yy.Assign($$[$0-3], $$[$0]);
+break;
+case 40:this.$ = new yy.Assign($$[$0-4], $$[$0-1]);
+break;
+case 41:this.$ = new yy.Value($$[$0]);
+break;
+case 42:this.$ = new yy.Assign(new yy.Value($$[$0-2]), $$[$0], 'object');
+break;
+case 43:this.$ = new yy.Assign(new yy.Value($$[$0-4]), $$[$0-1], 'object');
+break;
+case 44:this.$ = $$[$0];
+break;
+case 45:this.$ = $$[$0];
+break;
+case 46:this.$ = $$[$0];
+break;
+case 47:this.$ = $$[$0];
+break;
+case 48:this.$ = new yy.Return($$[$0]);
+break;
+case 49:this.$ = new yy.Return;
+break;
+case 50:this.$ = new yy.Comment($$[$0]);
+break;
+case 51:this.$ = new yy.Code($$[$0-3], $$[$0], $$[$0-1]);
+break;
+case 52:this.$ = new yy.Code([], $$[$0], $$[$0-1]);
+break;
+case 53:this.$ = 'func';
+break;
+case 54:this.$ = 'boundfunc';
+break;
+case 55:this.$ = $$[$0];
+break;
+case 56:this.$ = $$[$0];
+break;
+case 57:this.$ = [];
+break;
+case 58:this.$ = [$$[$0]];
+break;
+case 59:this.$ = $$[$0-2].concat($$[$0]);
+break;
+case 60:this.$ = new yy.Param($$[$0]);
+break;
+case 61:this.$ = new yy.Param($$[$0-1], null, true);
+break;
+case 62:this.$ = new yy.Param($$[$0-2], $$[$0]);
+break;
+case 63:this.$ = $$[$0];
+break;
+case 64:this.$ = $$[$0];
+break;
+case 65:this.$ = $$[$0];
+break;
+case 66:this.$ = $$[$0];
+break;
+case 67:this.$ = new yy.Splat($$[$0-1]);
+break;
+case 68:this.$ = new yy.Value($$[$0]);
+break;
+case 69:this.$ = $$[$0-1].add($$[$0]);
+break;
+case 70:this.$ = new yy.Value($$[$0-1], [].concat($$[$0]));
+break;
+case 71:this.$ = $$[$0];
+break;
+case 72:this.$ = $$[$0];
+break;
+case 73:this.$ = new yy.Value($$[$0]);
+break;
+case 74:this.$ = new yy.Value($$[$0]);
+break;
+case 75:this.$ = $$[$0];
+break;
+case 76:this.$ = new yy.Value($$[$0]);
+break;
+case 77:this.$ = new yy.Value($$[$0]);
+break;
+case 78:this.$ = new yy.Value($$[$0]);
+break;
+case 79:this.$ = $$[$0];
+break;
+case 80:this.$ = new yy.Access($$[$0]);
+break;
+case 81:this.$ = new yy.Access($$[$0]);
+break;
+case 82:this.$ = new yy.Access($$[$0], 'soak');
+break;
+case 83:this.$ = [new yy.Access(new yy.Literal('prototype')), new yy.Access($$[$0])];
+break;
+case 84:this.$ = new yy.Access(new yy.Literal('prototype'));
+break;
+case 85:this.$ = $$[$0];
+break;
+case 86:this.$ = $$[$0-1];
+break;
+case 87:this.$ = yy.extend($$[$0], {
+          soak: true
+        });
+break;
+case 88:this.$ = new yy.Index($$[$0]);
+break;
+case 89:this.$ = new yy.Slice($$[$0]);
+break;
+case 90:this.$ = new yy.Obj($$[$0-2], $$[$0-3].generated);
+break;
+case 91:this.$ = [];
+break;
+case 92:this.$ = [$$[$0]];
+break;
+case 93:this.$ = $$[$0-2].concat($$[$0]);
+break;
+case 94:this.$ = $$[$0-3].concat($$[$0]);
+break;
+case 95:this.$ = $$[$0-5].concat($$[$0-2]);
+break;
+case 96:this.$ = new yy.Class;
+break;
+case 97:this.$ = new yy.Class(null, null, $$[$0]);
+break;
+case 98:this.$ = new yy.Class(null, $$[$0]);
+break;
+case 99:this.$ = new yy.Class(null, $$[$0-1], $$[$0]);
+break;
+case 100:this.$ = new yy.Class($$[$0]);
+break;
+case 101:this.$ = new yy.Class($$[$0-1], null, $$[$0]);
+break;
+case 102:this.$ = new yy.Class($$[$0-2], $$[$0]);
+break;
+case 103:this.$ = new yy.Class($$[$0-3], $$[$0-1], $$[$0]);
+break;
+case 104:this.$ = new yy.Call($$[$0-2], $$[$0], $$[$0-1]);
+break;
+case 105:this.$ = new yy.Call($$[$0-2], $$[$0], $$[$0-1]);
+break;
+case 106:this.$ = new yy.Call('super', [new yy.Splat(new yy.Literal('arguments'))]);
+break;
+case 107:this.$ = new yy.Call('super', $$[$0]);
+break;
+case 108:this.$ = new yy.Defer($$[$0], yylineno);
+break;
+case 109:this.$ = false;
+break;
+case 110:this.$ = true;
+break;
+case 111:this.$ = [];
+break;
+case 112:this.$ = $$[$0-2];
+break;
+case 113:this.$ = new yy.Value(new yy.Literal('this'));
+break;
+case 114:this.$ = new yy.Value(new yy.Literal('this'));
+break;
+case 115:this.$ = new yy.Value(new yy.Literal('this'), [new yy.Access($$[$0])], 'this');
+break;
+case 116:this.$ = new yy.Arr([]);
+break;
+case 117:this.$ = new yy.Arr($$[$0-2]);
+break;
+case 118:this.$ = 'inclusive';
+break;
+case 119:this.$ = 'exclusive';
+break;
+case 120:this.$ = new yy.Range($$[$0-3], $$[$0-1], $$[$0-2]);
+break;
+case 121:this.$ = new yy.Range($$[$0-2], $$[$0], $$[$0-1]);
+break;
+case 122:this.$ = new yy.Range($$[$0-1], null, $$[$0]);
+break;
+case 123:this.$ = new yy.Range(null, $$[$0], $$[$0-1]);
+break;
+case 124:this.$ = new yy.Range(null, null, $$[$0]);
+break;
+case 125:this.$ = [$$[$0]];
+break;
+case 126:this.$ = $$[$0-2].concat($$[$0]);
+break;
+case 127:this.$ = $$[$0-3].concat($$[$0]);
+break;
+case 128:this.$ = $$[$0-2];
+break;
+case 129:this.$ = $$[$0-5].concat($$[$0-2]);
+break;
+case 130:this.$ = $$[$0];
+break;
+case 131:this.$ = $$[$0];
+break;
+case 132:this.$ = $$[$0];
+break;
+case 133:this.$ = [].concat($$[$0-2], $$[$0]);
+break;
+case 134:this.$ = new yy.Try($$[$0]);
+break;
+case 135:this.$ = new yy.Try($$[$0-1], $$[$0][0], $$[$0][1]);
+break;
+case 136:this.$ = new yy.Try($$[$0-2], null, null, $$[$0]);
+break;
+case 137:this.$ = new yy.Try($$[$0-3], $$[$0-2][0], $$[$0-2][1], $$[$0]);
+break;
+case 138:this.$ = [$$[$0-1], $$[$0]];
+break;
+case 139:this.$ = new yy.Throw($$[$0]);
+break;
+case 140:this.$ = new yy.Parens($$[$0-1]);
+break;
+case 141:this.$ = new yy.Parens($$[$0-2]);
+break;
+case 142:this.$ = new yy.While($$[$0]);
+break;
+case 143:this.$ = new yy.While($$[$0-2], {
+          guard: $$[$0]
+        });
+break;
+case 144:this.$ = new yy.While($$[$0], {
+          invert: true
+        });
+break;
+case 145:this.$ = new yy.While($$[$0-2], {
+          invert: true,
+          guard: $$[$0]
+        });
+break;
+case 146:this.$ = $$[$0-1].addBody($$[$0]);
+break;
+case 147:this.$ = $$[$0].addBody(yy.Block.wrap([$$[$0-1]]));
+break;
+case 148:this.$ = $$[$0].addBody(yy.Block.wrap([$$[$0-1]]));
+break;
+case 149:this.$ = $$[$0];
+break;
+case 150:this.$ = new yy.While(new yy.Literal('true')).addBody($$[$0]);
+break;
+case 151:this.$ = new yy.While(new yy.Literal('true')).addBody(yy.Block.wrap([$$[$0]]));
+break;
+case 152:this.$ = new yy.For($$[$0-1], $$[$0]);
+break;
+case 153:this.$ = new yy.For($$[$0-1], $$[$0]);
+break;
+case 154:this.$ = new yy.For($$[$0], $$[$0-1]);
+break;
+case 155:this.$ = {
+          source: new yy.Value($$[$0])
+        };
+break;
+case 156:this.$ = (function () {
+        $$[$0].own = $$[$0-1].own;
+        $$[$0].name = $$[$0-1][0];
+        $$[$0].index = $$[$0-1][1];
+        return $$[$0];
+      }());
+break;
+case 157:this.$ = $$[$0];
+break;
+case 158:this.$ = (function () {
+        $$[$0].own = true;
+        return $$[$0];
+      }());
+break;
+case 159:this.$ = $$[$0];
+break;
+case 160:this.$ = new yy.Value($$[$0]);
+break;
+case 161:this.$ = new yy.Value($$[$0]);
+break;
+case 162:this.$ = [$$[$0]];
+break;
+case 163:this.$ = [$$[$0-2], $$[$0]];
+break;
+case 164:this.$ = {
+          source: $$[$0]
+        };
+break;
+case 165:this.$ = {
+          source: $$[$0],
+          object: true
+        };
+break;
+case 166:this.$ = {
+          source: $$[$0-2],
+          guard: $$[$0]
+        };
+break;
+case 167:this.$ = {
+          source: $$[$0-2],
+          guard: $$[$0],
+          object: true
+        };
+break;
+case 168:this.$ = {
+          source: $$[$0-2],
+          step: $$[$0]
+        };
+break;
+case 169:this.$ = {
+          source: $$[$0-4],
+          guard: $$[$0-2],
+          step: $$[$0]
+        };
+break;
+case 170:this.$ = {
+          source: $$[$0-4],
+          step: $$[$0-2],
+          guard: $$[$0]
+        };
+break;
+case 171:this.$ = new yy.Switch($$[$0-3], $$[$0-1]);
+break;
+case 172:this.$ = new yy.Switch($$[$0-5], $$[$0-3], $$[$0-1]);
+break;
+case 173:this.$ = new yy.Switch(null, $$[$0-1]);
+break;
+case 174:this.$ = new yy.Switch(null, $$[$0-3], $$[$0-1]);
+break;
+case 175:this.$ = $$[$0];
+break;
+case 176:this.$ = $$[$0-1].concat($$[$0]);
+break;
+case 177:this.$ = [[$$[$0-1], $$[$0]]];
+break;
+case 178:this.$ = [[$$[$0-2], $$[$0-1]]];
+break;
+case 179:this.$ = new yy.If($$[$0-1], $$[$0], {
+          type: $$[$0-2]
+        });
+break;
+case 180:this.$ = $$[$0-4].addElse(new yy.If($$[$0-1], $$[$0], {
+          type: $$[$0-2]
+        }));
+break;
+case 181:this.$ = $$[$0];
+break;
+case 182:this.$ = $$[$0-2].addElse($$[$0]);
+break;
+case 183:this.$ = new yy.If($$[$0], yy.Block.wrap([$$[$0-2]]), {
+          type: $$[$0-1],
+          statement: true
+        });
+break;
+case 184:this.$ = new yy.If($$[$0], yy.Block.wrap([$$[$0-2]]), {
+          type: $$[$0-1],
+          statement: true
+        });
+break;
+case 185:this.$ = new yy.Op($$[$0-1], $$[$0]);
+break;
+case 186:this.$ = new yy.Op('-', $$[$0]);
+break;
+case 187:this.$ = new yy.Op('+', $$[$0]);
+break;
+case 188:this.$ = new yy.Op('--', $$[$0]);
+break;
+case 189:this.$ = new yy.Op('++', $$[$0]);
+break;
+case 190:this.$ = new yy.Op('--', $$[$0-1], null, true);
+break;
+case 191:this.$ = new yy.Op('++', $$[$0-1], null, true);
+break;
+case 192:this.$ = new yy.Existence($$[$0-1]);
+break;
+case 193:this.$ = new yy.Op('+', $$[$0-2], $$[$0]);
+break;
+case 194:this.$ = new yy.Op('-', $$[$0-2], $$[$0]);
+break;
+case 195:this.$ = new yy.Op($$[$0-1], $$[$0-2], $$[$0]);
+break;
+case 196:this.$ = new yy.Op($$[$0-1], $$[$0-2], $$[$0]);
+break;
+case 197:this.$ = new yy.Op($$[$0-1], $$[$0-2], $$[$0]);
+break;
+case 198:this.$ = new yy.Op($$[$0-1], $$[$0-2], $$[$0]);
+break;
+case 199:this.$ = (function () {
+        if ($$[$0-1].charAt(0) === '!') {
+          return new yy.Op($$[$0-1].slice(1), $$[$0-2], $$[$0]).invert();
+        } else {
+          return new yy.Op($$[$0-1], $$[$0-2], $$[$0]);
+        }
+      }());
+break;
+case 200:this.$ = new yy.Assign($$[$0-2], $$[$0], $$[$0-1]);
+break;
+case 201:this.$ = new yy.Assign($$[$0-4], $$[$0-1], $$[$0-3]);
+break;
+case 202:this.$ = new yy.Extends($$[$0-2], $$[$0]);
+break;
+}
+},
+table: [{1:[2,1],3:1,4:2,5:3,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,5],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[3]},{1:[2,2],6:[1,76]},{6:[1,77]},{1:[2,4],6:[2,4],29:[2,4],103:[2,4]},{4:79,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,29:[1,78],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,7],6:[2,7],29:[2,7],103:[2,7],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,8],6:[2,8],29:[2,8],103:[2,8],104:92,105:[1,67],107:[1,68],110:93,111:[1,70],112:71,127:[1,91]},{1:[2,14],6:[2,14],28:[2,14],29:[2,14],50:[2,14],55:[2,14],58:[2,14],63:95,67:[1,97],68:[1,98],69:[1,99],70:100,71:[1,101],73:[2,14],74:[1,102],78:[2,14],81:94,85:[1,96],86:[2,109],87:[2,14],92:[2,14],94:[2,14],103:[2,14],105:[2,14],106:[2,14],107:[2,14],111:[2,14],119:[2,14],127:[2,14],129:[2,14],130:[2,14],133:[2,14],134:[2,14],135:[2,14],136:[2,14],137:[2,14],138:[2,14]},{1:[2,15],6:[2,15],28:[2,15],29:[2,15],50:[2,15],55:[2,15],58:[2,15],63:104,67:[1,97],68:[1,98],69:[1,99],70:100,71:[1,101],73:[2,15],74:[1,102],78:[2,15],81:103,85:[1,96],86:[2,109],87:[2,15],92:[2,15],94:[2,15],103:[2,15],105:[2,15],106:[2,15],107:[2,15],111:[2,15],119:[2,15],127:[2,15],129:[2,15],130:[2,15],133:[2,15],134:[2,15],135:[2,15],136:[2,15],137:[2,15],138:[2,15]},{1:[2,16],6:[2,16],28:[2,16],29:[2,16],50:[2,16],55:[2,16],58:[2,16],73:[2,16],78:[2,16],87:[2,16],92:[2,16],94:[2,16],103:[2,16],105:[2,16],106:[2,16],107:[2,16],111:[2,16],119:[2,16],127:[2,16],129:[2,16],130:[2,16],133:[2,16],134:[2,16],135:[2,16],136:[2,16],137:[2,16],138:[2,16]},{1:[2,17],6:[2,17],28:[2,17],29:[2,17],50:[2,17],55:[2,17],58:[2,17],73:[2,17],78:[2,17],87:[2,17],92:[2,17],94:[2,17],103:[2,17],105:[2,17],106:[2,17],107:[2,17],111:[2,17],119:[2,17],127:[2,17],129:[2,17],130:[2,17],133:[2,17],134:[2,17],135:[2,17],136:[2,17],137:[2,17],138:[2,17]},{1:[2,18],6:[2,18],28:[2,18],29:[2,18],50:[2,18],55:[2,18],58:[2,18],73:[2,18],78:[2,18],87:[2,18],92:[2,18],94:[2,18],103:[2,18],105:[2,18],106:[2,18],107:[2,18],111:[2,18],119:[2,18],127:[2,18],129:[2,18],130:[2,18],133:[2,18],134:[2,18],135:[2,18],136:[2,18],137:[2,18],138:[2,18]},{1:[2,19],6:[2,19],28:[2,19],29:[2,19],50:[2,19],55:[2,19],58:[2,19],73:[2,19],78:[2,19],87:[2,19],92:[2,19],94:[2,19],103:[2,19],105:[2,19],106:[2,19],107:[2,19],111:[2,19],119:[2,19],127:[2,19],129:[2,19],130:[2,19],133:[2,19],134:[2,19],135:[2,19],136:[2,19],137:[2,19],138:[2,19]},{1:[2,20],6:[2,20],28:[2,20],29:[2,20],50:[2,20],55:[2,20],58:[2,20],73:[2,20],78:[2,20],87:[2,20],92:[2,20],94:[2,20],103:[2,20],105:[2,20],106:[2,20],107:[2,20],111:[2,20],119:[2,20],127:[2,20],129:[2,20],130:[2,20],133:[2,20],134:[2,20],135:[2,20],136:[2,20],137:[2,20],138:[2,20]},{1:[2,21],6:[2,21],28:[2,21],29:[2,21],50:[2,21],55:[2,21],58:[2,21],73:[2,21],78:[2,21],87:[2,21],92:[2,21],94:[2,21],103:[2,21],105:[2,21],106:[2,21],107:[2,21],111:[2,21],119:[2,21],127:[2,21],129:[2,21],130:[2,21],133:[2,21],134:[2,21],135:[2,21],136:[2,21],137:[2,21],138:[2,21]},{1:[2,22],6:[2,22],28:[2,22],29:[2,22],50:[2,22],55:[2,22],58:[2,22],73:[2,22],78:[2,22],87:[2,22],92:[2,22],94:[2,22],103:[2,22],105:[2,22],106:[2,22],107:[2,22],111:[2,22],119:[2,22],127:[2,22],129:[2,22],130:[2,22],133:[2,22],134:[2,22],135:[2,22],136:[2,22],137:[2,22],138:[2,22]},{1:[2,23],6:[2,23],28:[2,23],29:[2,23],50:[2,23],55:[2,23],58:[2,23],73:[2,23],78:[2,23],87:[2,23],92:[2,23],94:[2,23],103:[2,23],105:[2,23],106:[2,23],107:[2,23],111:[2,23],119:[2,23],127:[2,23],129:[2,23],130:[2,23],133:[2,23],134:[2,23],135:[2,23],136:[2,23],137:[2,23],138:[2,23]},{1:[2,24],6:[2,24],28:[2,24],29:[2,24],50:[2,24],55:[2,24],58:[2,24],73:[2,24],78:[2,24],87:[2,24],92:[2,24],94:[2,24],103:[2,24],105:[2,24],106:[2,24],107:[2,24],111:[2,24],119:[2,24],127:[2,24],129:[2,24],130:[2,24],133:[2,24],134:[2,24],135:[2,24],136:[2,24],137:[2,24],138:[2,24]},{1:[2,25],6:[2,25],28:[2,25],29:[2,25],50:[2,25],55:[2,25],58:[2,25],73:[2,25],78:[2,25],87:[2,25],92:[2,25],94:[2,25],103:[2,25],105:[2,25],106:[2,25],107:[2,25],111:[2,25],119:[2,25],127:[2,25],129:[2,25],130:[2,25],133:[2,25],134:[2,25],135:[2,25],136:[2,25],137:[2,25],138:[2,25]},{1:[2,26],6:[2,26],28:[2,26],29:[2,26],50:[2,26],55:[2,26],58:[2,26],73:[2,26],78:[2,26],87:[2,26],92:[2,26],94:[2,26],103:[2,26],105:[2,26],106:[2,26],107:[2,26],111:[2,26],119:[2,26],127:[2,26],129:[2,26],130:[2,26],133:[2,26],134:[2,26],135:[2,26],136:[2,26],137:[2,26],138:[2,26]},{1:[2,27],6:[2,27],28:[2,27],29:[2,27],50:[2,27],55:[2,27],58:[2,27],73:[2,27],78:[2,27],87:[2,27],92:[2,27],94:[2,27],103:[2,27],105:[2,27],106:[2,27],107:[2,27],111:[2,27],119:[2,27],127:[2,27],129:[2,27],130:[2,27],133:[2,27],134:[2,27],135:[2,27],136:[2,27],137:[2,27],138:[2,27]},{1:[2,9],6:[2,9],29:[2,9],103:[2,9],105:[2,9],107:[2,9],111:[2,9],127:[2,9]},{1:[2,10],6:[2,10],29:[2,10],103:[2,10],105:[2,10],107:[2,10],111:[2,10],127:[2,10]},{1:[2,11],6:[2,11],29:[2,11],103:[2,11],105:[2,11],107:[2,11],111:[2,11],127:[2,11]},{1:[2,75],6:[2,75],28:[2,75],29:[2,75],41:[1,105],50:[2,75],55:[2,75],58:[2,75],67:[2,75],68:[2,75],69:[2,75],71:[2,75],73:[2,75],74:[2,75],78:[2,75],85:[2,75],86:[2,75],87:[2,75],92:[2,75],94:[2,75],103:[2,75],105:[2,75],106:[2,75],107:[2,75],111:[2,75],119:[2,75],127:[2,75],129:[2,75],130:[2,75],133:[2,75],134:[2,75],135:[2,75],136:[2,75],137:[2,75],138:[2,75]},{1:[2,76],6:[2,76],28:[2,76],29:[2,76],50:[2,76],55:[2,76],58:[2,76],67:[2,76],68:[2,76],69:[2,76],71:[2,76],73:[2,76],74:[2,76],78:[2,76],85:[2,76],86:[2,76],87:[2,76],92:[2,76],94:[2,76],103:[2,76],105:[2,76],106:[2,76],107:[2,76],111:[2,76],119:[2,76],127:[2,76],129:[2,76],130:[2,76],133:[2,76],134:[2,76],135:[2,76],136:[2,76],137:[2,76],138:[2,76]},{1:[2,77],6:[2,77],28:[2,77],29:[2,77],50:[2,77],55:[2,77],58:[2,77],67:[2,77],68:[2,77],69:[2,77],71:[2,77],73:[2,77],74:[2,77],78:[2,77],85:[2,77],86:[2,77],87:[2,77],92:[2,77],94:[2,77],103:[2,77],105:[2,77],106:[2,77],107:[2,77],111:[2,77],119:[2,77],127:[2,77],129:[2,77],130:[2,77],133:[2,77],134:[2,77],135:[2,77],136:[2,77],137:[2,77],138:[2,77]},{1:[2,78],6:[2,78],28:[2,78],29:[2,78],50:[2,78],55:[2,78],58:[2,78],67:[2,78],68:[2,78],69:[2,78],71:[2,78],73:[2,78],74:[2,78],78:[2,78],85:[2,78],86:[2,78],87:[2,78],92:[2,78],94:[2,78],103:[2,78],105:[2,78],106:[2,78],107:[2,78],111:[2,78],119:[2,78],127:[2,78],129:[2,78],130:[2,78],133:[2,78],134:[2,78],135:[2,78],136:[2,78],137:[2,78],138:[2,78]},{1:[2,79],6:[2,79],28:[2,79],29:[2,79],50:[2,79],55:[2,79],58:[2,79],67:[2,79],68:[2,79],69:[2,79],71:[2,79],73:[2,79],74:[2,79],78:[2,79],85:[2,79],86:[2,79],87:[2,79],92:[2,79],94:[2,79],103:[2,79],105:[2,79],106:[2,79],107:[2,79],111:[2,79],119:[2,79],127:[2,79],129:[2,79],130:[2,79],133:[2,79],134:[2,79],135:[2,79],136:[2,79],137:[2,79],138:[2,79]},{1:[2,106],6:[2,106],28:[2,106],29:[2,106],50:[2,106],55:[2,106],58:[2,106],67:[2,106],68:[2,106],69:[2,106],71:[2,106],73:[2,106],74:[2,106],78:[2,106],82:106,85:[2,106],86:[1,107],87:[2,106],92:[2,106],94:[2,106],103:[2,106],105:[2,106],106:[2,106],107:[2,106],111:[2,106],119:[2,106],127:[2,106],129:[2,106],130:[2,106],133:[2,106],134:[2,106],135:[2,106],136:[2,106],137:[2,106],138:[2,106]},{30:111,31:[1,75],45:112,49:108,50:[2,57],55:[2,57],56:109,57:110,59:113,60:114,76:[1,72],90:[1,115],91:[1,116]},{5:117,28:[1,5]},{8:118,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:120,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:121,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{15:123,16:124,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:125,45:65,59:51,60:52,62:122,64:27,65:28,66:29,76:[1,72],83:[1,30],89:[1,60],90:[1,61],91:[1,59],102:[1,58]},{15:123,16:124,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:125,45:65,59:51,60:52,62:126,64:27,65:28,66:29,76:[1,72],83:[1,30],89:[1,60],90:[1,61],91:[1,59],102:[1,58]},{1:[2,72],6:[2,72],28:[2,72],29:[2,72],41:[2,72],50:[2,72],55:[2,72],58:[2,72],67:[2,72],68:[2,72],69:[2,72],71:[2,72],73:[2,72],74:[2,72],78:[2,72],80:[1,130],85:[2,72],86:[2,72],87:[2,72],92:[2,72],94:[2,72],103:[2,72],105:[2,72],106:[2,72],107:[2,72],111:[2,72],119:[2,72],127:[2,72],129:[2,72],130:[2,72],131:[1,127],132:[1,128],133:[2,72],134:[2,72],135:[2,72],136:[2,72],137:[2,72],138:[2,72],139:[1,129]},{1:[2,181],6:[2,181],28:[2,181],29:[2,181],50:[2,181],55:[2,181],58:[2,181],73:[2,181],78:[2,181],87:[2,181],92:[2,181],94:[2,181],103:[2,181],105:[2,181],106:[2,181],107:[2,181],111:[2,181],119:[2,181],122:[1,131],127:[2,181],129:[2,181],130:[2,181],133:[2,181],134:[2,181],135:[2,181],136:[2,181],137:[2,181],138:[2,181]},{5:132,28:[1,5]},{5:133,28:[1,5]},{1:[2,149],6:[2,149],28:[2,149],29:[2,149],50:[2,149],55:[2,149],58:[2,149],73:[2,149],78:[2,149],87:[2,149],92:[2,149],94:[2,149],103:[2,149],105:[2,149],106:[2,149],107:[2,149],111:[2,149],119:[2,149],127:[2,149],129:[2,149],130:[2,149],133:[2,149],134:[2,149],135:[2,149],136:[2,149],137:[2,149],138:[2,149]},{5:134,28:[1,5]},{8:135,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,136],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,96],5:137,6:[2,96],15:123,16:124,28:[1,5],29:[2,96],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:125,45:65,50:[2,96],55:[2,96],58:[2,96],59:51,60:52,62:139,64:27,65:28,66:29,73:[2,96],76:[1,72],78:[2,96],80:[1,138],83:[1,30],87:[2,96],89:[1,60],90:[1,61],91:[1,59],92:[2,96],94:[2,96],102:[1,58],103:[2,96],105:[2,96],106:[2,96],107:[2,96],111:[2,96],119:[2,96],127:[2,96],129:[2,96],130:[2,96],133:[2,96],134:[2,96],135:[2,96],136:[2,96],137:[2,96],138:[2,96]},{8:140,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{82:141,86:[1,107]},{5:142,8:143,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,5],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,49],6:[2,49],8:144,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,29:[2,49],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],103:[2,49],104:41,105:[2,49],107:[2,49],108:42,109:[1,69],110:43,111:[2,49],112:71,120:[1,44],125:39,126:[1,66],127:[2,49],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,50],6:[2,50],28:[2,50],29:[2,50],55:[2,50],78:[2,50],103:[2,50],105:[2,50],107:[2,50],111:[2,50],127:[2,50]},{1:[2,73],6:[2,73],28:[2,73],29:[2,73],41:[2,73],50:[2,73],55:[2,73],58:[2,73],67:[2,73],68:[2,73],69:[2,73],71:[2,73],73:[2,73],74:[2,73],78:[2,73],85:[2,73],86:[2,73],87:[2,73],92:[2,73],94:[2,73],103:[2,73],105:[2,73],106:[2,73],107:[2,73],111:[2,73],119:[2,73],127:[2,73],129:[2,73],130:[2,73],133:[2,73],134:[2,73],135:[2,73],136:[2,73],137:[2,73],138:[2,73]},{1:[2,74],6:[2,74],28:[2,74],29:[2,74],41:[2,74],50:[2,74],55:[2,74],58:[2,74],67:[2,74],68:[2,74],69:[2,74],71:[2,74],73:[2,74],74:[2,74],78:[2,74],85:[2,74],86:[2,74],87:[2,74],92:[2,74],94:[2,74],103:[2,74],105:[2,74],106:[2,74],107:[2,74],111:[2,74],119:[2,74],127:[2,74],129:[2,74],130:[2,74],133:[2,74],134:[2,74],135:[2,74],136:[2,74],137:[2,74],138:[2,74]},{1:[2,33],6:[2,33],28:[2,33],29:[2,33],50:[2,33],55:[2,33],58:[2,33],67:[2,33],68:[2,33],69:[2,33],71:[2,33],73:[2,33],74:[2,33],78:[2,33],85:[2,33],86:[2,33],87:[2,33],92:[2,33],94:[2,33],103:[2,33],105:[2,33],106:[2,33],107:[2,33],111:[2,33],119:[2,33],127:[2,33],129:[2,33],130:[2,33],133:[2,33],134:[2,33],135:[2,33],136:[2,33],137:[2,33],138:[2,33]},{1:[2,34],6:[2,34],28:[2,34],29:[2,34],50:[2,34],55:[2,34],58:[2,34],67:[2,34],68:[2,34],69:[2,34],71:[2,34],73:[2,34],74:[2,34],78:[2,34],85:[2,34],86:[2,34],87:[2,34],92:[2,34],94:[2,34],103:[2,34],105:[2,34],106:[2,34],107:[2,34],111:[2,34],119:[2,34],127:[2,34],129:[2,34],130:[2,34],133:[2,34],134:[2,34],135:[2,34],136:[2,34],137:[2,34],138:[2,34]},{1:[2,35],6:[2,35],28:[2,35],29:[2,35],50:[2,35],55:[2,35],58:[2,35],67:[2,35],68:[2,35],69:[2,35],71:[2,35],73:[2,35],74:[2,35],78:[2,35],85:[2,35],86:[2,35],87:[2,35],92:[2,35],94:[2,35],103:[2,35],105:[2,35],106:[2,35],107:[2,35],111:[2,35],119:[2,35],127:[2,35],129:[2,35],130:[2,35],133:[2,35],134:[2,35],135:[2,35],136:[2,35],137:[2,35],138:[2,35]},{1:[2,36],6:[2,36],28:[2,36],29:[2,36],50:[2,36],55:[2,36],58:[2,36],67:[2,36],68:[2,36],69:[2,36],71:[2,36],73:[2,36],74:[2,36],78:[2,36],85:[2,36],86:[2,36],87:[2,36],92:[2,36],94:[2,36],103:[2,36],105:[2,36],106:[2,36],107:[2,36],111:[2,36],119:[2,36],127:[2,36],129:[2,36],130:[2,36],133:[2,36],134:[2,36],135:[2,36],136:[2,36],137:[2,36],138:[2,36]},{1:[2,37],6:[2,37],28:[2,37],29:[2,37],50:[2,37],55:[2,37],58:[2,37],67:[2,37],68:[2,37],69:[2,37],71:[2,37],73:[2,37],74:[2,37],78:[2,37],85:[2,37],86:[2,37],87:[2,37],92:[2,37],94:[2,37],103:[2,37],105:[2,37],106:[2,37],107:[2,37],111:[2,37],119:[2,37],127:[2,37],129:[2,37],130:[2,37],133:[2,37],134:[2,37],135:[2,37],136:[2,37],137:[2,37],138:[2,37]},{4:145,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,146],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:147,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,151],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],88:149,89:[1,60],90:[1,61],91:[1,59],92:[1,148],95:150,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,113],6:[2,113],28:[2,113],29:[2,113],50:[2,113],55:[2,113],58:[2,113],67:[2,113],68:[2,113],69:[2,113],71:[2,113],73:[2,113],74:[2,113],78:[2,113],85:[2,113],86:[2,113],87:[2,113],92:[2,113],94:[2,113],103:[2,113],105:[2,113],106:[2,113],107:[2,113],111:[2,113],119:[2,113],127:[2,113],129:[2,113],130:[2,113],133:[2,113],134:[2,113],135:[2,113],136:[2,113],137:[2,113],138:[2,113]},{1:[2,114],6:[2,114],28:[2,114],29:[2,114],30:153,31:[1,75],50:[2,114],55:[2,114],58:[2,114],67:[2,114],68:[2,114],69:[2,114],71:[2,114],73:[2,114],74:[2,114],78:[2,114],85:[2,114],86:[2,114],87:[2,114],92:[2,114],94:[2,114],103:[2,114],105:[2,114],106:[2,114],107:[2,114],111:[2,114],119:[2,114],127:[2,114],129:[2,114],130:[2,114],133:[2,114],134:[2,114],135:[2,114],136:[2,114],137:[2,114],138:[2,114]},{28:[2,53]},{28:[2,54]},{1:[2,68],6:[2,68],28:[2,68],29:[2,68],41:[2,68],50:[2,68],55:[2,68],58:[2,68],67:[2,68],68:[2,68],69:[2,68],71:[2,68],73:[2,68],74:[2,68],78:[2,68],80:[2,68],85:[2,68],86:[2,68],87:[2,68],92:[2,68],94:[2,68],103:[2,68],105:[2,68],106:[2,68],107:[2,68],111:[2,68],119:[2,68],127:[2,68],129:[2,68],130:[2,68],131:[2,68],132:[2,68],133:[2,68],134:[2,68],135:[2,68],136:[2,68],137:[2,68],138:[2,68],139:[2,68]},{1:[2,71],6:[2,71],28:[2,71],29:[2,71],41:[2,71],50:[2,71],55:[2,71],58:[2,71],67:[2,71],68:[2,71],69:[2,71],71:[2,71],73:[2,71],74:[2,71],78:[2,71],80:[2,71],85:[2,71],86:[2,71],87:[2,71],92:[2,71],94:[2,71],103:[2,71],105:[2,71],106:[2,71],107:[2,71],111:[2,71],119:[2,71],127:[2,71],129:[2,71],130:[2,71],131:[2,71],132:[2,71],133:[2,71],134:[2,71],135:[2,71],136:[2,71],137:[2,71],138:[2,71],139:[2,71]},{8:154,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:155,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:156,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{5:157,8:158,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,5],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{30:163,31:[1,75],59:164,60:165,65:159,76:[1,72],91:[1,59],114:160,115:[1,161],116:162},{113:166,117:[1,167],118:[1,168]},{6:[2,91],11:172,28:[2,91],30:173,31:[1,75],32:174,33:[1,73],34:[1,74],42:170,43:171,45:175,47:[1,50],55:[2,91],77:169,78:[2,91],90:[1,115]},{1:[2,31],6:[2,31],28:[2,31],29:[2,31],44:[2,31],50:[2,31],55:[2,31],58:[2,31],67:[2,31],68:[2,31],69:[2,31],71:[2,31],73:[2,31],74:[2,31],78:[2,31],85:[2,31],86:[2,31],87:[2,31],92:[2,31],94:[2,31],103:[2,31],105:[2,31],106:[2,31],107:[2,31],111:[2,31],119:[2,31],127:[2,31],129:[2,31],130:[2,31],133:[2,31],134:[2,31],135:[2,31],136:[2,31],137:[2,31],138:[2,31]},{1:[2,32],6:[2,32],28:[2,32],29:[2,32],44:[2,32],50:[2,32],55:[2,32],58:[2,32],67:[2,32],68:[2,32],69:[2,32],71:[2,32],73:[2,32],74:[2,32],78:[2,32],85:[2,32],86:[2,32],87:[2,32],92:[2,32],94:[2,32],103:[2,32],105:[2,32],106:[2,32],107:[2,32],111:[2,32],119:[2,32],127:[2,32],129:[2,32],130:[2,32],133:[2,32],134:[2,32],135:[2,32],136:[2,32],137:[2,32],138:[2,32]},{1:[2,30],6:[2,30],28:[2,30],29:[2,30],41:[2,30],44:[2,30],50:[2,30],55:[2,30],58:[2,30],67:[2,30],68:[2,30],69:[2,30],71:[2,30],73:[2,30],74:[2,30],78:[2,30],80:[2,30],85:[2,30],86:[2,30],87:[2,30],92:[2,30],94:[2,30],103:[2,30],105:[2,30],106:[2,30],107:[2,30],111:[2,30],117:[2,30],118:[2,30],119:[2,30],127:[2,30],129:[2,30],130:[2,30],131:[2,30],132:[2,30],133:[2,30],134:[2,30],135:[2,30],136:[2,30],137:[2,30],138:[2,30],139:[2,30]},{1:[2,6],6:[2,6],7:176,8:6,9:7,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,29:[2,6],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],103:[2,6],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,3]},{1:[2,28],6:[2,28],28:[2,28],29:[2,28],50:[2,28],55:[2,28],58:[2,28],73:[2,28],78:[2,28],87:[2,28],92:[2,28],94:[2,28],99:[2,28],100:[2,28],103:[2,28],105:[2,28],106:[2,28],107:[2,28],111:[2,28],119:[2,28],122:[2,28],124:[2,28],127:[2,28],129:[2,28],130:[2,28],133:[2,28],134:[2,28],135:[2,28],136:[2,28],137:[2,28],138:[2,28]},{6:[1,76],29:[1,177]},{1:[2,192],6:[2,192],28:[2,192],29:[2,192],50:[2,192],55:[2,192],58:[2,192],73:[2,192],78:[2,192],87:[2,192],92:[2,192],94:[2,192],103:[2,192],105:[2,192],106:[2,192],107:[2,192],111:[2,192],119:[2,192],127:[2,192],129:[2,192],130:[2,192],133:[2,192],134:[2,192],135:[2,192],136:[2,192],137:[2,192],138:[2,192]},{8:178,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:179,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:180,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:181,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:182,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:183,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:184,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:185,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,148],6:[2,148],28:[2,148],29:[2,148],50:[2,148],55:[2,148],58:[2,148],73:[2,148],78:[2,148],87:[2,148],92:[2,148],94:[2,148],103:[2,148],105:[2,148],106:[2,148],107:[2,148],111:[2,148],119:[2,148],127:[2,148],129:[2,148],130:[2,148],133:[2,148],134:[2,148],135:[2,148],136:[2,148],137:[2,148],138:[2,148]},{1:[2,153],6:[2,153],28:[2,153],29:[2,153],50:[2,153],55:[2,153],58:[2,153],73:[2,153],78:[2,153],87:[2,153],92:[2,153],94:[2,153],103:[2,153],105:[2,153],106:[2,153],107:[2,153],111:[2,153],119:[2,153],127:[2,153],129:[2,153],130:[2,153],133:[2,153],134:[2,153],135:[2,153],136:[2,153],137:[2,153],138:[2,153]},{8:186,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,147],6:[2,147],28:[2,147],29:[2,147],50:[2,147],55:[2,147],58:[2,147],73:[2,147],78:[2,147],87:[2,147],92:[2,147],94:[2,147],103:[2,147],105:[2,147],106:[2,147],107:[2,147],111:[2,147],119:[2,147],127:[2,147],129:[2,147],130:[2,147],133:[2,147],134:[2,147],135:[2,147],136:[2,147],137:[2,147],138:[2,147]},{1:[2,152],6:[2,152],28:[2,152],29:[2,152],50:[2,152],55:[2,152],58:[2,152],73:[2,152],78:[2,152],87:[2,152],92:[2,152],94:[2,152],103:[2,152],105:[2,152],106:[2,152],107:[2,152],111:[2,152],119:[2,152],127:[2,152],129:[2,152],130:[2,152],133:[2,152],134:[2,152],135:[2,152],136:[2,152],137:[2,152],138:[2,152]},{82:187,86:[1,107]},{1:[2,69],6:[2,69],28:[2,69],29:[2,69],41:[2,69],50:[2,69],55:[2,69],58:[2,69],67:[2,69],68:[2,69],69:[2,69],71:[2,69],73:[2,69],74:[2,69],78:[2,69],80:[2,69],85:[2,69],86:[2,69],87:[2,69],92:[2,69],94:[2,69],103:[2,69],105:[2,69],106:[2,69],107:[2,69],111:[2,69],119:[2,69],127:[2,69],129:[2,69],130:[2,69],131:[2,69],132:[2,69],133:[2,69],134:[2,69],135:[2,69],136:[2,69],137:[2,69],138:[2,69],139:[2,69]},{86:[2,110]},{27:189,30:188,31:[1,75],84:[1,47]},{30:190,31:[1,75]},{1:[2,84],6:[2,84],28:[2,84],29:[2,84],30:191,31:[1,75],41:[2,84],50:[2,84],55:[2,84],58:[2,84],67:[2,84],68:[2,84],69:[2,84],71:[2,84],73:[2,84],74:[2,84],78:[2,84],80:[2,84],85:[2,84],86:[2,84],87:[2,84],92:[2,84],94:[2,84],103:[2,84],105:[2,84],106:[2,84],107:[2,84],111:[2,84],119:[2,84],127:[2,84],129:[2,84],130:[2,84],131:[2,84],132:[2,84],133:[2,84],134:[2,84],135:[2,84],136:[2,84],137:[2,84],138:[2,84],139:[2,84]},{1:[2,85],6:[2,85],28:[2,85],29:[2,85],41:[2,85],50:[2,85],55:[2,85],58:[2,85],67:[2,85],68:[2,85],69:[2,85],71:[2,85],73:[2,85],74:[2,85],78:[2,85],80:[2,85],85:[2,85],86:[2,85],87:[2,85],92:[2,85],94:[2,85],103:[2,85],105:[2,85],106:[2,85],107:[2,85],111:[2,85],119:[2,85],127:[2,85],129:[2,85],130:[2,85],131:[2,85],132:[2,85],133:[2,85],134:[2,85],135:[2,85],136:[2,85],137:[2,85],138:[2,85],139:[2,85]},{8:193,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],58:[1,197],59:51,60:52,62:38,64:27,65:28,66:29,72:192,75:194,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],93:195,94:[1,196],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{70:198,71:[1,101],74:[1,102]},{82:199,86:[1,107]},{1:[2,70],6:[2,70],28:[2,70],29:[2,70],41:[2,70],50:[2,70],55:[2,70],58:[2,70],67:[2,70],68:[2,70],69:[2,70],71:[2,70],73:[2,70],74:[2,70],78:[2,70],80:[2,70],85:[2,70],86:[2,70],87:[2,70],92:[2,70],94:[2,70],103:[2,70],105:[2,70],106:[2,70],107:[2,70],111:[2,70],119:[2,70],127:[2,70],129:[2,70],130:[2,70],131:[2,70],132:[2,70],133:[2,70],134:[2,70],135:[2,70],136:[2,70],137:[2,70],138:[2,70],139:[2,70]},{6:[1,201],8:200,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,202],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,107],6:[2,107],28:[2,107],29:[2,107],50:[2,107],55:[2,107],58:[2,107],67:[2,107],68:[2,107],69:[2,107],71:[2,107],73:[2,107],74:[2,107],78:[2,107],85:[2,107],86:[2,107],87:[2,107],92:[2,107],94:[2,107],103:[2,107],105:[2,107],106:[2,107],107:[2,107],111:[2,107],119:[2,107],127:[2,107],129:[2,107],130:[2,107],133:[2,107],134:[2,107],135:[2,107],136:[2,107],137:[2,107],138:[2,107]},{8:205,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,151],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],87:[1,203],88:204,89:[1,60],90:[1,61],91:[1,59],95:150,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{50:[1,206],55:[1,207]},{50:[2,58],55:[2,58]},{41:[1,209],50:[2,60],55:[2,60],58:[1,208]},{41:[2,63],50:[2,63],55:[2,63],58:[2,63]},{41:[2,64],50:[2,64],55:[2,64],58:[2,64]},{41:[2,65],50:[2,65],55:[2,65],58:[2,65]},{41:[2,66],50:[2,66],55:[2,66],58:[2,66]},{30:153,31:[1,75]},{8:205,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,151],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],88:149,89:[1,60],90:[1,61],91:[1,59],92:[1,148],95:150,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,52],6:[2,52],28:[2,52],29:[2,52],50:[2,52],55:[2,52],58:[2,52],73:[2,52],78:[2,52],87:[2,52],92:[2,52],94:[2,52],103:[2,52],105:[2,52],106:[2,52],107:[2,52],111:[2,52],119:[2,52],127:[2,52],129:[2,52],130:[2,52],133:[2,52],134:[2,52],135:[2,52],136:[2,52],137:[2,52],138:[2,52]},{1:[2,185],6:[2,185],28:[2,185],29:[2,185],50:[2,185],55:[2,185],58:[2,185],73:[2,185],78:[2,185],87:[2,185],92:[2,185],94:[2,185],103:[2,185],104:89,105:[2,185],106:[2,185],107:[2,185],110:90,111:[2,185],112:71,119:[2,185],127:[2,185],129:[2,185],130:[2,185],133:[1,80],134:[2,185],135:[2,185],136:[2,185],137:[2,185],138:[2,185]},{104:92,105:[1,67],107:[1,68],110:93,111:[1,70],112:71,127:[1,91]},{1:[2,186],6:[2,186],28:[2,186],29:[2,186],50:[2,186],55:[2,186],58:[2,186],73:[2,186],78:[2,186],87:[2,186],92:[2,186],94:[2,186],103:[2,186],104:89,105:[2,186],106:[2,186],107:[2,186],110:90,111:[2,186],112:71,119:[2,186],127:[2,186],129:[2,186],130:[2,186],133:[1,80],134:[2,186],135:[2,186],136:[2,186],137:[2,186],138:[2,186]},{1:[2,187],6:[2,187],28:[2,187],29:[2,187],50:[2,187],55:[2,187],58:[2,187],73:[2,187],78:[2,187],87:[2,187],92:[2,187],94:[2,187],103:[2,187],104:89,105:[2,187],106:[2,187],107:[2,187],110:90,111:[2,187],112:71,119:[2,187],127:[2,187],129:[2,187],130:[2,187],133:[1,80],134:[2,187],135:[2,187],136:[2,187],137:[2,187],138:[2,187]},{1:[2,188],6:[2,188],28:[2,188],29:[2,188],50:[2,188],55:[2,188],58:[2,188],67:[2,72],68:[2,72],69:[2,72],71:[2,72],73:[2,188],74:[2,72],78:[2,188],85:[2,72],86:[2,72],87:[2,188],92:[2,188],94:[2,188],103:[2,188],105:[2,188],106:[2,188],107:[2,188],111:[2,188],119:[2,188],127:[2,188],129:[2,188],130:[2,188],133:[2,188],134:[2,188],135:[2,188],136:[2,188],137:[2,188],138:[2,188]},{63:95,67:[1,97],68:[1,98],69:[1,99],70:100,71:[1,101],74:[1,102],81:94,85:[1,96],86:[2,109]},{63:104,67:[1,97],68:[1,98],69:[1,99],70:100,71:[1,101],74:[1,102],81:103,85:[1,96],86:[2,109]},{67:[2,75],68:[2,75],69:[2,75],71:[2,75],74:[2,75],85:[2,75],86:[2,75]},{1:[2,189],6:[2,189],28:[2,189],29:[2,189],50:[2,189],55:[2,189],58:[2,189],67:[2,72],68:[2,72],69:[2,72],71:[2,72],73:[2,189],74:[2,72],78:[2,189],85:[2,72],86:[2,72],87:[2,189],92:[2,189],94:[2,189],103:[2,189],105:[2,189],106:[2,189],107:[2,189],111:[2,189],119:[2,189],127:[2,189],129:[2,189],130:[2,189],133:[2,189],134:[2,189],135:[2,189],136:[2,189],137:[2,189],138:[2,189]},{1:[2,190],6:[2,190],28:[2,190],29:[2,190],50:[2,190],55:[2,190],58:[2,190],73:[2,190],78:[2,190],87:[2,190],92:[2,190],94:[2,190],103:[2,190],105:[2,190],106:[2,190],107:[2,190],111:[2,190],119:[2,190],127:[2,190],129:[2,190],130:[2,190],133:[2,190],134:[2,190],135:[2,190],136:[2,190],137:[2,190],138:[2,190]},{1:[2,191],6:[2,191],28:[2,191],29:[2,191],50:[2,191],55:[2,191],58:[2,191],73:[2,191],78:[2,191],87:[2,191],92:[2,191],94:[2,191],103:[2,191],105:[2,191],106:[2,191],107:[2,191],111:[2,191],119:[2,191],127:[2,191],129:[2,191],130:[2,191],133:[2,191],134:[2,191],135:[2,191],136:[2,191],137:[2,191],138:[2,191]},{8:210,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,211],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:212,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{5:213,28:[1,5],126:[1,214]},{1:[2,134],6:[2,134],28:[2,134],29:[2,134],50:[2,134],55:[2,134],58:[2,134],73:[2,134],78:[2,134],87:[2,134],92:[2,134],94:[2,134],98:215,99:[1,216],100:[1,217],103:[2,134],105:[2,134],106:[2,134],107:[2,134],111:[2,134],119:[2,134],127:[2,134],129:[2,134],130:[2,134],133:[2,134],134:[2,134],135:[2,134],136:[2,134],137:[2,134],138:[2,134]},{1:[2,146],6:[2,146],28:[2,146],29:[2,146],50:[2,146],55:[2,146],58:[2,146],73:[2,146],78:[2,146],87:[2,146],92:[2,146],94:[2,146],103:[2,146],105:[2,146],106:[2,146],107:[2,146],111:[2,146],119:[2,146],127:[2,146],129:[2,146],130:[2,146],133:[2,146],134:[2,146],135:[2,146],136:[2,146],137:[2,146],138:[2,146]},{1:[2,154],6:[2,154],28:[2,154],29:[2,154],50:[2,154],55:[2,154],58:[2,154],73:[2,154],78:[2,154],87:[2,154],92:[2,154],94:[2,154],103:[2,154],105:[2,154],106:[2,154],107:[2,154],111:[2,154],119:[2,154],127:[2,154],129:[2,154],130:[2,154],133:[2,154],134:[2,154],135:[2,154],136:[2,154],137:[2,154],138:[2,154]},{28:[1,218],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{121:219,123:220,124:[1,221]},{1:[2,97],6:[2,97],28:[2,97],29:[2,97],50:[2,97],55:[2,97],58:[2,97],73:[2,97],78:[2,97],87:[2,97],92:[2,97],94:[2,97],103:[2,97],105:[2,97],106:[2,97],107:[2,97],111:[2,97],119:[2,97],127:[2,97],129:[2,97],130:[2,97],133:[2,97],134:[2,97],135:[2,97],136:[2,97],137:[2,97],138:[2,97]},{8:222,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,100],5:223,6:[2,100],28:[1,5],29:[2,100],50:[2,100],55:[2,100],58:[2,100],67:[2,72],68:[2,72],69:[2,72],71:[2,72],73:[2,100],74:[2,72],78:[2,100],80:[1,224],85:[2,72],86:[2,72],87:[2,100],92:[2,100],94:[2,100],103:[2,100],105:[2,100],106:[2,100],107:[2,100],111:[2,100],119:[2,100],127:[2,100],129:[2,100],130:[2,100],133:[2,100],134:[2,100],135:[2,100],136:[2,100],137:[2,100],138:[2,100]},{1:[2,139],6:[2,139],28:[2,139],29:[2,139],50:[2,139],55:[2,139],58:[2,139],73:[2,139],78:[2,139],87:[2,139],92:[2,139],94:[2,139],103:[2,139],104:89,105:[2,139],106:[2,139],107:[2,139],110:90,111:[2,139],112:71,119:[2,139],127:[2,139],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,108],6:[2,108],28:[2,108],29:[2,108],41:[2,108],50:[2,108],55:[2,108],58:[2,108],67:[2,108],68:[2,108],69:[2,108],71:[2,108],73:[2,108],74:[2,108],78:[2,108],80:[2,108],85:[2,108],86:[2,108],87:[2,108],92:[2,108],94:[2,108],103:[2,108],105:[2,108],106:[2,108],107:[2,108],111:[2,108],119:[2,108],127:[2,108],129:[2,108],130:[2,108],131:[2,108],132:[2,108],133:[2,108],134:[2,108],135:[2,108],136:[2,108],137:[2,108],138:[2,108],139:[2,108]},{1:[2,12],6:[2,12],28:[2,12],29:[2,12],50:[2,12],55:[2,12],58:[2,12],73:[2,12],78:[2,12],87:[2,12],92:[2,12],94:[2,12],103:[2,12],105:[2,12],106:[2,12],107:[2,12],111:[2,12],119:[2,12],127:[2,12],129:[2,12],130:[2,12],133:[2,12],134:[2,12],135:[2,12],136:[2,12],137:[2,12],138:[2,12]},{1:[2,13],6:[2,13],28:[2,13],29:[2,13],50:[2,13],55:[2,13],58:[2,13],73:[2,13],78:[2,13],87:[2,13],92:[2,13],94:[2,13],103:[2,13],104:89,105:[1,67],106:[2,13],107:[1,68],110:90,111:[1,70],112:71,119:[2,13],127:[2,13],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,48],6:[2,48],29:[2,48],103:[2,48],104:89,105:[2,48],107:[2,48],110:90,111:[2,48],112:71,127:[2,48],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{6:[1,76],103:[1,225]},{4:226,7:4,8:6,9:7,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[2,130],28:[2,130],55:[2,130],58:[1,228],92:[2,130],93:227,94:[1,196],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,116],6:[2,116],28:[2,116],29:[2,116],41:[2,116],50:[2,116],55:[2,116],58:[2,116],67:[2,116],68:[2,116],69:[2,116],71:[2,116],73:[2,116],74:[2,116],78:[2,116],85:[2,116],86:[2,116],87:[2,116],92:[2,116],94:[2,116],103:[2,116],105:[2,116],106:[2,116],107:[2,116],111:[2,116],117:[2,116],118:[2,116],119:[2,116],127:[2,116],129:[2,116],130:[2,116],133:[2,116],134:[2,116],135:[2,116],136:[2,116],137:[2,116],138:[2,116]},{6:[2,55],28:[2,55],54:229,55:[1,230],92:[2,55]},{6:[2,125],28:[2,125],29:[2,125],55:[2,125],87:[2,125],92:[2,125]},{8:205,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,151],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],88:231,89:[1,60],90:[1,61],91:[1,59],95:150,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[2,131],28:[2,131],29:[2,131],55:[2,131],87:[2,131],92:[2,131]},{1:[2,115],6:[2,115],28:[2,115],29:[2,115],41:[2,115],44:[2,115],50:[2,115],55:[2,115],58:[2,115],67:[2,115],68:[2,115],69:[2,115],71:[2,115],73:[2,115],74:[2,115],78:[2,115],80:[2,115],85:[2,115],86:[2,115],87:[2,115],92:[2,115],94:[2,115],103:[2,115],105:[2,115],106:[2,115],107:[2,115],111:[2,115],119:[2,115],127:[2,115],129:[2,115],130:[2,115],131:[2,115],132:[2,115],133:[2,115],134:[2,115],135:[2,115],136:[2,115],137:[2,115],138:[2,115],139:[2,115]},{5:232,28:[1,5],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,142],6:[2,142],28:[2,142],29:[2,142],50:[2,142],55:[2,142],58:[2,142],73:[2,142],78:[2,142],87:[2,142],92:[2,142],94:[2,142],103:[2,142],104:89,105:[1,67],106:[1,233],107:[1,68],110:90,111:[1,70],112:71,119:[2,142],127:[2,142],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,144],6:[2,144],28:[2,144],29:[2,144],50:[2,144],55:[2,144],58:[2,144],73:[2,144],78:[2,144],87:[2,144],92:[2,144],94:[2,144],103:[2,144],104:89,105:[1,67],106:[1,234],107:[1,68],110:90,111:[1,70],112:71,119:[2,144],127:[2,144],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,150],6:[2,150],28:[2,150],29:[2,150],50:[2,150],55:[2,150],58:[2,150],73:[2,150],78:[2,150],87:[2,150],92:[2,150],94:[2,150],103:[2,150],105:[2,150],106:[2,150],107:[2,150],111:[2,150],119:[2,150],127:[2,150],129:[2,150],130:[2,150],133:[2,150],134:[2,150],135:[2,150],136:[2,150],137:[2,150],138:[2,150]},{1:[2,151],6:[2,151],28:[2,151],29:[2,151],50:[2,151],55:[2,151],58:[2,151],73:[2,151],78:[2,151],87:[2,151],92:[2,151],94:[2,151],103:[2,151],104:89,105:[1,67],106:[2,151],107:[1,68],110:90,111:[1,70],112:71,119:[2,151],127:[2,151],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,155],6:[2,155],28:[2,155],29:[2,155],50:[2,155],55:[2,155],58:[2,155],73:[2,155],78:[2,155],87:[2,155],92:[2,155],94:[2,155],103:[2,155],105:[2,155],106:[2,155],107:[2,155],111:[2,155],119:[2,155],127:[2,155],129:[2,155],130:[2,155],133:[2,155],134:[2,155],135:[2,155],136:[2,155],137:[2,155],138:[2,155]},{117:[2,157],118:[2,157]},{30:163,31:[1,75],59:164,60:165,76:[1,72],91:[1,116],114:235,116:162},{55:[1,236],117:[2,162],118:[2,162]},{55:[2,159],117:[2,159],118:[2,159]},{55:[2,160],117:[2,160],118:[2,160]},{55:[2,161],117:[2,161],118:[2,161]},{1:[2,156],6:[2,156],28:[2,156],29:[2,156],50:[2,156],55:[2,156],58:[2,156],73:[2,156],78:[2,156],87:[2,156],92:[2,156],94:[2,156],103:[2,156],105:[2,156],106:[2,156],107:[2,156],111:[2,156],119:[2,156],127:[2,156],129:[2,156],130:[2,156],133:[2,156],134:[2,156],135:[2,156],136:[2,156],137:[2,156],138:[2,156]},{8:237,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:238,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[2,55],28:[2,55],54:239,55:[1,240],78:[2,55]},{6:[2,92],28:[2,92],29:[2,92],55:[2,92],78:[2,92]},{6:[2,41],28:[2,41],29:[2,41],44:[1,241],55:[2,41],78:[2,41]},{6:[2,44],28:[2,44],29:[2,44],55:[2,44],78:[2,44]},{6:[2,45],28:[2,45],29:[2,45],44:[2,45],55:[2,45],78:[2,45]},{6:[2,46],28:[2,46],29:[2,46],44:[2,46],55:[2,46],78:[2,46]},{6:[2,47],28:[2,47],29:[2,47],44:[2,47],55:[2,47],78:[2,47]},{1:[2,5],6:[2,5],29:[2,5],103:[2,5]},{1:[2,29],6:[2,29],28:[2,29],29:[2,29],50:[2,29],55:[2,29],58:[2,29],73:[2,29],78:[2,29],87:[2,29],92:[2,29],94:[2,29],99:[2,29],100:[2,29],103:[2,29],105:[2,29],106:[2,29],107:[2,29],111:[2,29],119:[2,29],122:[2,29],124:[2,29],127:[2,29],129:[2,29],130:[2,29],133:[2,29],134:[2,29],135:[2,29],136:[2,29],137:[2,29],138:[2,29]},{1:[2,193],6:[2,193],28:[2,193],29:[2,193],50:[2,193],55:[2,193],58:[2,193],73:[2,193],78:[2,193],87:[2,193],92:[2,193],94:[2,193],103:[2,193],104:89,105:[2,193],106:[2,193],107:[2,193],110:90,111:[2,193],112:71,119:[2,193],127:[2,193],129:[2,193],130:[2,193],133:[1,80],134:[1,83],135:[2,193],136:[2,193],137:[2,193],138:[2,193]},{1:[2,194],6:[2,194],28:[2,194],29:[2,194],50:[2,194],55:[2,194],58:[2,194],73:[2,194],78:[2,194],87:[2,194],92:[2,194],94:[2,194],103:[2,194],104:89,105:[2,194],106:[2,194],107:[2,194],110:90,111:[2,194],112:71,119:[2,194],127:[2,194],129:[2,194],130:[2,194],133:[1,80],134:[1,83],135:[2,194],136:[2,194],137:[2,194],138:[2,194]},{1:[2,195],6:[2,195],28:[2,195],29:[2,195],50:[2,195],55:[2,195],58:[2,195],73:[2,195],78:[2,195],87:[2,195],92:[2,195],94:[2,195],103:[2,195],104:89,105:[2,195],106:[2,195],107:[2,195],110:90,111:[2,195],112:71,119:[2,195],127:[2,195],129:[2,195],130:[2,195],133:[1,80],134:[2,195],135:[2,195],136:[2,195],137:[2,195],138:[2,195]},{1:[2,196],6:[2,196],28:[2,196],29:[2,196],50:[2,196],55:[2,196],58:[2,196],73:[2,196],78:[2,196],87:[2,196],92:[2,196],94:[2,196],103:[2,196],104:89,105:[2,196],106:[2,196],107:[2,196],110:90,111:[2,196],112:71,119:[2,196],127:[2,196],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[2,196],136:[2,196],137:[2,196],138:[2,196]},{1:[2,197],6:[2,197],28:[2,197],29:[2,197],50:[2,197],55:[2,197],58:[2,197],73:[2,197],78:[2,197],87:[2,197],92:[2,197],94:[2,197],103:[2,197],104:89,105:[2,197],106:[2,197],107:[2,197],110:90,111:[2,197],112:71,119:[2,197],127:[2,197],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[2,197],137:[2,197],138:[1,87]},{1:[2,198],6:[2,198],28:[2,198],29:[2,198],50:[2,198],55:[2,198],58:[2,198],73:[2,198],78:[2,198],87:[2,198],92:[2,198],94:[2,198],103:[2,198],104:89,105:[2,198],106:[2,198],107:[2,198],110:90,111:[2,198],112:71,119:[2,198],127:[2,198],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[2,198],138:[1,87]},{1:[2,199],6:[2,199],28:[2,199],29:[2,199],50:[2,199],55:[2,199],58:[2,199],73:[2,199],78:[2,199],87:[2,199],92:[2,199],94:[2,199],103:[2,199],104:89,105:[2,199],106:[2,199],107:[2,199],110:90,111:[2,199],112:71,119:[2,199],127:[2,199],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[2,199],137:[2,199],138:[2,199]},{1:[2,184],6:[2,184],28:[2,184],29:[2,184],50:[2,184],55:[2,184],58:[2,184],73:[2,184],78:[2,184],87:[2,184],92:[2,184],94:[2,184],103:[2,184],104:89,105:[1,67],106:[2,184],107:[1,68],110:90,111:[1,70],112:71,119:[2,184],127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,183],6:[2,183],28:[2,183],29:[2,183],50:[2,183],55:[2,183],58:[2,183],73:[2,183],78:[2,183],87:[2,183],92:[2,183],94:[2,183],103:[2,183],104:89,105:[1,67],106:[2,183],107:[1,68],110:90,111:[1,70],112:71,119:[2,183],127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,104],6:[2,104],28:[2,104],29:[2,104],50:[2,104],55:[2,104],58:[2,104],67:[2,104],68:[2,104],69:[2,104],71:[2,104],73:[2,104],74:[2,104],78:[2,104],85:[2,104],86:[2,104],87:[2,104],92:[2,104],94:[2,104],103:[2,104],105:[2,104],106:[2,104],107:[2,104],111:[2,104],119:[2,104],127:[2,104],129:[2,104],130:[2,104],133:[2,104],134:[2,104],135:[2,104],136:[2,104],137:[2,104],138:[2,104]},{1:[2,80],6:[2,80],28:[2,80],29:[2,80],41:[2,80],50:[2,80],55:[2,80],58:[2,80],67:[2,80],68:[2,80],69:[2,80],71:[2,80],73:[2,80],74:[2,80],78:[2,80],80:[2,80],85:[2,80],86:[2,80],87:[2,80],92:[2,80],94:[2,80],103:[2,80],105:[2,80],106:[2,80],107:[2,80],111:[2,80],119:[2,80],127:[2,80],129:[2,80],130:[2,80],131:[2,80],132:[2,80],133:[2,80],134:[2,80],135:[2,80],136:[2,80],137:[2,80],138:[2,80],139:[2,80]},{1:[2,81],6:[2,81],28:[2,81],29:[2,81],41:[2,81],50:[2,81],55:[2,81],58:[2,81],67:[2,81],68:[2,81],69:[2,81],71:[2,81],73:[2,81],74:[2,81],78:[2,81],80:[2,81],85:[2,81],86:[2,81],87:[2,81],92:[2,81],94:[2,81],103:[2,81],105:[2,81],106:[2,81],107:[2,81],111:[2,81],119:[2,81],127:[2,81],129:[2,81],130:[2,81],131:[2,81],132:[2,81],133:[2,81],134:[2,81],135:[2,81],136:[2,81],137:[2,81],138:[2,81],139:[2,81]},{1:[2,82],6:[2,82],28:[2,82],29:[2,82],41:[2,82],50:[2,82],55:[2,82],58:[2,82],67:[2,82],68:[2,82],69:[2,82],71:[2,82],73:[2,82],74:[2,82],78:[2,82],80:[2,82],85:[2,82],86:[2,82],87:[2,82],92:[2,82],94:[2,82],103:[2,82],105:[2,82],106:[2,82],107:[2,82],111:[2,82],119:[2,82],127:[2,82],129:[2,82],130:[2,82],131:[2,82],132:[2,82],133:[2,82],134:[2,82],135:[2,82],136:[2,82],137:[2,82],138:[2,82],139:[2,82]},{1:[2,83],6:[2,83],28:[2,83],29:[2,83],41:[2,83],50:[2,83],55:[2,83],58:[2,83],67:[2,83],68:[2,83],69:[2,83],71:[2,83],73:[2,83],74:[2,83],78:[2,83],80:[2,83],85:[2,83],86:[2,83],87:[2,83],92:[2,83],94:[2,83],103:[2,83],105:[2,83],106:[2,83],107:[2,83],111:[2,83],119:[2,83],127:[2,83],129:[2,83],130:[2,83],131:[2,83],132:[2,83],133:[2,83],134:[2,83],135:[2,83],136:[2,83],137:[2,83],138:[2,83],139:[2,83]},{73:[1,242]},{58:[1,197],73:[2,88],93:243,94:[1,196],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{73:[2,89]},{8:244,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,73:[2,124],76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{12:[2,118],14:[2,118],31:[2,118],33:[2,118],34:[2,118],36:[2,118],37:[2,118],38:[2,118],39:[2,118],46:[2,118],47:[2,118],48:[2,118],52:[2,118],53:[2,118],73:[2,118],76:[2,118],79:[2,118],83:[2,118],84:[2,118],89:[2,118],90:[2,118],91:[2,118],97:[2,118],101:[2,118],102:[2,118],105:[2,118],107:[2,118],109:[2,118],111:[2,118],120:[2,118],126:[2,118],128:[2,118],129:[2,118],130:[2,118],131:[2,118],132:[2,118]},{12:[2,119],14:[2,119],31:[2,119],33:[2,119],34:[2,119],36:[2,119],37:[2,119],38:[2,119],39:[2,119],46:[2,119],47:[2,119],48:[2,119],52:[2,119],53:[2,119],73:[2,119],76:[2,119],79:[2,119],83:[2,119],84:[2,119],89:[2,119],90:[2,119],91:[2,119],97:[2,119],101:[2,119],102:[2,119],105:[2,119],107:[2,119],109:[2,119],111:[2,119],120:[2,119],126:[2,119],128:[2,119],129:[2,119],130:[2,119],131:[2,119],132:[2,119]},{1:[2,87],6:[2,87],28:[2,87],29:[2,87],41:[2,87],50:[2,87],55:[2,87],58:[2,87],67:[2,87],68:[2,87],69:[2,87],71:[2,87],73:[2,87],74:[2,87],78:[2,87],80:[2,87],85:[2,87],86:[2,87],87:[2,87],92:[2,87],94:[2,87],103:[2,87],105:[2,87],106:[2,87],107:[2,87],111:[2,87],119:[2,87],127:[2,87],129:[2,87],130:[2,87],131:[2,87],132:[2,87],133:[2,87],134:[2,87],135:[2,87],136:[2,87],137:[2,87],138:[2,87],139:[2,87]},{1:[2,105],6:[2,105],28:[2,105],29:[2,105],50:[2,105],55:[2,105],58:[2,105],67:[2,105],68:[2,105],69:[2,105],71:[2,105],73:[2,105],74:[2,105],78:[2,105],85:[2,105],86:[2,105],87:[2,105],92:[2,105],94:[2,105],103:[2,105],105:[2,105],106:[2,105],107:[2,105],111:[2,105],119:[2,105],127:[2,105],129:[2,105],130:[2,105],133:[2,105],134:[2,105],135:[2,105],136:[2,105],137:[2,105],138:[2,105]},{1:[2,38],6:[2,38],28:[2,38],29:[2,38],50:[2,38],55:[2,38],58:[2,38],73:[2,38],78:[2,38],87:[2,38],92:[2,38],94:[2,38],103:[2,38],104:89,105:[2,38],106:[2,38],107:[2,38],110:90,111:[2,38],112:71,119:[2,38],127:[2,38],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{8:245,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:246,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,111],6:[2,111],28:[2,111],29:[2,111],41:[2,111],50:[2,111],55:[2,111],58:[2,111],67:[2,111],68:[2,111],69:[2,111],71:[2,111],73:[2,111],74:[2,111],78:[2,111],80:[2,111],85:[2,111],86:[2,111],87:[2,111],92:[2,111],94:[2,111],103:[2,111],105:[2,111],106:[2,111],107:[2,111],111:[2,111],119:[2,111],127:[2,111],129:[2,111],130:[2,111],131:[2,111],132:[2,111],133:[2,111],134:[2,111],135:[2,111],136:[2,111],137:[2,111],138:[2,111],139:[2,111]},{6:[2,55],28:[2,55],54:247,55:[1,230],87:[2,55]},{6:[2,130],28:[2,130],29:[2,130],55:[2,130],58:[1,248],87:[2,130],92:[2,130],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{51:249,52:[1,62],53:[1,63]},{30:111,31:[1,75],45:112,56:250,57:110,59:113,60:114,76:[1,72],90:[1,115],91:[1,116]},{50:[2,61],55:[2,61]},{8:251,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,200],6:[2,200],28:[2,200],29:[2,200],50:[2,200],55:[2,200],58:[2,200],73:[2,200],78:[2,200],87:[2,200],92:[2,200],94:[2,200],103:[2,200],104:89,105:[2,200],106:[2,200],107:[2,200],110:90,111:[2,200],112:71,119:[2,200],127:[2,200],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{8:252,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,202],6:[2,202],28:[2,202],29:[2,202],50:[2,202],55:[2,202],58:[2,202],73:[2,202],78:[2,202],87:[2,202],92:[2,202],94:[2,202],103:[2,202],104:89,105:[2,202],106:[2,202],107:[2,202],110:90,111:[2,202],112:71,119:[2,202],127:[2,202],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,182],6:[2,182],28:[2,182],29:[2,182],50:[2,182],55:[2,182],58:[2,182],73:[2,182],78:[2,182],87:[2,182],92:[2,182],94:[2,182],103:[2,182],105:[2,182],106:[2,182],107:[2,182],111:[2,182],119:[2,182],127:[2,182],129:[2,182],130:[2,182],133:[2,182],134:[2,182],135:[2,182],136:[2,182],137:[2,182],138:[2,182]},{8:253,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,135],6:[2,135],28:[2,135],29:[2,135],50:[2,135],55:[2,135],58:[2,135],73:[2,135],78:[2,135],87:[2,135],92:[2,135],94:[2,135],99:[1,254],103:[2,135],105:[2,135],106:[2,135],107:[2,135],111:[2,135],119:[2,135],127:[2,135],129:[2,135],130:[2,135],133:[2,135],134:[2,135],135:[2,135],136:[2,135],137:[2,135],138:[2,135]},{5:255,28:[1,5]},{30:256,31:[1,75]},{121:257,123:220,124:[1,221]},{29:[1,258],122:[1,259],123:260,124:[1,221]},{29:[2,175],122:[2,175],124:[2,175]},{8:262,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],96:261,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,98],5:263,6:[2,98],28:[1,5],29:[2,98],50:[2,98],55:[2,98],58:[2,98],73:[2,98],78:[2,98],87:[2,98],92:[2,98],94:[2,98],103:[2,98],104:89,105:[1,67],106:[2,98],107:[1,68],110:90,111:[1,70],112:71,119:[2,98],127:[2,98],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,101],6:[2,101],28:[2,101],29:[2,101],50:[2,101],55:[2,101],58:[2,101],73:[2,101],78:[2,101],87:[2,101],92:[2,101],94:[2,101],103:[2,101],105:[2,101],106:[2,101],107:[2,101],111:[2,101],119:[2,101],127:[2,101],129:[2,101],130:[2,101],133:[2,101],134:[2,101],135:[2,101],136:[2,101],137:[2,101],138:[2,101]},{8:264,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,140],6:[2,140],28:[2,140],29:[2,140],50:[2,140],55:[2,140],58:[2,140],67:[2,140],68:[2,140],69:[2,140],71:[2,140],73:[2,140],74:[2,140],78:[2,140],85:[2,140],86:[2,140],87:[2,140],92:[2,140],94:[2,140],103:[2,140],105:[2,140],106:[2,140],107:[2,140],111:[2,140],119:[2,140],127:[2,140],129:[2,140],130:[2,140],133:[2,140],134:[2,140],135:[2,140],136:[2,140],137:[2,140],138:[2,140]},{6:[1,76],29:[1,265]},{8:266,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[2,67],12:[2,119],14:[2,119],28:[2,67],31:[2,119],33:[2,119],34:[2,119],36:[2,119],37:[2,119],38:[2,119],39:[2,119],46:[2,119],47:[2,119],48:[2,119],52:[2,119],53:[2,119],55:[2,67],76:[2,119],79:[2,119],83:[2,119],84:[2,119],89:[2,119],90:[2,119],91:[2,119],92:[2,67],97:[2,119],101:[2,119],102:[2,119],105:[2,119],107:[2,119],109:[2,119],111:[2,119],120:[2,119],126:[2,119],128:[2,119],129:[2,119],130:[2,119],131:[2,119],132:[2,119]},{6:[1,268],28:[1,269],92:[1,267]},{6:[2,56],8:205,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[2,56],29:[2,56],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],87:[2,56],89:[1,60],90:[1,61],91:[1,59],92:[2,56],95:270,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[2,55],28:[2,55],29:[2,55],54:271,55:[1,230]},{1:[2,179],6:[2,179],28:[2,179],29:[2,179],50:[2,179],55:[2,179],58:[2,179],73:[2,179],78:[2,179],87:[2,179],92:[2,179],94:[2,179],103:[2,179],105:[2,179],106:[2,179],107:[2,179],111:[2,179],119:[2,179],122:[2,179],127:[2,179],129:[2,179],130:[2,179],133:[2,179],134:[2,179],135:[2,179],136:[2,179],137:[2,179],138:[2,179]},{8:272,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:273,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{117:[2,158],118:[2,158]},{30:163,31:[1,75],59:164,60:165,76:[1,72],91:[1,116],116:274},{1:[2,164],6:[2,164],28:[2,164],29:[2,164],50:[2,164],55:[2,164],58:[2,164],73:[2,164],78:[2,164],87:[2,164],92:[2,164],94:[2,164],103:[2,164],104:89,105:[2,164],106:[1,275],107:[2,164],110:90,111:[2,164],112:71,119:[1,276],127:[2,164],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,165],6:[2,165],28:[2,165],29:[2,165],50:[2,165],55:[2,165],58:[2,165],73:[2,165],78:[2,165],87:[2,165],92:[2,165],94:[2,165],103:[2,165],104:89,105:[2,165],106:[1,277],107:[2,165],110:90,111:[2,165],112:71,119:[2,165],127:[2,165],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{6:[1,279],28:[1,280],78:[1,278]},{6:[2,56],11:172,28:[2,56],29:[2,56],30:173,31:[1,75],32:174,33:[1,73],34:[1,74],42:281,43:171,45:175,47:[1,50],78:[2,56],90:[1,115]},{8:282,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,283],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,86],6:[2,86],28:[2,86],29:[2,86],41:[2,86],50:[2,86],55:[2,86],58:[2,86],67:[2,86],68:[2,86],69:[2,86],71:[2,86],73:[2,86],74:[2,86],78:[2,86],80:[2,86],85:[2,86],86:[2,86],87:[2,86],92:[2,86],94:[2,86],103:[2,86],105:[2,86],106:[2,86],107:[2,86],111:[2,86],119:[2,86],127:[2,86],129:[2,86],130:[2,86],131:[2,86],132:[2,86],133:[2,86],134:[2,86],135:[2,86],136:[2,86],137:[2,86],138:[2,86],139:[2,86]},{8:284,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,73:[2,122],76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{73:[2,123],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,39],6:[2,39],28:[2,39],29:[2,39],50:[2,39],55:[2,39],58:[2,39],73:[2,39],78:[2,39],87:[2,39],92:[2,39],94:[2,39],103:[2,39],104:89,105:[2,39],106:[2,39],107:[2,39],110:90,111:[2,39],112:71,119:[2,39],127:[2,39],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{29:[1,285],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{6:[1,268],28:[1,269],87:[1,286]},{6:[2,67],28:[2,67],29:[2,67],55:[2,67],87:[2,67],92:[2,67]},{5:287,28:[1,5]},{50:[2,59],55:[2,59]},{50:[2,62],55:[2,62],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{29:[1,288],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{5:289,28:[1,5],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{5:290,28:[1,5]},{1:[2,136],6:[2,136],28:[2,136],29:[2,136],50:[2,136],55:[2,136],58:[2,136],73:[2,136],78:[2,136],87:[2,136],92:[2,136],94:[2,136],103:[2,136],105:[2,136],106:[2,136],107:[2,136],111:[2,136],119:[2,136],127:[2,136],129:[2,136],130:[2,136],133:[2,136],134:[2,136],135:[2,136],136:[2,136],137:[2,136],138:[2,136]},{5:291,28:[1,5]},{29:[1,292],122:[1,293],123:260,124:[1,221]},{1:[2,173],6:[2,173],28:[2,173],29:[2,173],50:[2,173],55:[2,173],58:[2,173],73:[2,173],78:[2,173],87:[2,173],92:[2,173],94:[2,173],103:[2,173],105:[2,173],106:[2,173],107:[2,173],111:[2,173],119:[2,173],127:[2,173],129:[2,173],130:[2,173],133:[2,173],134:[2,173],135:[2,173],136:[2,173],137:[2,173],138:[2,173]},{5:294,28:[1,5]},{29:[2,176],122:[2,176],124:[2,176]},{5:295,28:[1,5],55:[1,296]},{28:[2,132],55:[2,132],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,99],6:[2,99],28:[2,99],29:[2,99],50:[2,99],55:[2,99],58:[2,99],73:[2,99],78:[2,99],87:[2,99],92:[2,99],94:[2,99],103:[2,99],105:[2,99],106:[2,99],107:[2,99],111:[2,99],119:[2,99],127:[2,99],129:[2,99],130:[2,99],133:[2,99],134:[2,99],135:[2,99],136:[2,99],137:[2,99],138:[2,99]},{1:[2,102],5:297,6:[2,102],28:[1,5],29:[2,102],50:[2,102],55:[2,102],58:[2,102],73:[2,102],78:[2,102],87:[2,102],92:[2,102],94:[2,102],103:[2,102],104:89,105:[1,67],106:[2,102],107:[1,68],110:90,111:[1,70],112:71,119:[2,102],127:[2,102],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{103:[1,298]},{92:[1,299],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,117],6:[2,117],28:[2,117],29:[2,117],41:[2,117],50:[2,117],55:[2,117],58:[2,117],67:[2,117],68:[2,117],69:[2,117],71:[2,117],73:[2,117],74:[2,117],78:[2,117],85:[2,117],86:[2,117],87:[2,117],92:[2,117],94:[2,117],103:[2,117],105:[2,117],106:[2,117],107:[2,117],111:[2,117],117:[2,117],118:[2,117],119:[2,117],127:[2,117],129:[2,117],130:[2,117],133:[2,117],134:[2,117],135:[2,117],136:[2,117],137:[2,117],138:[2,117]},{8:205,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],95:300,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:205,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,28:[1,151],30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,61:152,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],88:301,89:[1,60],90:[1,61],91:[1,59],95:150,97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[2,126],28:[2,126],29:[2,126],55:[2,126],87:[2,126],92:[2,126]},{6:[1,268],28:[1,269],29:[1,302]},{1:[2,143],6:[2,143],28:[2,143],29:[2,143],50:[2,143],55:[2,143],58:[2,143],73:[2,143],78:[2,143],87:[2,143],92:[2,143],94:[2,143],103:[2,143],104:89,105:[1,67],106:[2,143],107:[1,68],110:90,111:[1,70],112:71,119:[2,143],127:[2,143],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,145],6:[2,145],28:[2,145],29:[2,145],50:[2,145],55:[2,145],58:[2,145],73:[2,145],78:[2,145],87:[2,145],92:[2,145],94:[2,145],103:[2,145],104:89,105:[1,67],106:[2,145],107:[1,68],110:90,111:[1,70],112:71,119:[2,145],127:[2,145],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{117:[2,163],118:[2,163]},{8:303,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:304,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:305,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,90],6:[2,90],28:[2,90],29:[2,90],41:[2,90],50:[2,90],55:[2,90],58:[2,90],67:[2,90],68:[2,90],69:[2,90],71:[2,90],73:[2,90],74:[2,90],78:[2,90],85:[2,90],86:[2,90],87:[2,90],92:[2,90],94:[2,90],103:[2,90],105:[2,90],106:[2,90],107:[2,90],111:[2,90],117:[2,90],118:[2,90],119:[2,90],127:[2,90],129:[2,90],130:[2,90],133:[2,90],134:[2,90],135:[2,90],136:[2,90],137:[2,90],138:[2,90]},{11:172,30:173,31:[1,75],32:174,33:[1,73],34:[1,74],42:306,43:171,45:175,47:[1,50],90:[1,115]},{6:[2,91],11:172,28:[2,91],29:[2,91],30:173,31:[1,75],32:174,33:[1,73],34:[1,74],42:170,43:171,45:175,47:[1,50],55:[2,91],77:307,90:[1,115]},{6:[2,93],28:[2,93],29:[2,93],55:[2,93],78:[2,93]},{6:[2,42],28:[2,42],29:[2,42],55:[2,42],78:[2,42],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{8:308,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{73:[2,121],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,40],6:[2,40],28:[2,40],29:[2,40],50:[2,40],55:[2,40],58:[2,40],73:[2,40],78:[2,40],87:[2,40],92:[2,40],94:[2,40],103:[2,40],105:[2,40],106:[2,40],107:[2,40],111:[2,40],119:[2,40],127:[2,40],129:[2,40],130:[2,40],133:[2,40],134:[2,40],135:[2,40],136:[2,40],137:[2,40],138:[2,40]},{1:[2,112],6:[2,112],28:[2,112],29:[2,112],41:[2,112],50:[2,112],55:[2,112],58:[2,112],67:[2,112],68:[2,112],69:[2,112],71:[2,112],73:[2,112],74:[2,112],78:[2,112],80:[2,112],85:[2,112],86:[2,112],87:[2,112],92:[2,112],94:[2,112],103:[2,112],105:[2,112],106:[2,112],107:[2,112],111:[2,112],119:[2,112],127:[2,112],129:[2,112],130:[2,112],131:[2,112],132:[2,112],133:[2,112],134:[2,112],135:[2,112],136:[2,112],137:[2,112],138:[2,112],139:[2,112]},{1:[2,51],6:[2,51],28:[2,51],29:[2,51],50:[2,51],55:[2,51],58:[2,51],73:[2,51],78:[2,51],87:[2,51],92:[2,51],94:[2,51],103:[2,51],105:[2,51],106:[2,51],107:[2,51],111:[2,51],119:[2,51],127:[2,51],129:[2,51],130:[2,51],133:[2,51],134:[2,51],135:[2,51],136:[2,51],137:[2,51],138:[2,51]},{1:[2,201],6:[2,201],28:[2,201],29:[2,201],50:[2,201],55:[2,201],58:[2,201],73:[2,201],78:[2,201],87:[2,201],92:[2,201],94:[2,201],103:[2,201],105:[2,201],106:[2,201],107:[2,201],111:[2,201],119:[2,201],127:[2,201],129:[2,201],130:[2,201],133:[2,201],134:[2,201],135:[2,201],136:[2,201],137:[2,201],138:[2,201]},{1:[2,180],6:[2,180],28:[2,180],29:[2,180],50:[2,180],55:[2,180],58:[2,180],73:[2,180],78:[2,180],87:[2,180],92:[2,180],94:[2,180],103:[2,180],105:[2,180],106:[2,180],107:[2,180],111:[2,180],119:[2,180],122:[2,180],127:[2,180],129:[2,180],130:[2,180],133:[2,180],134:[2,180],135:[2,180],136:[2,180],137:[2,180],138:[2,180]},{1:[2,137],6:[2,137],28:[2,137],29:[2,137],50:[2,137],55:[2,137],58:[2,137],73:[2,137],78:[2,137],87:[2,137],92:[2,137],94:[2,137],103:[2,137],105:[2,137],106:[2,137],107:[2,137],111:[2,137],119:[2,137],127:[2,137],129:[2,137],130:[2,137],133:[2,137],134:[2,137],135:[2,137],136:[2,137],137:[2,137],138:[2,137]},{1:[2,138],6:[2,138],28:[2,138],29:[2,138],50:[2,138],55:[2,138],58:[2,138],73:[2,138],78:[2,138],87:[2,138],92:[2,138],94:[2,138],99:[2,138],103:[2,138],105:[2,138],106:[2,138],107:[2,138],111:[2,138],119:[2,138],127:[2,138],129:[2,138],130:[2,138],133:[2,138],134:[2,138],135:[2,138],136:[2,138],137:[2,138],138:[2,138]},{1:[2,171],6:[2,171],28:[2,171],29:[2,171],50:[2,171],55:[2,171],58:[2,171],73:[2,171],78:[2,171],87:[2,171],92:[2,171],94:[2,171],103:[2,171],105:[2,171],106:[2,171],107:[2,171],111:[2,171],119:[2,171],127:[2,171],129:[2,171],130:[2,171],133:[2,171],134:[2,171],135:[2,171],136:[2,171],137:[2,171],138:[2,171]},{5:309,28:[1,5]},{29:[1,310]},{6:[1,311],29:[2,177],122:[2,177],124:[2,177]},{8:312,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{1:[2,103],6:[2,103],28:[2,103],29:[2,103],50:[2,103],55:[2,103],58:[2,103],73:[2,103],78:[2,103],87:[2,103],92:[2,103],94:[2,103],103:[2,103],105:[2,103],106:[2,103],107:[2,103],111:[2,103],119:[2,103],127:[2,103],129:[2,103],130:[2,103],133:[2,103],134:[2,103],135:[2,103],136:[2,103],137:[2,103],138:[2,103]},{1:[2,141],6:[2,141],28:[2,141],29:[2,141],50:[2,141],55:[2,141],58:[2,141],67:[2,141],68:[2,141],69:[2,141],71:[2,141],73:[2,141],74:[2,141],78:[2,141],85:[2,141],86:[2,141],87:[2,141],92:[2,141],94:[2,141],103:[2,141],105:[2,141],106:[2,141],107:[2,141],111:[2,141],119:[2,141],127:[2,141],129:[2,141],130:[2,141],133:[2,141],134:[2,141],135:[2,141],136:[2,141],137:[2,141],138:[2,141]},{1:[2,120],6:[2,120],28:[2,120],29:[2,120],50:[2,120],55:[2,120],58:[2,120],67:[2,120],68:[2,120],69:[2,120],71:[2,120],73:[2,120],74:[2,120],78:[2,120],85:[2,120],86:[2,120],87:[2,120],92:[2,120],94:[2,120],103:[2,120],105:[2,120],106:[2,120],107:[2,120],111:[2,120],119:[2,120],127:[2,120],129:[2,120],130:[2,120],133:[2,120],134:[2,120],135:[2,120],136:[2,120],137:[2,120],138:[2,120]},{6:[2,127],28:[2,127],29:[2,127],55:[2,127],87:[2,127],92:[2,127]},{6:[2,55],28:[2,55],29:[2,55],54:313,55:[1,230]},{6:[2,128],28:[2,128],29:[2,128],55:[2,128],87:[2,128],92:[2,128]},{1:[2,166],6:[2,166],28:[2,166],29:[2,166],50:[2,166],55:[2,166],58:[2,166],73:[2,166],78:[2,166],87:[2,166],92:[2,166],94:[2,166],103:[2,166],104:89,105:[2,166],106:[2,166],107:[2,166],110:90,111:[2,166],112:71,119:[1,314],127:[2,166],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,168],6:[2,168],28:[2,168],29:[2,168],50:[2,168],55:[2,168],58:[2,168],73:[2,168],78:[2,168],87:[2,168],92:[2,168],94:[2,168],103:[2,168],104:89,105:[2,168],106:[1,315],107:[2,168],110:90,111:[2,168],112:71,119:[2,168],127:[2,168],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,167],6:[2,167],28:[2,167],29:[2,167],50:[2,167],55:[2,167],58:[2,167],73:[2,167],78:[2,167],87:[2,167],92:[2,167],94:[2,167],103:[2,167],104:89,105:[2,167],106:[2,167],107:[2,167],110:90,111:[2,167],112:71,119:[2,167],127:[2,167],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{6:[2,94],28:[2,94],29:[2,94],55:[2,94],78:[2,94]},{6:[2,55],28:[2,55],29:[2,55],54:316,55:[1,240]},{29:[1,317],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{29:[1,318]},{1:[2,174],6:[2,174],28:[2,174],29:[2,174],50:[2,174],55:[2,174],58:[2,174],73:[2,174],78:[2,174],87:[2,174],92:[2,174],94:[2,174],103:[2,174],105:[2,174],106:[2,174],107:[2,174],111:[2,174],119:[2,174],127:[2,174],129:[2,174],130:[2,174],133:[2,174],134:[2,174],135:[2,174],136:[2,174],137:[2,174],138:[2,174]},{29:[2,178],122:[2,178],124:[2,178]},{28:[2,133],55:[2,133],104:89,105:[1,67],107:[1,68],110:90,111:[1,70],112:71,127:[1,88],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{6:[1,268],28:[1,269],29:[1,319]},{8:320,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{8:321,9:119,10:22,11:23,12:[1,24],13:21,14:[1,48],15:8,16:9,17:10,18:11,19:12,20:13,21:14,22:15,23:16,24:17,25:18,26:19,27:20,30:64,31:[1,75],32:53,33:[1,73],34:[1,74],35:26,36:[1,54],37:[1,55],38:[1,56],39:[1,57],40:25,45:65,46:[1,49],47:[1,50],48:[1,31],51:32,52:[1,62],53:[1,63],59:51,60:52,62:38,64:27,65:28,66:29,76:[1,72],79:[1,45],83:[1,30],84:[1,47],89:[1,60],90:[1,61],91:[1,59],97:[1,40],101:[1,46],102:[1,58],104:41,105:[1,67],107:[1,68],108:42,109:[1,69],110:43,111:[1,70],112:71,120:[1,44],125:39,126:[1,66],128:[1,33],129:[1,34],130:[1,35],131:[1,36],132:[1,37]},{6:[1,279],28:[1,280],29:[1,322]},{6:[2,43],28:[2,43],29:[2,43],55:[2,43],78:[2,43]},{1:[2,172],6:[2,172],28:[2,172],29:[2,172],50:[2,172],55:[2,172],58:[2,172],73:[2,172],78:[2,172],87:[2,172],92:[2,172],94:[2,172],103:[2,172],105:[2,172],106:[2,172],107:[2,172],111:[2,172],119:[2,172],127:[2,172],129:[2,172],130:[2,172],133:[2,172],134:[2,172],135:[2,172],136:[2,172],137:[2,172],138:[2,172]},{6:[2,129],28:[2,129],29:[2,129],55:[2,129],87:[2,129],92:[2,129]},{1:[2,169],6:[2,169],28:[2,169],29:[2,169],50:[2,169],55:[2,169],58:[2,169],73:[2,169],78:[2,169],87:[2,169],92:[2,169],94:[2,169],103:[2,169],104:89,105:[2,169],106:[2,169],107:[2,169],110:90,111:[2,169],112:71,119:[2,169],127:[2,169],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{1:[2,170],6:[2,170],28:[2,170],29:[2,170],50:[2,170],55:[2,170],58:[2,170],73:[2,170],78:[2,170],87:[2,170],92:[2,170],94:[2,170],103:[2,170],104:89,105:[2,170],106:[2,170],107:[2,170],110:90,111:[2,170],112:71,119:[2,170],127:[2,170],129:[1,82],130:[1,81],133:[1,80],134:[1,83],135:[1,84],136:[1,85],137:[1,86],138:[1,87]},{6:[2,95],28:[2,95],29:[2,95],55:[2,95],78:[2,95]}],
+defaultActions: {62:[2,53],63:[2,54],77:[2,3],96:[2,110],194:[2,89]},
+parseError: function parseError(str, hash) {
+    throw new Error(str);
+},
+parse: function parse(input) {
+    var self = this,
+        stack = [0],
+        vstack = [null], // semantic value stack
+        lstack = [], // location stack
+        table = this.table,
+        yytext = '',
+        yylineno = 0,
+        yyleng = 0,
+        recovering = 0,
+        TERROR = 2,
+        EOF = 1;
+
+    //this.reductionCount = this.shiftCount = 0;
+
+    this.lexer.setInput(input);
+    this.lexer.yy = this.yy;
+    this.yy.lexer = this.lexer;
+    if (typeof this.lexer.yylloc == 'undefined')
+        this.lexer.yylloc = {};
+    var yyloc = this.lexer.yylloc;
+    lstack.push(yyloc);
+
+    if (typeof this.yy.parseError === 'function')
+        this.parseError = this.yy.parseError;
+
+    function popStack (n) {
+        stack.length = stack.length - 2*n;
+        vstack.length = vstack.length - n;
+        lstack.length = lstack.length - n;
+    }
+
+    function lex() {
+        var token;
+        token = self.lexer.lex() || 1; // $end = 1
+        // if token isn't its numeric value, convert
+        if (typeof token !== 'number') {
+            token = self.symbols_[token] || token;
+        }
+        return token;
+    }
+
+    var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected;
+    while (true) {
+        // retreive state number from top of stack
+        state = stack[stack.length-1];
+
+        // use default actions if available
+        if (this.defaultActions[state]) {
+            action = this.defaultActions[state];
+        } else {
+            if (symbol == null)
+                symbol = lex();
+            // read action for current state and first input
+            action = table[state] && table[state][symbol];
+        }
+
+        // handle parse error
+        _handle_error:
+        if (typeof action === 'undefined' || !action.length || !action[0]) {
+
+            if (!recovering) {
+                // Report error
+                expected = [];
+                for (p in table[state]) if (this.terminals_[p] && p > 2) {
+                    expected.push("'"+this.terminals_[p]+"'");
+                }
+                var errStr = '';
+                if (this.lexer.showPosition) {
+                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+"\nExpecting "+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
+                } else {
+                    errStr = 'Parse error on line '+(yylineno+1)+": Unexpected " +
+                                  (symbol == 1 /*EOF*/ ? "end of input" :
+                                              ("'"+(this.terminals_[symbol] || symbol)+"'"));
+                }
+                this.parseError(errStr,
+                    {text: this.lexer.match, token: this.terminals_[symbol] || symbol, line: this.lexer.yylineno, loc: yyloc, expected: expected});
+            }
+
+            // just recovered from another error
+            if (recovering == 3) {
+                if (symbol == EOF) {
+                    throw new Error(errStr || 'Parsing halted.');
+                }
+
+                // discard current lookahead and grab another
+                yyleng = this.lexer.yyleng;
+                yytext = this.lexer.yytext;
+                yylineno = this.lexer.yylineno;
+                yyloc = this.lexer.yylloc;
+                symbol = lex();
+            }
+
+            // try to recover from error
+            while (1) {
+                // check for error recovery rule in this state
+                if ((TERROR.toString()) in table[state]) {
+                    break;
+                }
+                if (state == 0) {
+                    throw new Error(errStr || 'Parsing halted.');
+                }
+                popStack(1);
+                state = stack[stack.length-1];
+            }
+
+            preErrorSymbol = symbol; // save the lookahead token
+            symbol = TERROR;         // insert generic error symbol as new lookahead
+            state = stack[stack.length-1];
+            action = table[state] && table[state][TERROR];
+            recovering = 3; // allow 3 real symbols to be shifted before reporting a new error
+        }
+
+        // this shouldn't happen, unless resolve defaults are off
+        if (action[0] instanceof Array && action.length > 1) {
+            throw new Error('Parse Error: multiple actions possible at state: '+state+', token: '+symbol);
+        }
+
+        switch (action[0]) {
+
+            case 1: // shift
+                //this.shiftCount++;
+
+                stack.push(symbol);
+                vstack.push(this.lexer.yytext);
+                lstack.push(this.lexer.yylloc);
+                stack.push(action[1]); // push state
+                symbol = null;
+                if (!preErrorSymbol) { // normal execution/no error
+                    yyleng = this.lexer.yyleng;
+                    yytext = this.lexer.yytext;
+                    yylineno = this.lexer.yylineno;
+                    yyloc = this.lexer.yylloc;
+                    if (recovering > 0)
+                        recovering--;
+                } else { // error just occurred, resume old lookahead f/ before error
+                    symbol = preErrorSymbol;
+                    preErrorSymbol = null;
+                }
+                break;
+
+            case 2: // reduce
+                //this.reductionCount++;
+
+                len = this.productions_[action[1]][1];
+
+                // perform semantic action
+                yyval.$ = vstack[vstack.length-len]; // default to $$ = $1
+                // default location, uses first token for firsts, last for lasts
+                yyval._$ = {
+                    first_line: lstack[lstack.length-(len||1)].first_line,
+                    last_line: lstack[lstack.length-1].last_line,
+                    first_column: lstack[lstack.length-(len||1)].first_column,
+                    last_column: lstack[lstack.length-1].last_column
+                };
+                r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
+
+                if (typeof r !== 'undefined') {
+                    return r;
+                }
+
+                // pop off stack
+                if (len) {
+                    stack = stack.slice(0,-1*len*2);
+                    vstack = vstack.slice(0, -1*len);
+                    lstack = lstack.slice(0, -1*len);
+                }
+
+                stack.push(this.productions_[action[1]][0]);    // push nonterminal (reduce)
+                vstack.push(yyval.$);
+                lstack.push(yyval._$);
+                // goto new state = table[STATE][NONTERMINAL]
+                newState = table[stack[stack.length-2]][stack[stack.length-1]];
+                stack.push(newState);
+                break;
+
+            case 3: // accept
+                return true;
+        }
+
+    }
+
+    return true;
+}};
+return parser;
+})();
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+exports.parser = parser;
+exports.parse = function () { return parser.parse.apply(parser, arguments); }
+exports.main = function commonjsMain(args) {
+    if (!args[1])
+        throw new Error('Usage: '+args[0]+' FILE');
+    if (typeof process !== 'undefined') {
+        var source = require('fs').readFileSync(require('path').join(process.cwd(), args[1]), "utf8");
+    } else {
+        var cwd = require("file").path(require("file").cwd());
+        var source = cwd.join(args[1]).read({charset: "utf-8"});
+    }
+    return exports.parser.parse(source);
+}
+if (typeof module !== 'undefined' && require.main === module) {
+  exports.main(typeof process !== 'undefined' ? process.argv.slice(1) : require("system").args);
+}
+}
+};require['./scope'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var Scope, extend, last, _ref;
+
+  _ref = require('./helpers'), extend = _ref.extend, last = _ref.last;
+
+  exports.Scope = Scope = (function() {
+
+    Scope.name = 'Scope';
+
+    Scope.root = null;
+
+    function Scope(parent, expressions, method) {
+      this.parent = parent;
+      this.expressions = expressions;
+      this.method = method;
+      this.variables = [
+        {
+          name: 'arguments',
+          type: 'arguments'
+        }
+      ];
+      this.positions = {};
+      if (!this.parent) Scope.root = this;
+    }
+
+    Scope.prototype.add = function(name, type, immediate) {
+      if (this.shared && !immediate) return this.parent.add(name, type, immediate);
+      if (Object.prototype.hasOwnProperty.call(this.positions, name)) {
+        return this.variables[this.positions[name]].type = type;
+      } else {
+        return this.positions[name] = this.variables.push({
+          name: name,
+          type: type
+        }) - 1;
+      }
+    };
+
+    Scope.prototype.find = function(name, options) {
+      if (this.check(name, options)) return true;
+      this.add(name, 'var');
+      return false;
+    };
+
+    Scope.prototype.parameter = function(name) {
+      if (this.shared && this.parent.check(name, true)) return;
+      return this.add(name, 'param');
+    };
+
+    Scope.prototype.check = function(name, immediate) {
+      var found, _ref2;
+      found = !!this.type(name);
+      if (found || immediate) return found;
+      return !!((_ref2 = this.parent) != null ? _ref2.check(name) : void 0);
+    };
+
+    Scope.prototype.temporary = function(name, index) {
+      if (name.length > 1) {
+        return '_' + name + (index > 1 ? index : '');
+      } else {
+        return '_' + (index + parseInt(name, 36)).toString(36).replace(/\d/g, 'a');
+      }
+    };
+
+    Scope.prototype.type = function(name) {
+      var v, _i, _len, _ref2;
+      _ref2 = this.variables;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        v = _ref2[_i];
+        if (v.name === name) return v.type;
+      }
+      return null;
+    };
+
+    Scope.prototype.freeVariable = function(name, reserve) {
+      var index, temp;
+      if (reserve == null) reserve = true;
+      index = 0;
+      while (this.check((temp = this.temporary(name, index)))) {
+        index++;
+      }
+      if (reserve) this.add(temp, 'var', true);
+      return temp;
+    };
+
+    Scope.prototype.assign = function(name, value) {
+      this.add(name, {
+        value: value,
+        assigned: true
+      }, true);
+      return this.hasAssignments = true;
+    };
+
+    Scope.prototype.hasDeclarations = function() {
+      return !!this.declaredVariables().length;
+    };
+
+    Scope.prototype.declaredVariables = function() {
+      var realVars, tempVars, v, _i, _len, _ref2;
+      realVars = [];
+      tempVars = [];
+      _ref2 = this.variables;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        v = _ref2[_i];
+        if (v.type === 'var') {
+          (v.name.charAt(0) === '_' ? tempVars : realVars).push(v.name);
+        }
+      }
+      return realVars.sort().concat(tempVars.sort());
+    };
+
+    Scope.prototype.assignedVariables = function() {
+      var v, _i, _len, _ref2, _results;
+      _ref2 = this.variables;
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        v = _ref2[_i];
+        if (v.type.assigned) _results.push("" + v.name + " = " + v.type.value);
+      }
+      return _results;
+    };
+
+    return Scope;
+
+  })();
+
+}).call(this);
+
+};require['./iced'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var C, Deferrals, Rendezvous, catchExceptions, exceptionHandler, findDeferral, makeDeferReturn, stackWalk, tickCounter, __active_trace, __c,
+    __slice = [].slice;
+
+  exports.transform = function(x) {
+    return x.icedTransform();
+  };
+
+  exports["const"] = C = {
+    k: "__iced_k",
+    param: "__iced_p_",
+    ns: "iced",
+    Deferrals: "Deferrals",
+    deferrals: "__iced_deferrals",
+    fulfill: "_fulfill",
+    b_while: "_break",
+    t_while: "_while",
+    c_while: "_continue",
+    n_while: "_next",
+    n_arg: "__iced_next_arg",
+    defer_method: "defer",
+    slot: "__slot",
+    assign_fn: "assign_fn",
+    runtime: "icedrun",
+    autocb: "autocb",
+    retslot: "ret",
+    trace: "__iced_trace",
+    passed_deferral: "__iced_passed_deferral",
+    findDeferral: "findDeferral",
+    lineno: "lineno",
+    parent: "parent",
+    filename: "filename",
+    funcname: "funcname",
+    catchExceptions: 'catchExceptions',
+    runtime_modes: ["node", "inline", "window", "none"]
+  };
+
+  makeDeferReturn = function(obj, defer_args, id, trace_template) {
+    var k, ret, trace, v;
+    trace = {};
+    for (k in trace_template) {
+      v = trace_template[k];
+      trace[k] = v;
+    }
+    trace[C.lineno] = defer_args != null ? defer_args[C.lineno] : void 0;
+    ret = function() {
+      var inner_args, _ref;
+      inner_args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (defer_args != null) {
+        if ((_ref = defer_args.assign_fn) != null) _ref.apply(null, inner_args);
+      }
+      return obj._fulfill(id, trace);
+    };
+    ret[C.trace] = trace;
+    return ret;
+  };
+
+  __c = 0;
+
+  tickCounter = function(mod) {
+    __c++;
+    if ((__c % mod) === 0) {
+      __c = 0;
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  __active_trace = null;
+
+  Deferrals = (function() {
+
+    Deferrals.name = 'Deferrals';
+
+    function Deferrals(k, trace) {
+      this.trace = trace;
+      this.continuation = k;
+      this.count = 1;
+      this.ret = null;
+    }
+
+    Deferrals.prototype._call = function(trace) {
+      __active_trace = trace;
+      return this.continuation(this.ret);
+    };
+
+    Deferrals.prototype._fulfill = function(id, trace) {
+      var _this = this;
+      if (--this.count === 0) {
+        if (tickCounter(500)) {
+          return process.nextTick((function() {
+            return _this._call(trace);
+          }));
+        } else {
+          return this._call(trace);
+        }
+      }
+    };
+
+    Deferrals.prototype.defer = function(args) {
+      var self;
+      this.count++;
+      self = this;
+      return makeDeferReturn(self, args, null, this.trace);
+    };
+
+    return Deferrals;
+
+  })();
+
+  findDeferral = function(args) {
+    var a, _i, _len;
+    for (_i = 0, _len = args.length; _i < _len; _i++) {
+      a = args[_i];
+      if (a != null ? a[C.trace] : void 0) return a;
+    }
+    return null;
+  };
+
+  Rendezvous = (function() {
+    var RvId;
+
+    Rendezvous.name = 'Rendezvous';
+
+    function Rendezvous() {
+      this.completed = [];
+      this.waiters = [];
+      this.defer_id = 0;
+      this[C.deferrals] = this;
+    }
+
+    RvId = (function() {
+
+      RvId.name = 'RvId';
+
+      function RvId(rv, id) {
+        this.rv = rv;
+        this.id = id;
+      }
+
+      RvId.prototype.defer = function(defer_args) {
+        return this.rv._deferWithId(this.id, defer_args);
+      };
+
+      return RvId;
+
+    })();
+
+    Rendezvous.prototype.wait = function(cb) {
+      var x;
+      if (this.completed.length) {
+        x = this.completed.shift();
+        return cb(x);
+      } else {
+        return this.waiters.push(cb);
+      }
+    };
+
+    Rendezvous.prototype.defer = function(defer_args) {
+      var id;
+      id = this.defer_id++;
+      return this.deferWithId(id, defer_args);
+    };
+
+    Rendezvous.prototype.id = function(i) {
+      var ret;
+      ret = {};
+      ret[C.deferrals] = new RvId(this, i);
+      return ret;
+    };
+
+    Rendezvous.prototype._fulfill = function(id, trace) {
+      var cb;
+      if (this.waiters.length) {
+        cb = this.waiters.shift();
+        return cb(id);
+      } else {
+        return this.completed.push(id);
+      }
+    };
+
+    Rendezvous.prototype._deferWithId = function(id, defer_args) {
+      this.count++;
+      return makeDeferReturn(this, defer_args, id, {});
+    };
+
+    return Rendezvous;
+
+  })();
+
+  stackWalk = function(cb) {
+    var fn, line, ret, tr, _ref;
+    ret = [];
+    tr = cb ? cb[C.trace] : __active_trace;
+    while (tr) {
+      fn = tr[C.funcname] || "<anonymous>";
+      line = "   at " + fn + " (" + tr[C.filename] + ":" + (tr[C.lineno] + 1) + ")";
+      ret.push(line);
+      tr = tr != null ? (_ref = tr[C.parent]) != null ? _ref[C.trace] : void 0 : void 0;
+    }
+    return ret;
+  };
+
+  exceptionHandler = function(err) {
+    var stack;
+    console.log(err.stack);
+    stack = stackWalk();
+    if (stack.length) {
+      console.log("Iced 'stack' trace (w/ real line numbers):");
+      return console.log(stack.join("\n"));
+    }
+  };
+
+  catchExceptions = function() {
+    return process.on('uncaughtException', function(err) {
+      exceptionHandler(err);
+      return process.exit(1);
+    });
+  };
+
+  exports.runtime = {
+    Deferrals: Deferrals,
+    Rendezvous: Rendezvous,
+    findDeferral: findDeferral,
+    stackWalk: stackWalk,
+    exceptionHandler: exceptionHandler,
+    catchExceptions: catchExceptions
+  };
+
+}).call(this);
+
+};require['./nodes'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var Access, Arr, Assign, Await, Base, Block, Call, Class, Closure, Code, Comment, CpsCascade, Defer, Existence, Extends, For, IDENTIFIER, IDENTIFIER_STR, IS_STRING, IcedRequire, IcedReturnValue, IcedTailCall, If, In, Index, InlineRuntime, LEVEL_ACCESS, LEVEL_COND, LEVEL_LIST, LEVEL_OP, LEVEL_PAREN, LEVEL_TOP, Literal, METHOD_DEF, NEGATE, NO, NULL, Obj, Op, Param, Parens, RESERVED, Range, Return, SIMPLENUM, STRICT_PROSCRIBED, Scope, Slice, Slot, Splat, Switch, TAB, THIS, Throw, Try, UTILITIES, Value, While, YES, compact, del, ends, extend, flatten, iced, last, merge, multident, starts, unfoldSoak, utility, _ref, _ref2,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  Scope = require('./scope').Scope;
+
+  _ref = require('./lexer'), RESERVED = _ref.RESERVED, STRICT_PROSCRIBED = _ref.STRICT_PROSCRIBED;
+
+  iced = require('./iced');
+
+  _ref2 = require('./helpers'), compact = _ref2.compact, flatten = _ref2.flatten, extend = _ref2.extend, merge = _ref2.merge, del = _ref2.del, starts = _ref2.starts, ends = _ref2.ends, last = _ref2.last;
+
+  exports.extend = extend;
+
+  YES = function() {
+    return true;
+  };
+
+  NO = function() {
+    return false;
+  };
+
+  THIS = function() {
+    return this;
+  };
+
+  NEGATE = function() {
+    this.negated = !this.negated;
+    return this;
+  };
+
+  NULL = function() {
+    return new Value(new Literal('null'));
+  };
+
+  exports.Base = Base = (function() {
+
+    Base.name = 'Base';
+
+    function Base() {
+      this.icedContinuationBlock = null;
+      this.icedPrequels = [];
+      this.icedLoopFlag = false;
+      this.icedNodeFlag = false;
+      this.icedGotCpsSplitFlag = false;
+      this.icedCpsPivotFlag = false;
+      this.icedHasAutocbFlag = false;
+      this.icedParentAwait = null;
+      this.icedCallContinuationFlag = false;
+    }
+
+    Base.prototype.compile = function(o, lvl) {
+      var node;
+      o = extend({}, o);
+      if (lvl) o.level = lvl;
+      node = this.unfoldSoak(o) || this;
+      node.tab = o.indent;
+      if (node.icedHasContinuation() && !node.icedGotCpsSplitFlag) {
+        return node.compileCps(o);
+      } else if (o.level === LEVEL_TOP || !node.isStatement(o)) {
+        return node.compileNode(o);
+      } else {
+        return node.compileClosure(o);
+      }
+    };
+
+    Base.prototype.compileClosure = function(o) {
+      if (this.jumps()) {
+        throw SyntaxError('cannot use a pure statement in an expression.');
+      }
+      o.sharedScope = true;
+      this.icedClearAutocbFlags();
+      return Closure.wrap(this).compileNode(o);
+    };
+
+    Base.prototype.compileCps = function(o) {
+      var code, k, l, pb;
+      this.icedGotCpsSplitFlag = true;
+      if ((l = this.icedPrequels.length)) {
+        k = this.icedContinuationBlock ? [this, this.icedContinuationBlock] : this.icedWrapContinuation() ? new IcedTailCall(null, this) : this;
+        while (l--) {
+          pb = this.icedPrequels[l];
+          k = CpsCascade.wrap(pb.block, k, pb.retval, o);
+        }
+        code = k;
+      } else {
+        code = CpsCascade.wrap(this, this.icedContinuationBlock, null, o);
+      }
+      return code.compile(o);
+    };
+
+    Base.prototype.cache = function(o, level, reused) {
+      var ref, sub;
+      if (!this.isComplex()) {
+        ref = level ? this.compile(o, level) : this;
+        return [ref, ref];
+      } else {
+        ref = new Literal(reused || o.scope.freeVariable('ref'));
+        sub = new Assign(ref, this);
+        if (level) {
+          return [sub.compile(o, level), ref.value];
+        } else {
+          return [sub, ref];
+        }
+      }
+    };
+
+    Base.prototype.compileLoopReference = function(o, name) {
+      var src, tmp;
+      src = tmp = this.compile(o, LEVEL_LIST);
+      if (!((-Infinity < +src && +src < Infinity) || IDENTIFIER.test(src) && o.scope.check(src, true))) {
+        src = "" + (tmp = o.scope.freeVariable(name)) + " = " + src;
+      }
+      return [src, tmp];
+    };
+
+    Base.prototype.makeReturn = function(res) {
+      var me;
+      me = this.unwrapAll();
+      if (res) {
+        return new Call(new Literal("" + res + ".push"), [me]);
+      } else {
+        return new Return(me, this.icedHasAutocbFlag);
+      }
+    };
+
+    Base.prototype.contains = function(pred) {
+      var contains;
+      contains = false;
+      this.traverseChildren(false, function(node) {
+        if (pred(node)) {
+          contains = true;
+          return false;
+        }
+      });
+      return contains;
+    };
+
+    Base.prototype.containsType = function(type) {
+      return this instanceof type || this.contains(function(node) {
+        return node instanceof type;
+      });
+    };
+
+    Base.prototype.lastNonComment = function(list) {
+      var i;
+      i = list.length;
+      while (i--) {
+        if (!(list[i] instanceof Comment)) return list[i];
+      }
+      return null;
+    };
+
+    Base.prototype.toString = function(idt, name) {
+      var b, extras, pidt, tree, _i, _len, _ref3;
+      if (idt == null) idt = '';
+      if (name == null) name = this.constructor.name;
+      extras = "";
+      if (this.icedNodeFlag) extras += "A";
+      if (this.icedLoopFlag) extras += "L";
+      if (this.icedCpsPivotFlag) extras += "P";
+      if (this.icedHasAutocbFlag) extras += "C";
+      if (this.icedParentAwait) extras += "D";
+      if (extras.length) extras = " (" + extras + ")";
+      tree = '\n' + idt + name;
+      if (this.soak) tree += '?';
+      tree += extras;
+      _ref3 = this.icedPrequels;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        b = _ref3[_i];
+        pidt = idt + TAB;
+        tree += '\n' + pidt + "Prequel";
+        tree += b.block.toString(pidt + TAB);
+      }
+      this.eachChild(function(node) {
+        return tree += node.toString(idt + TAB);
+      });
+      if (this.icedContinuationBlock) {
+        idt += TAB;
+        tree += '\n' + idt + "Continuation";
+        tree += this.icedContinuationBlock.toString(idt + TAB);
+      }
+      return tree;
+    };
+
+    Base.prototype.eachChild = function(func) {
+      var attr, child, _i, _j, _len, _len2, _ref3, _ref4;
+      if (!this.children) return this;
+      _ref3 = this.children;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        attr = _ref3[_i];
+        if (this[attr]) {
+          _ref4 = flatten([this[attr]]);
+          for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+            child = _ref4[_j];
+            if (func(child) === false) return this;
+          }
+        }
+      }
+      return this;
+    };
+
+    Base.prototype.traverseChildren = function(crossScope, func) {
+      return this.eachChild(function(child) {
+        if (func(child) === false) return false;
+        return child.traverseChildren(crossScope, func);
+      });
+    };
+
+    Base.prototype.invert = function() {
+      return new Op('!', this);
+    };
+
+    Base.prototype.unwrapAll = function() {
+      var node;
+      node = this;
+      while (node !== (node = node.unwrap())) {
+        continue;
+      }
+      return node;
+    };
+
+    Base.prototype.flattenChildren = function() {
+      var attr, child, out, _i, _j, _len, _len2, _ref3, _ref4;
+      out = [];
+      _ref3 = this.children;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        attr = _ref3[_i];
+        if (this[attr]) {
+          _ref4 = flatten([this[attr]]);
+          for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+            child = _ref4[_j];
+            out.push(child);
+          }
+        }
+      }
+      return out;
+    };
+
+    Base.prototype.icedWalkAst = function(p, o) {
+      var child, _i, _len, _ref3;
+      this.icedParentAwait = p;
+      this.icedHasAutocbFlag = o.foundAutocb;
+      _ref3 = this.flattenChildren();
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        child = _ref3[_i];
+        if (child.icedWalkAst(p, o)) this.icedNodeFlag = true;
+      }
+      return this.icedNodeFlag;
+    };
+
+    Base.prototype.icedWalkAstLoops = function(flood) {
+      var child, _i, _len, _ref3;
+      if (this.isLoop() && this.icedNodeFlag) flood = true;
+      if (this.isLoop() && !this.icedNodeFlag) flood = false;
+      this.icedLoopFlag = flood;
+      _ref3 = this.flattenChildren();
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        child = _ref3[_i];
+        if (child.icedWalkAstLoops(flood)) this.icedLoopFlag = true;
+      }
+      return this.icedLoopFlag;
+    };
+
+    Base.prototype.icedWalkCpsPivots = function() {
+      var child, _i, _len, _ref3;
+      if (this.icedNodeFlag || (this.icedLoopFlag && this.icedIsJump())) {
+        this.icedCpsPivotFlag = true;
+      }
+      _ref3 = this.flattenChildren();
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        child = _ref3[_i];
+        if (child.icedWalkCpsPivots()) this.icedCpsPivotFlag = true;
+      }
+      return this.icedCpsPivotFlag;
+    };
+
+    Base.prototype.icedClearAutocbFlags = function() {
+      this.icedHasAutocbFlag = false;
+      return this.traverseChildren(false, function(node) {
+        node.icedHasAutocbFlag = false;
+        return true;
+      });
+    };
+
+    Base.prototype.children = [];
+
+    Base.prototype.icedCpsRotate = function() {
+      var child, _i, _len, _ref3;
+      _ref3 = this.flattenChildren();
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        child = _ref3[_i];
+        child.icedCpsRotate();
+      }
+      return this;
+    };
+
+    Base.prototype.icedCpsExprRotate = function(v) {
+      var doRotate;
+      doRotate = v.icedIsIcedExpr();
+      if (doRotate) v.icedCallContinuation();
+      v.icedCpsRotate();
+      if (doRotate) {
+        return this.icedNestPrequelBlock(v);
+      } else {
+        return null;
+      }
+    };
+
+    Base.prototype.icedIsCpsPivot = function() {
+      return this.icedCpsPivotFlag;
+    };
+
+    Base.prototype.icedNestContinuationBlock = function(b) {
+      return this.icedContinuationBlock = b;
+    };
+
+    Base.prototype.icedHasContinuation = function() {
+      var _ref3;
+      return !!this.icedContinuationBlock || ((_ref3 = this.icedPrequels) != null ? _ref3.length : void 0);
+    };
+
+    Base.prototype.icedCallContinuation = function() {
+      return this.icedCallContinuationFlag = true;
+    };
+
+    Base.prototype.icedWrapContinuation = NO;
+
+    Base.prototype.icedIsJump = NO;
+
+    Base.prototype.icedIsIcedExpr = function() {
+      return (!(this instanceof Code)) && this.icedNodeFlag;
+    };
+
+    Base.prototype.icedNestPrequelBlock = function(bb) {
+      var obj, rv;
+      rv = new IcedReturnValue();
+      obj = this.icedParentAwait || this;
+      obj.icedPrequels.push({
+        block: bb,
+        retval: rv
+      });
+      return rv;
+    };
+
+    Base.prototype.icedUnwrap = function(e) {
+      if (e.icedHasContinuation() && this.icedHasContinuation()) {
+        return this;
+      } else {
+        if (this.icedHasContinuation()) {
+          e.icedContinuationBlock = this.icedContinuationBlock;
+          e.icedPrequels = this.icedPrequels;
+        }
+        return e;
+      }
+    };
+
+    Base.prototype.isStatement = NO;
+
+    Base.prototype.jumps = NO;
+
+    Base.prototype.isComplex = YES;
+
+    Base.prototype.isChainable = NO;
+
+    Base.prototype.isAssignable = NO;
+
+    Base.prototype.isLoop = NO;
+
+    Base.prototype.unwrap = THIS;
+
+    Base.prototype.unfoldSoak = NO;
+
+    Base.prototype.assigns = NO;
+
+    return Base;
+
+  })();
+
+  exports.Block = Block = (function(_super) {
+
+    __extends(Block, _super);
+
+    Block.name = 'Block';
+
+    function Block(nodes) {
+      Block.__super__.constructor.call(this);
+      this.expressions = compact(flatten(nodes || []));
+    }
+
+    Block.prototype.children = ['expressions'];
+
+    Block.prototype.push = function(node) {
+      this.expressions.push(node);
+      return this;
+    };
+
+    Block.prototype.pop = function() {
+      return this.expressions.pop();
+    };
+
+    Block.prototype.unshift = function(node) {
+      this.expressions.unshift(node);
+      return this;
+    };
+
+    Block.prototype.unwrap = function() {
+      if (this.expressions.length === 1) {
+        return this.icedUnwrap(this.expressions[0]);
+      } else {
+        return this;
+      }
+    };
+
+    Block.prototype.getSingle = function() {
+      if (this.expressions.length === 1) {
+        return this.expressions[0];
+      } else {
+        return null;
+      }
+    };
+
+    Block.prototype.isEmpty = function() {
+      return !this.expressions.length;
+    };
+
+    Block.prototype.isStatement = function(o) {
+      var exp, _i, _len, _ref3;
+      _ref3 = this.expressions;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        exp = _ref3[_i];
+        if (exp.isStatement(o)) return true;
+      }
+      return false;
+    };
+
+    Block.prototype.jumps = function(o) {
+      var exp, _i, _len, _ref3;
+      _ref3 = this.expressions;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        exp = _ref3[_i];
+        if (exp.jumps(o)) return exp;
+      }
+    };
+
+    Block.prototype.icedThreadReturn = function(call) {
+      var expr, foundReturn, len;
+      call = call || new IcedTailCall;
+      len = this.expressions.length;
+      foundReturn = false;
+      while (len--) {
+        expr = this.expressions[len];
+        if (expr.isStatement()) break;
+        if (!(expr instanceof Comment) && !(expr instanceof Return)) {
+          call.assignValue(expr);
+          this.expressions[len] = call;
+          return;
+        }
+      }
+      return this.expressions.push(call);
+    };
+
+    Block.prototype.makeReturn = function(res) {
+      var expr, foundReturn, len;
+      len = this.expressions.length;
+      foundReturn = false;
+      while (len--) {
+        expr = this.expressions[len];
+        if (!(expr instanceof Comment)) {
+          this.expressions[len] = expr.makeReturn(res);
+          if (expr instanceof Return && !expr.expression && !expr.icedHasAutocbFlag) {
+            this.expressions.splice(len, 1);
+            foundReturn = true;
+          } else if (!(expr instanceof If) || expr.elseBody) {
+            foundReturn = true;
+          }
+          break;
+        }
+      }
+      if (this.icedHasAutocbFlag && !this.icedNodeFlag && !foundReturn) {
+        this.expressions.push(new Return(null, true));
+      }
+      return this;
+    };
+
+    Block.prototype.compileCps = function(o) {
+      this.icedGotCpsSplitFlag = true;
+      if (this.expressions.length > 1) {
+        return Block.__super__.compileCps.call(this, o);
+      } else {
+        return this.compileNode(o);
+      }
+    };
+
+    Block.prototype.compile = function(o, level) {
+      if (o == null) o = {};
+      if (o.scope) {
+        return Block.__super__.compile.call(this, o, level);
+      } else {
+        return this.compileRoot(o);
+      }
+    };
+
+    Block.prototype.compileNode = function(o) {
+      var code, codes, node, top, _i, _len, _ref3;
+      this.tab = o.indent;
+      top = o.level === LEVEL_TOP;
+      codes = [];
+      _ref3 = this.expressions;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        node = _ref3[_i];
+        node = node.unwrapAll();
+        node = node.unfoldSoak(o) || node;
+        if (node instanceof Block) {
+          codes.push(node.compileNode(o));
+        } else if (top) {
+          node.front = true;
+          code = node.compile(o);
+          if (!node.isStatement(o)) {
+            code = "" + this.tab + code + ";";
+            if (node instanceof Literal) code = "" + code + "\n";
+          }
+          codes.push(code);
+        } else {
+          codes.push(node.compile(o, LEVEL_LIST));
+        }
+      }
+      if (top) {
+        if (this.spaced) {
+          return "\n" + (codes.join('\n\n')) + "\n";
+        } else {
+          return codes.join('\n');
+        }
+      }
+      code = codes.join(', ') || 'void 0';
+      if (codes.length > 1 && o.level >= LEVEL_LIST) {
+        return "(" + code + ")";
+      } else {
+        return code;
+      }
+    };
+
+    Block.prototype.compileRoot = function(o) {
+      var code, exp, i, prelude, preludeExps, rest;
+      o.indent = o.bare ? '' : TAB;
+      o.scope = new Scope(null, this, null);
+      o.level = LEVEL_TOP;
+      this.spaced = true;
+      prelude = "";
+      if (!o.bare) {
+        preludeExps = (function() {
+          var _i, _len, _ref3, _results;
+          _ref3 = this.expressions;
+          _results = [];
+          for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+            exp = _ref3[i];
+            if (!(exp.unwrap() instanceof Comment)) break;
+            _results.push(exp);
+          }
+          return _results;
+        }).call(this);
+        rest = this.expressions.slice(preludeExps.length);
+        this.expressions = preludeExps;
+        if (preludeExps.length) {
+          prelude = "" + (this.compileNode(merge(o, {
+            indent: ''
+          }))) + "\n";
+        }
+        this.expressions = rest;
+      }
+      code = this.compileWithDeclarations(o);
+      if (o.bare) return code;
+      return "" + prelude + "(function() {\n" + code + "\n}).call(this);\n";
+    };
+
+    Block.prototype.compileWithDeclarations = function(o) {
+      var assigns, code, declars, exp, i, post, rest, scope, spaced, _i, _len, _ref3, _ref4, _ref5;
+      code = post = '';
+      _ref3 = this.expressions;
+      for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+        exp = _ref3[i];
+        exp = exp.unwrap();
+        if (!(exp instanceof Comment || exp instanceof Literal)) break;
+      }
+      o = merge(o, {
+        level: LEVEL_TOP
+      });
+      if (i) {
+        rest = this.expressions.splice(i, 9e9);
+        _ref4 = [this.spaced, false], spaced = _ref4[0], this.spaced = _ref4[1];
+        _ref5 = [this.compileNode(o), spaced], code = _ref5[0], this.spaced = _ref5[1];
+        this.expressions = rest;
+      }
+      post = this.compileNode(o);
+      scope = o.scope;
+      if (scope.expressions === this) {
+        declars = o.scope.hasDeclarations();
+        assigns = scope.hasAssignments;
+        if (declars || assigns) {
+          if (i) code += '\n';
+          code += "" + this.tab + "var ";
+          if (declars) code += scope.declaredVariables().join(', ');
+          if (assigns) {
+            if (declars) code += ",\n" + (this.tab + TAB);
+            code += scope.assignedVariables().join(",\n" + (this.tab + TAB));
+          }
+          code += ';\n';
+        }
+      }
+      return code + post;
+    };
+
+    Block.prototype.icedCpsRotate = function() {
+      var child, e, i, pivot, rest, _i, _j, _len, _len2, _ref3;
+      pivot = null;
+      _ref3 = this.expressions;
+      for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+        e = _ref3[i];
+        if (e.icedIsCpsPivot()) {
+          pivot = e;
+          pivot.icedCallContinuation();
+        }
+        e.icedCpsRotate();
+        if (pivot) break;
+      }
+      if (!pivot) return this;
+      if (pivot.icedContinuationBlock) {
+        throw SyntaxError("unexpected continuation block in node");
+      }
+      rest = this.expressions.slice(i + 1);
+      this.expressions = this.expressions.slice(0, i + 1);
+      if (rest.length) {
+        child = new Block(rest);
+        pivot.icedNestContinuationBlock(child);
+        for (_j = 0, _len2 = rest.length; _j < _len2; _j++) {
+          e = rest[_j];
+          if (e.icedNodeFlag) child.icedNodeFlag = true;
+          if (e.icedLoopFlag) child.icedLoopFlag = true;
+          if (e.icedCpsPivotFlag) child.icedCpsPivotFlag = true;
+          if (e.icedHasAutocbFlag) child.icedHasAutocbFlag = true;
+        }
+        child.icedCpsRotate();
+      }
+      return this;
+    };
+
+    Block.wrap = function(nodes) {
+      if (nodes.length === 1 && nodes[0] instanceof Block) return nodes[0];
+      return new Block(nodes);
+    };
+
+    Block.prototype.endsInAwait = function() {
+      var _ref3;
+      return ((_ref3 = this.expressions) != null ? _ref3.length : void 0) && this.expressions[this.expressions.length - 1] instanceof Await;
+    };
+
+    Block.prototype.icedAddRuntime = function(foundDefer) {
+      return this.expressions.unshift(new IcedRequire(foundDefer));
+    };
+
+    Block.prototype.icedTransform = function() {
+      var obj;
+      obj = {};
+      this.icedWalkAst(null, obj);
+      if (obj.foundAwait) {
+        this.icedAddRuntime(obj.foundDefer);
+        this.icedWalkAstLoops(false);
+        this.icedWalkCpsPivots();
+        this.icedCpsRotate();
+      }
+      return this;
+    };
+
+    return Block;
+
+  })(Base);
+
+  exports.Literal = Literal = (function(_super) {
+
+    __extends(Literal, _super);
+
+    Literal.name = 'Literal';
+
+    function Literal(value) {
+      this.value = value;
+      Literal.__super__.constructor.call(this);
+    }
+
+    Literal.prototype.makeReturn = function() {
+      if (this.isStatement()) {
+        return this;
+      } else {
+        return Literal.__super__.makeReturn.apply(this, arguments);
+      }
+    };
+
+    Literal.prototype.isAssignable = function() {
+      return IDENTIFIER.test(this.value);
+    };
+
+    Literal.prototype.isStatement = function() {
+      var _ref3;
+      return (_ref3 = this.value) === 'break' || _ref3 === 'continue' || _ref3 === 'debugger';
+    };
+
+    Literal.prototype.isComplex = NO;
+
+    Literal.prototype.icedIsJump = function() {
+      return this.isStatement();
+    };
+
+    Literal.prototype.assigns = function(name) {
+      return name === this.value;
+    };
+
+    Literal.prototype.compileIced = function(o) {
+      var call, d, func, l;
+      d = {
+        'continue': iced["const"].c_while,
+        'break': iced["const"].b_while
+      };
+      l = d[this.value];
+      func = new Value(new Literal(l));
+      call = new Call(func, []);
+      return call.compile(o);
+    };
+
+    Literal.prototype.jumps = function(o) {
+      if (this.value === 'break' && !((o != null ? o.loop : void 0) || (o != null ? o.block : void 0))) {
+        return this;
+      }
+      if (this.value === 'continue' && !(o != null ? o.loop : void 0)) return this;
+    };
+
+    Literal.prototype.compileNode = function(o) {
+      var code, _ref3;
+      code = this.isUndefined ? o.level >= LEVEL_ACCESS ? '(void 0)' : 'void 0' : this.value === 'this' ? ((_ref3 = o.scope.method) != null ? _ref3.bound : void 0) ? o.scope.method.context : this.value : this.value.reserved ? "\"" + this.value + "\"" : this.icedLoopFlag && this.icedIsJump() ? this.compileIced(o) : this.value;
+      if (this.isStatement()) {
+        return "" + this.tab + code + ";";
+      } else {
+        return code;
+      }
+    };
+
+    Literal.prototype.toString = function() {
+      return ' "' + this.value + '"';
+    };
+
+    return Literal;
+
+  })(Base);
+
+  exports.Return = Return = (function(_super) {
+
+    __extends(Return, _super);
+
+    Return.name = 'Return';
+
+    function Return(expr, auto) {
+      Return.__super__.constructor.call(this);
+      this.icedHasAutocbFlag = auto;
+      if (expr && !expr.unwrap().isUndefined) this.expression = expr;
+    }
+
+    Return.prototype.children = ['expression'];
+
+    Return.prototype.isStatement = YES;
+
+    Return.prototype.makeReturn = THIS;
+
+    Return.prototype.jumps = THIS;
+
+    Return.prototype.compile = function(o, level) {
+      var expr, _ref3;
+      expr = (_ref3 = this.expression) != null ? _ref3.makeReturn() : void 0;
+      if (expr && !(expr instanceof Return)) {
+        return expr.compile(o, level);
+      } else {
+        return Return.__super__.compile.call(this, o, level);
+      }
+    };
+
+    Return.prototype.compileNode = function(o) {
+      var args, block, call, cb, ret;
+      if (this.icedHasAutocbFlag) {
+        cb = new Value(new Literal(iced["const"].autocb));
+        args = this.expression ? [this.expression] : [];
+        call = new Call(cb, args);
+        ret = new Literal("return");
+        block = new Block([call, ret]);
+        return block.compile(o);
+      } else {
+        return this.tab + ("return" + [this.expression ? " " + (this.expression.compile(o, LEVEL_PAREN)) : void 0] + ";");
+      }
+    };
+
+    return Return;
+
+  })(Base);
+
+  exports.Value = Value = (function(_super) {
+
+    __extends(Value, _super);
+
+    Value.name = 'Value';
+
+    function Value(base, props, tag) {
+      Value.__super__.constructor.call(this);
+      if (!props && base instanceof Value) return base;
+      this.base = base;
+      this.properties = props || [];
+      if (tag) this[tag] = true;
+      return this;
+    }
+
+    Value.prototype.children = ['base', 'properties'];
+
+    Value.prototype.copy = function() {
+      return new Value(this.base, this.properties);
+    };
+
+    Value.prototype.add = function(props) {
+      this.properties = this.properties.concat(props);
+      return this;
+    };
+
+    Value.prototype.hasProperties = function() {
+      return !!this.properties.length;
+    };
+
+    Value.prototype.isArray = function() {
+      return !this.properties.length && this.base instanceof Arr;
+    };
+
+    Value.prototype.isComplex = function() {
+      return this.hasProperties() || this.base.isComplex();
+    };
+
+    Value.prototype.isAssignable = function() {
+      return this.hasProperties() || this.base.isAssignable();
+    };
+
+    Value.prototype.isSimpleNumber = function() {
+      return this.base instanceof Literal && SIMPLENUM.test(this.base.value);
+    };
+
+    Value.prototype.isString = function() {
+      return this.base instanceof Literal && IS_STRING.test(this.base.value);
+    };
+
+    Value.prototype.isAtomic = function() {
+      var node, _i, _len, _ref3;
+      _ref3 = this.properties.concat(this.base);
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        node = _ref3[_i];
+        if (node.soak || node instanceof Call) return false;
+      }
+      return true;
+    };
+
+    Value.prototype.isStatement = function(o) {
+      return !this.properties.length && this.base.isStatement(o);
+    };
+
+    Value.prototype.assigns = function(name) {
+      return !this.properties.length && this.base.assigns(name);
+    };
+
+    Value.prototype.jumps = function(o) {
+      return !this.properties.length && this.base.jumps(o);
+    };
+
+    Value.prototype.isObject = function(onlyGenerated) {
+      if (this.properties.length) return false;
+      return (this.base instanceof Obj) && (!onlyGenerated || this.base.generated);
+    };
+
+    Value.prototype.isSplice = function() {
+      return last(this.properties) instanceof Slice;
+    };
+
+    Value.prototype.unwrap = function() {
+      if (this.properties.length) {
+        return this;
+      } else {
+        return this.icedUnwrap(this.base);
+      }
+    };
+
+    Value.prototype.toSlot = function() {
+      var sufffix, suffix;
+      sufffix = null;
+      if (this.properties && this.properties.length) {
+        suffix = this.properties.pop();
+      }
+      return new Slot(this, suffix);
+    };
+
+    Value.prototype.cacheReference = function(o) {
+      var base, bref, name, nref;
+      name = last(this.properties);
+      if (this.properties.length < 2 && !this.base.isComplex() && !(name != null ? name.isComplex() : void 0)) {
+        return [this, this];
+      }
+      base = new Value(this.base, this.properties.slice(0, -1));
+      if (base.isComplex()) {
+        bref = new Literal(o.scope.freeVariable('base'));
+        base = new Value(new Parens(new Assign(bref, base)));
+      }
+      if (!name) return [base, bref];
+      if (name.isComplex()) {
+        nref = new Literal(o.scope.freeVariable('name'));
+        name = new Index(new Assign(nref, name.index));
+        nref = new Index(nref);
+      }
+      return [base.add(name), new Value(bref || base.base, [nref || name])];
+    };
+
+    Value.prototype.icedWrapContinuation = YES;
+
+    Value.prototype.icedCpsRotate = function() {
+      var nv, p, _i, _len, _ref3, _results;
+      if (!this.properties.length) {
+        Value.__super__.icedCpsRotate.call(this);
+        return;
+      }
+      if ((nv = this.icedCpsExprRotate(this.base))) this.base = nv;
+      _ref3 = this.properties;
+      _results = [];
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        p = _ref3[_i];
+        if ((p.index != null) && this.icedCpsExprRotate(p.index)) {
+          _results.push(p.index = v);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Value.prototype.compileNode = function(o) {
+      var code, prop, props, _i, _len;
+      this.base.front = this.front;
+      props = this.properties;
+      code = this.base.compile(o, props.length ? LEVEL_ACCESS : null);
+      if ((this.base instanceof Parens || props.length) && SIMPLENUM.test(code)) {
+        code = "" + code + ".";
+      }
+      for (_i = 0, _len = props.length; _i < _len; _i++) {
+        prop = props[_i];
+        code += prop.compile(o);
+      }
+      return code;
+    };
+
+    Value.prototype.unfoldSoak = function(o) {
+      var result,
+        _this = this;
+      if (this.unfoldedSoak != null) return this.unfoldedSoak;
+      result = (function() {
+        var fst, i, ifn, prop, ref, snd, _i, _len, _ref3;
+        if (ifn = _this.base.unfoldSoak(o)) {
+          Array.prototype.push.apply(ifn.body.properties, _this.properties);
+          return ifn;
+        }
+        _ref3 = _this.properties;
+        for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+          prop = _ref3[i];
+          if (!prop.soak) continue;
+          prop.soak = false;
+          fst = new Value(_this.base, _this.properties.slice(0, i));
+          snd = new Value(_this.base, _this.properties.slice(i));
+          if (fst.isComplex()) {
+            ref = new Literal(o.scope.freeVariable('ref'));
+            fst = new Parens(new Assign(ref, fst));
+            snd.base = ref;
+          }
+          return new If(new Existence(fst), snd, {
+            soak: true
+          });
+        }
+        return null;
+      })();
+      return this.unfoldedSoak = result || false;
+    };
+
+    return Value;
+
+  })(Base);
+
+  exports.Comment = Comment = (function(_super) {
+
+    __extends(Comment, _super);
+
+    Comment.name = 'Comment';
+
+    function Comment(comment) {
+      this.comment = comment;
+      Comment.__super__.constructor.call(this);
+    }
+
+    Comment.prototype.isStatement = YES;
+
+    Comment.prototype.makeReturn = THIS;
+
+    Comment.prototype.compileNode = function(o, level) {
+      var code;
+      code = '/*' + multident(this.comment, this.tab) + ("\n" + this.tab + "*/\n");
+      if ((level || o.level) === LEVEL_TOP) code = o.indent + code;
+      return code;
+    };
+
+    return Comment;
+
+  })(Base);
+
+  exports.Call = Call = (function(_super) {
+
+    __extends(Call, _super);
+
+    Call.name = 'Call';
+
+    function Call(variable, args, soak) {
+      this.args = args != null ? args : [];
+      this.soak = soak;
+      Call.__super__.constructor.call(this);
+      this.isNew = false;
+      this.isSuper = variable === 'super';
+      this.variable = this.isSuper ? null : variable;
+    }
+
+    Call.prototype.children = ['variable', 'args'];
+
+    Call.prototype.newInstance = function() {
+      var base, _ref3;
+      base = ((_ref3 = this.variable) != null ? _ref3.base : void 0) || this.variable;
+      if (base instanceof Call && !base.isNew) {
+        base.newInstance();
+      } else {
+        this.isNew = true;
+      }
+      return this;
+    };
+
+    Call.prototype.superReference = function(o) {
+      var accesses, method, name;
+      method = o.scope.method;
+      if (!method) throw SyntaxError('cannot call super outside of a function.');
+      name = method.name;
+      if (name == null) {
+        throw SyntaxError('cannot call super on an anonymous function.');
+      }
+      if (method.klass) {
+        accesses = [new Access(new Literal('__super__'))];
+        if (method["static"]) {
+          accesses.push(new Access(new Literal('constructor')));
+        }
+        accesses.push(new Access(new Literal(name)));
+        return (new Value(new Literal(method.klass), accesses)).compile(o);
+      } else {
+        return "" + name + ".__super__.constructor";
+      }
+    };
+
+    Call.prototype.icedWrapContinuation = YES;
+
+    Call.prototype.icedCpsRotate = function() {
+      var a, i, v, _i, _len, _ref3;
+      _ref3 = this.args;
+      for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+        a = _ref3[i];
+        if ((v = this.icedCpsExprRotate(a))) this.args[i] = v;
+      }
+      if (this.variable && (v = this.icedCpsExprRotate(this.variable))) {
+        return this.variable = v;
+      }
+    };
+
+    Call.prototype.unfoldSoak = function(o) {
+      var call, ifn, left, list, rite, _i, _len, _ref3, _ref4;
+      if (this.soak) {
+        if (this.variable) {
+          if (ifn = unfoldSoak(o, this, 'variable')) return ifn;
+          _ref3 = new Value(this.variable).cacheReference(o), left = _ref3[0], rite = _ref3[1];
+        } else {
+          left = new Literal(this.superReference(o));
+          rite = new Value(left);
+        }
+        rite = new Call(rite, this.args);
+        rite.isNew = this.isNew;
+        left = new Literal("typeof " + (left.compile(o)) + " === \"function\"");
+        return new If(left, new Value(rite), {
+          soak: true
+        });
+      }
+      call = this;
+      list = [];
+      while (true) {
+        if (call.variable instanceof Call) {
+          list.push(call);
+          call = call.variable;
+          continue;
+        }
+        if (!(call.variable instanceof Value)) break;
+        list.push(call);
+        if (!((call = call.variable.base) instanceof Call)) break;
+      }
+      _ref4 = list.reverse();
+      for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+        call = _ref4[_i];
+        if (ifn) {
+          if (call.variable instanceof Call) {
+            call.variable = ifn;
+          } else {
+            call.variable.base = ifn;
+          }
+        }
+        ifn = unfoldSoak(o, call, 'variable');
+      }
+      return ifn;
+    };
+
+    Call.prototype.filterImplicitObjects = function(list) {
+      var node, nodes, obj, prop, properties, _i, _j, _len, _len2, _ref3;
+      nodes = [];
+      for (_i = 0, _len = list.length; _i < _len; _i++) {
+        node = list[_i];
+        if (!((typeof node.isObject === "function" ? node.isObject() : void 0) && node.base.generated)) {
+          nodes.push(node);
+          continue;
+        }
+        obj = null;
+        _ref3 = node.base.properties;
+        for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+          prop = _ref3[_j];
+          if (prop instanceof Assign || prop instanceof Comment) {
+            if (!obj) nodes.push(obj = new Obj(properties = [], true));
+            properties.push(prop);
+          } else {
+            nodes.push(prop);
+            obj = null;
+          }
+        }
+      }
+      return nodes;
+    };
+
+    Call.prototype.compileNode = function(o) {
+      var arg, args, code, _ref3;
+      if ((_ref3 = this.variable) != null) _ref3.front = this.front;
+      if (code = Splat.compileSplattedArray(o, this.args, true)) {
+        return this.compileSplat(o, code);
+      }
+      args = this.filterImplicitObjects(this.args);
+      args = ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = args.length; _i < _len; _i++) {
+          arg = args[_i];
+          _results.push(arg.compile(o, LEVEL_LIST));
+        }
+        return _results;
+      })()).join(', ');
+      if (this.isSuper) {
+        return this.superReference(o) + (".call(this" + (args && ', ' + args) + ")");
+      } else {
+        return (this.isNew ? 'new ' : '') + this.variable.compile(o, LEVEL_ACCESS) + ("(" + args + ")");
+      }
+    };
+
+    Call.prototype.compileSuper = function(args, o) {
+      return "" + (this.superReference(o)) + ".call(this" + (args.length ? ', ' : '') + args + ")";
+    };
+
+    Call.prototype.compileSplat = function(o, splatArgs) {
+      var base, fun, idt, name, ref;
+      if (this.isSuper) {
+        return "" + (this.superReference(o)) + ".apply(this, " + splatArgs + ")";
+      }
+      if (this.isNew) {
+        idt = this.tab + TAB;
+        return "(function(func, args, ctor) {\n" + idt + "ctor.prototype = func.prototype;\n" + idt + "var child = new ctor, result = func.apply(child, args);\n" + idt + "return typeof result === \"object\" ? result : child;\n" + this.tab + "})(" + (this.variable.compile(o, LEVEL_LIST)) + ", " + splatArgs + ", function() {})";
+      }
+      base = new Value(this.variable);
+      if ((name = base.properties.pop()) && base.isComplex()) {
+        ref = o.scope.freeVariable('ref');
+        fun = "(" + ref + " = " + (base.compile(o, LEVEL_LIST)) + ")" + (name.compile(o));
+      } else {
+        fun = base.compile(o, LEVEL_ACCESS);
+        if (SIMPLENUM.test(fun)) fun = "(" + fun + ")";
+        if (name) {
+          ref = fun;
+          fun += name.compile(o);
+        } else {
+          ref = 'null';
+        }
+      }
+      return "" + fun + ".apply(" + ref + ", " + splatArgs + ")";
+    };
+
+    return Call;
+
+  })(Base);
+
+  exports.Extends = Extends = (function(_super) {
+
+    __extends(Extends, _super);
+
+    Extends.name = 'Extends';
+
+    function Extends(child, parent) {
+      this.child = child;
+      this.parent = parent;
+      Extends.__super__.constructor.call(this);
+    }
+
+    Extends.prototype.children = ['child', 'parent'];
+
+    Extends.prototype.compile = function(o) {
+      return new Call(new Value(new Literal(utility('extends'))), [this.child, this.parent]).compile(o);
+    };
+
+    return Extends;
+
+  })(Base);
+
+  exports.Access = Access = (function(_super) {
+
+    __extends(Access, _super);
+
+    Access.name = 'Access';
+
+    function Access(name, tag) {
+      this.name = name;
+      Access.__super__.constructor.call(this);
+      this.name.asKey = true;
+      this.soak = tag === 'soak';
+    }
+
+    Access.prototype.children = ['name'];
+
+    Access.prototype.compile = function(o) {
+      var name;
+      name = this.name.compile(o);
+      if ((IDENTIFIER.test(name)) || (this.name instanceof Defer)) {
+        return "." + name;
+      } else {
+        return "[" + name + "]";
+      }
+    };
+
+    Access.prototype.isComplex = NO;
+
+    return Access;
+
+  })(Base);
+
+  exports.Index = Index = (function(_super) {
+
+    __extends(Index, _super);
+
+    Index.name = 'Index';
+
+    function Index(index) {
+      this.index = index;
+      Index.__super__.constructor.call(this);
+    }
+
+    Index.prototype.children = ['index'];
+
+    Index.prototype.compile = function(o) {
+      return "[" + (this.index.compile(o, LEVEL_PAREN)) + "]";
+    };
+
+    Index.prototype.isComplex = function() {
+      return this.index.isComplex();
+    };
+
+    return Index;
+
+  })(Base);
+
+  exports.Range = Range = (function(_super) {
+
+    __extends(Range, _super);
+
+    Range.name = 'Range';
+
+    Range.prototype.children = ['from', 'to'];
+
+    function Range(from, to, tag) {
+      this.from = from;
+      this.to = to;
+      Range.__super__.constructor.call(this);
+      this.exclusive = tag === 'exclusive';
+      this.equals = this.exclusive ? '' : '=';
+    }
+
+    Range.prototype.compileVariables = function(o) {
+      var step, _ref3, _ref4, _ref5, _ref6;
+      o = merge(o, {
+        top: true
+      });
+      _ref3 = this.from.cache(o, LEVEL_LIST), this.fromC = _ref3[0], this.fromVar = _ref3[1];
+      _ref4 = this.to.cache(o, LEVEL_LIST), this.toC = _ref4[0], this.toVar = _ref4[1];
+      if (step = del(o, 'step')) {
+        _ref5 = step.cache(o, LEVEL_LIST), this.step = _ref5[0], this.stepVar = _ref5[1];
+      }
+      _ref6 = [this.fromVar.match(SIMPLENUM), this.toVar.match(SIMPLENUM)], this.fromNum = _ref6[0], this.toNum = _ref6[1];
+      if (this.stepVar) return this.stepNum = this.stepVar.match(SIMPLENUM);
+    };
+
+    Range.prototype.compileNode = function(o) {
+      var cond, condPart, from, gt, idx, idxName, known, lt, namedIndex, stepPart, to, varPart, _ref3, _ref4;
+      if (!this.fromVar) this.compileVariables(o);
+      if (!o.index) return this.compileArray(o);
+      known = this.fromNum && this.toNum;
+      idx = del(o, 'index');
+      idxName = del(o, 'name');
+      namedIndex = idxName && idxName !== idx;
+      varPart = "" + idx + " = " + this.fromC;
+      if (this.toC !== this.toVar) varPart += ", " + this.toC;
+      if (this.step !== this.stepVar) varPart += ", " + this.step;
+      _ref3 = ["" + idx + " <" + this.equals, "" + idx + " >" + this.equals], lt = _ref3[0], gt = _ref3[1];
+      condPart = this.stepNum ? +this.stepNum > 0 ? "" + lt + " " + this.toVar : "" + gt + " " + this.toVar : known ? ((_ref4 = [+this.fromNum, +this.toNum], from = _ref4[0], to = _ref4[1], _ref4), from <= to ? "" + lt + " " + to : "" + gt + " " + to) : (cond = "" + this.fromVar + " <= " + this.toVar, "" + cond + " ? " + lt + " " + this.toVar + " : " + gt + " " + this.toVar);
+      stepPart = this.stepVar ? "" + idx + " += " + this.stepVar : known ? namedIndex ? from <= to ? "++" + idx : "--" + idx : from <= to ? "" + idx + "++" : "" + idx + "--" : namedIndex ? "" + cond + " ? ++" + idx + " : --" + idx : "" + cond + " ? " + idx + "++ : " + idx + "--";
+      if (namedIndex) varPart = "" + idxName + " = " + varPart;
+      if (namedIndex) stepPart = "" + idxName + " = " + stepPart;
+      return "" + varPart + "; " + condPart + "; " + stepPart;
+    };
+
+    Range.prototype.compileArray = function(o) {
+      var args, body, cond, hasArgs, i, idt, post, pre, range, result, vars, _i, _ref3, _ref4, _results;
+      if (this.fromNum && this.toNum && Math.abs(this.fromNum - this.toNum) <= 20) {
+        range = (function() {
+          _results = [];
+          for (var _i = _ref3 = +this.fromNum, _ref4 = +this.toNum; _ref3 <= _ref4 ? _i <= _ref4 : _i >= _ref4; _ref3 <= _ref4 ? _i++ : _i--){ _results.push(_i); }
+          return _results;
+        }).apply(this);
+        if (this.exclusive) range.pop();
+        return "[" + (range.join(', ')) + "]";
+      }
+      idt = this.tab + TAB;
+      i = o.scope.freeVariable('i');
+      result = o.scope.freeVariable('results');
+      pre = "\n" + idt + result + " = [];";
+      if (this.fromNum && this.toNum) {
+        o.index = i;
+        body = this.compileNode(o);
+      } else {
+        vars = ("" + i + " = " + this.fromC) + (this.toC !== this.toVar ? ", " + this.toC : '');
+        cond = "" + this.fromVar + " <= " + this.toVar;
+        body = "var " + vars + "; " + cond + " ? " + i + " <" + this.equals + " " + this.toVar + " : " + i + " >" + this.equals + " " + this.toVar + "; " + cond + " ? " + i + "++ : " + i + "--";
+      }
+      post = "{ " + result + ".push(" + i + "); }\n" + idt + "return " + result + ";\n" + o.indent;
+      hasArgs = function(node) {
+        return node != null ? node.contains(function(n) {
+          return n instanceof Literal && n.value === 'arguments' && !n.asKey;
+        }) : void 0;
+      };
+      if (hasArgs(this.from) || hasArgs(this.to)) args = ', arguments';
+      return "(function() {" + pre + "\n" + idt + "for (" + body + ")" + post + "}).apply(this" + (args != null ? args : '') + ")";
+    };
+
+    return Range;
+
+  })(Base);
+
+  exports.Slice = Slice = (function(_super) {
+
+    __extends(Slice, _super);
+
+    Slice.name = 'Slice';
+
+    Slice.prototype.children = ['range'];
+
+    function Slice(range) {
+      this.range = range;
+      Slice.__super__.constructor.call(this);
+    }
+
+    Slice.prototype.compileNode = function(o) {
+      var compiled, from, fromStr, to, toStr, _ref3;
+      _ref3 = this.range, to = _ref3.to, from = _ref3.from;
+      fromStr = from && from.compile(o, LEVEL_PAREN) || '0';
+      compiled = to && to.compile(o, LEVEL_PAREN);
+      if (to && !(!this.range.exclusive && +compiled === -1)) {
+        toStr = ', ' + (this.range.exclusive ? compiled : SIMPLENUM.test(compiled) ? "" + (+compiled + 1) : (compiled = to.compile(o, LEVEL_ACCESS), "" + compiled + " + 1 || 9e9"));
+      }
+      return ".slice(" + fromStr + (toStr || '') + ")";
+    };
+
+    return Slice;
+
+  })(Base);
+
+  exports.Obj = Obj = (function(_super) {
+
+    __extends(Obj, _super);
+
+    Obj.name = 'Obj';
+
+    function Obj(props, generated) {
+      this.generated = generated != null ? generated : false;
+      Obj.__super__.constructor.call(this);
+      this.objects = this.properties = props || [];
+    }
+
+    Obj.prototype.children = ['properties'];
+
+    Obj.prototype.icedWrapContinuation = YES;
+
+    Obj.prototype.icedCpsRotate = function() {
+      var prop, v, _i, _len, _ref3, _results;
+      _ref3 = this.properties;
+      _results = [];
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        prop = _ref3[_i];
+        if (prop instanceof Assign) {
+          if ((v = this.icedCpsExprRotate(prop.value))) {
+            _results.push(prop.value = v);
+          } else {
+            _results.push(void 0);
+          }
+        }
+      }
+      return _results;
+    };
+
+    Obj.prototype.compileNode = function(o) {
+      var i, idt, indent, join, lastNoncom, node, obj, prop, propName, propNames, props, _i, _j, _len, _len2, _ref3;
+      props = this.properties;
+      propNames = [];
+      _ref3 = this.properties;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        prop = _ref3[_i];
+        if (prop.isComplex()) prop = prop.variable;
+        if (prop != null) {
+          propName = prop.unwrapAll().value.toString();
+          if (__indexOf.call(propNames, propName) >= 0) {
+            throw SyntaxError("multiple object literal properties named \"" + propName + "\"");
+          }
+          propNames.push(propName);
+        }
+      }
+      if (!props.length) return (this.front ? '({})' : '{}');
+      if (this.generated) {
+        for (_j = 0, _len2 = props.length; _j < _len2; _j++) {
+          node = props[_j];
+          if (node instanceof Value) {
+            throw new Error('cannot have an implicit value in an implicit object');
+          }
+        }
+      }
+      idt = o.indent += TAB;
+      lastNoncom = this.lastNonComment(this.properties);
+      props = (function() {
+        var _k, _len3, _results;
+        _results = [];
+        for (i = _k = 0, _len3 = props.length; _k < _len3; i = ++_k) {
+          prop = props[i];
+          join = i === props.length - 1 ? '' : prop === lastNoncom || prop instanceof Comment ? '\n' : ',\n';
+          indent = prop instanceof Comment ? '' : idt;
+          if (prop instanceof Value && prop["this"]) {
+            prop = new Assign(prop.properties[0].name, prop, 'object');
+          }
+          if (!(prop instanceof Comment)) {
+            if (!(prop instanceof Assign)) prop = new Assign(prop, prop, 'object');
+            (prop.variable.base || prop.variable).asKey = true;
+          }
+          _results.push(indent + prop.compile(o, LEVEL_TOP) + join);
+        }
+        return _results;
+      })();
+      props = props.join('');
+      obj = "{" + (props && '\n' + props + '\n' + this.tab) + "}";
+      if (this.front) {
+        return "(" + obj + ")";
+      } else {
+        return obj;
+      }
+    };
+
+    Obj.prototype.assigns = function(name) {
+      var prop, _i, _len, _ref3;
+      _ref3 = this.properties;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        prop = _ref3[_i];
+        if (prop.assigns(name)) return true;
+      }
+      return false;
+    };
+
+    return Obj;
+
+  })(Base);
+
+  exports.Arr = Arr = (function(_super) {
+
+    __extends(Arr, _super);
+
+    Arr.name = 'Arr';
+
+    function Arr(objs) {
+      Arr.__super__.constructor.call(this);
+      this.objects = objs || [];
+    }
+
+    Arr.prototype.children = ['objects'];
+
+    Arr.prototype.filterImplicitObjects = Call.prototype.filterImplicitObjects;
+
+    Arr.prototype.icedWrapContinuation = YES;
+
+    Arr.prototype.icedCpsRotate = function() {
+      var i, o, v, _i, _len, _ref3, _results;
+      _ref3 = this.objects;
+      _results = [];
+      for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+        o = _ref3[i];
+        if ((v = this.icedCpsExprRotate(o))) {
+          _results.push(this.objects[i] = v);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Arr.prototype.compileNode = function(o) {
+      var code, obj, objs;
+      if (!this.objects.length) return '[]';
+      o.indent += TAB;
+      objs = this.filterImplicitObjects(this.objects);
+      if (code = Splat.compileSplattedArray(o, objs)) return code;
+      code = ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = objs.length; _i < _len; _i++) {
+          obj = objs[_i];
+          _results.push(obj.compile(o, LEVEL_LIST));
+        }
+        return _results;
+      })()).join(', ');
+      if (code.indexOf('\n') >= 0) {
+        return "[\n" + o.indent + code + "\n" + this.tab + "]";
+      } else {
+        return "[" + code + "]";
+      }
+    };
+
+    Arr.prototype.assigns = function(name) {
+      var obj, _i, _len, _ref3;
+      _ref3 = this.objects;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        obj = _ref3[_i];
+        if (obj.assigns(name)) return true;
+      }
+      return false;
+    };
+
+    return Arr;
+
+  })(Base);
+
+  exports.Class = Class = (function(_super) {
+
+    __extends(Class, _super);
+
+    Class.name = 'Class';
+
+    function Class(variable, parent, body) {
+      this.variable = variable;
+      this.parent = parent;
+      this.body = body != null ? body : new Block;
+      Class.__super__.constructor.call(this);
+      this.boundFuncs = [];
+      this.body.classBody = true;
+    }
+
+    Class.prototype.children = ['variable', 'parent', 'body'];
+
+    Class.prototype.determineName = function() {
+      var decl, tail;
+      if (!this.variable) return null;
+      decl = (tail = last(this.variable.properties)) ? tail instanceof Access && tail.name.value : this.variable.base.value;
+      if (__indexOf.call(STRICT_PROSCRIBED, decl) >= 0) {
+        throw SyntaxError("variable name may not be " + decl);
+      }
+      return decl && (decl = IDENTIFIER.test(decl) && decl);
+    };
+
+    Class.prototype.setContext = function(name) {
+      return this.body.traverseChildren(false, function(node) {
+        if (node.classBody) return false;
+        if (node instanceof Literal && node.value === 'this') {
+          return node.value = name;
+        } else if (node instanceof Code) {
+          node.klass = name;
+          if (node.bound) return node.context = name;
+        }
+      });
+    };
+
+    Class.prototype.addBoundFunctions = function(o) {
+      var bvar, lhs, _i, _len, _ref3, _results;
+      if (this.boundFuncs.length) {
+        _ref3 = this.boundFuncs;
+        _results = [];
+        for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+          bvar = _ref3[_i];
+          lhs = (new Value(new Literal("this"), [new Access(bvar)])).compile(o);
+          _results.push(this.ctor.body.unshift(new Literal("" + lhs + " = " + (utility('bind')) + "(" + lhs + ", this)")));
+        }
+        return _results;
+      }
+    };
+
+    Class.prototype.addProperties = function(node, name, o) {
+      var assign, base, exprs, func, props;
+      props = node.base.properties.slice(0);
+      exprs = (function() {
+        var _results;
+        _results = [];
+        while (assign = props.shift()) {
+          if (assign instanceof Assign) {
+            base = assign.variable.base;
+            delete assign.context;
+            func = assign.value;
+            if (base.value === 'constructor') {
+              if (this.ctor) {
+                throw new Error('cannot define more than one constructor in a class');
+              }
+              if (func.bound) {
+                throw new Error('cannot define a constructor as a bound function');
+              }
+              if (func instanceof Code) {
+                assign = this.ctor = func;
+              } else {
+                this.externalCtor = o.scope.freeVariable('class');
+                assign = new Assign(new Literal(this.externalCtor), func);
+              }
+            } else {
+              if (assign.variable["this"]) {
+                func["static"] = true;
+                if (func.bound) func.context = name;
+              } else {
+                assign.variable = new Value(new Literal(name), [new Access(new Literal('prototype')), new Access(base)]);
+                if (func instanceof Code && func.bound) {
+                  this.boundFuncs.push(base);
+                  func.bound = false;
+                }
+              }
+            }
+          }
+          _results.push(assign);
+        }
+        return _results;
+      }).call(this);
+      return compact(exprs);
+    };
+
+    Class.prototype.walkBody = function(name, o) {
+      var _this = this;
+      return this.traverseChildren(false, function(child) {
+        var exps, i, node, _i, _len, _ref3;
+        if (child instanceof Class) return false;
+        if (child instanceof Block) {
+          _ref3 = exps = child.expressions;
+          for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
+            node = _ref3[i];
+            if (node instanceof Value && node.isObject(true)) {
+              exps[i] = _this.addProperties(node, name, o);
+            }
+          }
+          return child.expressions = exps = flatten(exps);
+        }
+      });
+    };
+
+    Class.prototype.hoistDirectivePrologue = function() {
+      var expressions, index, node;
+      index = 0;
+      expressions = this.body.expressions;
+      while ((node = expressions[index]) && node instanceof Comment || node instanceof Value && node.isString()) {
+        ++index;
+      }
+      return this.directives = expressions.splice(0, index);
+    };
+
+    Class.prototype.ensureConstructor = function(name) {
+      if (!this.ctor) {
+        this.ctor = new Code;
+        if (this.parent) {
+          this.ctor.body.push(new Literal("" + name + ".__super__.constructor.apply(this, arguments)"));
+        }
+        if (this.externalCtor) {
+          this.ctor.body.push(new Literal("" + this.externalCtor + ".apply(this, arguments)"));
+        }
+        this.ctor.body.makeReturn();
+        this.body.expressions.unshift(this.ctor);
+      }
+      this.ctor.ctor = this.ctor.name = name;
+      this.ctor.klass = null;
+      return this.ctor.noReturn = true;
+    };
+
+    Class.prototype.compileNode = function(o) {
+      var call, decl, klass, lname, name, params, _ref3;
+      decl = this.determineName();
+      name = decl || '_Class';
+      if (name.reserved) name = "_" + name;
+      lname = new Literal(name);
+      this.hoistDirectivePrologue();
+      this.setContext(name);
+      this.walkBody(name, o);
+      this.ensureConstructor(name);
+      this.body.spaced = true;
+      if (!(this.ctor instanceof Code)) this.body.expressions.unshift(this.ctor);
+      if (decl) {
+        this.body.expressions.unshift(new Assign(new Value(new Literal(name), [new Access(new Literal('name'))]), new Literal("'" + name + "'")));
+      }
+      this.body.expressions.push(lname);
+      (_ref3 = this.body.expressions).unshift.apply(_ref3, this.directives);
+      this.addBoundFunctions(o);
+      call = Closure.wrap(this.body);
+      if (this.parent) {
+        this.superClass = new Literal(o.scope.freeVariable('super', false));
+        this.body.expressions.unshift(new Extends(lname, this.superClass));
+        call.args.push(this.parent);
+        params = call.variable.params || call.variable.base.params;
+        params.push(new Param(this.superClass));
+      }
+      klass = new Parens(call, true);
+      if (this.variable) klass = new Assign(this.variable, klass);
+      return klass.compile(o);
+    };
+
+    return Class;
+
+  })(Base);
+
+  exports.Assign = Assign = (function(_super) {
+
+    __extends(Assign, _super);
+
+    Assign.name = 'Assign';
+
+    function Assign(variable, value, context, options) {
+      var forbidden, name, _ref3;
+      this.variable = variable;
+      this.value = value;
+      this.context = context;
+      Assign.__super__.constructor.call(this);
+      this.param = options && options.param;
+      this.subpattern = options && options.subpattern;
+      forbidden = (_ref3 = (name = this.variable.unwrapAll().value), __indexOf.call(STRICT_PROSCRIBED, _ref3) >= 0);
+      if (forbidden && this.context !== 'object') {
+        throw SyntaxError("variable name may not be \"" + name + "\"");
+      }
+      this.icedlocal = options && options.icedlocal;
+    }
+
+    Assign.prototype.children = ['variable', 'value'];
+
+    Assign.prototype.isStatement = function(o) {
+      return (o != null ? o.level : void 0) === LEVEL_TOP && (this.context != null) && __indexOf.call(this.context, "?") >= 0;
+    };
+
+    Assign.prototype.assigns = function(name) {
+      return this[this.context === 'object' ? 'value' : 'variable'].assigns(name);
+    };
+
+    Assign.prototype.unfoldSoak = function(o) {
+      return unfoldSoak(o, this, 'variable');
+    };
+
+    Assign.prototype.icedCpsRotate = function() {
+      var nv;
+      if ((nv = this.icedCpsExprRotate(this.value))) return this.value = nv;
+    };
+
+    Assign.prototype.compileNode = function(o) {
+      var isValue, match, name, val, varBase, _ref3, _ref4, _ref5, _ref6;
+      if (isValue = this.variable instanceof Value) {
+        if (this.variable.isArray() || this.variable.isObject()) {
+          return this.compilePatternMatch(o);
+        }
+        if (this.variable.isSplice()) return this.compileSplice(o);
+        if ((_ref3 = this.context) === '||=' || _ref3 === '&&=' || _ref3 === '?=') {
+          return this.compileConditional(o);
+        }
+      }
+      name = this.variable.compile(o, LEVEL_LIST);
+      if (!this.context) {
+        if (!(varBase = this.variable.unwrapAll()).isAssignable()) {
+          throw SyntaxError("\"" + (this.variable.compile(o)) + "\" cannot be assigned.");
+        }
+        if (!(typeof varBase.hasProperties === "function" ? varBase.hasProperties() : void 0)) {
+          if (this.param || this.icedlocal) {
+            o.scope.add(name, 'var', this.icedlocal);
+          } else {
+            o.scope.find(name);
+          }
+        }
+      }
+      if (this.value instanceof Code && (match = METHOD_DEF.exec(name))) {
+        if (match[1]) this.value.klass = match[1];
+        this.value.name = (_ref4 = (_ref5 = (_ref6 = match[2]) != null ? _ref6 : match[3]) != null ? _ref5 : match[4]) != null ? _ref4 : match[5];
+      }
+      val = this.value.compile(o, LEVEL_LIST);
+      if (this.context === 'object') return "" + name + ": " + val;
+      val = name + (" " + (this.context || '=') + " ") + val;
+      if (o.level <= LEVEL_LIST) {
+        return val;
+      } else {
+        return "(" + val + ")";
+      }
+    };
+
+    Assign.prototype.compilePatternMatch = function(o) {
+      var acc, assigns, code, i, idx, isObject, ivar, name, obj, objects, olen, ref, rest, splat, top, val, value, vvar, _i, _len, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      top = o.level === LEVEL_TOP;
+      value = this.value;
+      objects = this.variable.base.objects;
+      if (!(olen = objects.length)) {
+        code = value.compile(o);
+        if (o.level >= LEVEL_OP) {
+          return "(" + code + ")";
+        } else {
+          return code;
+        }
+      }
+      isObject = this.variable.isObject();
+      if (top && olen === 1 && !((obj = objects[0]) instanceof Splat)) {
+        if (obj instanceof Assign) {
+          _ref3 = obj, (_ref4 = _ref3.variable, idx = _ref4.base), obj = _ref3.value;
+        } else {
+          if (obj.base instanceof Parens) {
+            _ref5 = new Value(obj.unwrapAll()).cacheReference(o), obj = _ref5[0], idx = _ref5[1];
+          } else {
+            idx = isObject ? obj["this"] ? obj.properties[0].name : obj : new Literal(0);
+          }
+        }
+        acc = IDENTIFIER.test(idx.unwrap().value || 0);
+        value = new Value(value);
+        value.properties.push(new (acc ? Access : Index)(idx));
+        if (_ref6 = obj.unwrap().value, __indexOf.call(RESERVED, _ref6) >= 0) {
+          throw new SyntaxError("assignment to a reserved word: " + (obj.compile(o)) + " = " + (value.compile(o)));
+        }
+        return new Assign(obj, value, null, {
+          param: this.param
+        }).compile(o, LEVEL_TOP);
+      }
+      vvar = value.compile(o, LEVEL_LIST);
+      assigns = [];
+      splat = false;
+      if (!IDENTIFIER.test(vvar) || this.variable.assigns(vvar)) {
+        assigns.push("" + (ref = o.scope.freeVariable('ref')) + " = " + vvar);
+        vvar = ref;
+      }
+      for (i = _i = 0, _len = objects.length; _i < _len; i = ++_i) {
+        obj = objects[i];
+        idx = i;
+        if (isObject) {
+          if (obj instanceof Assign) {
+            _ref7 = obj, (_ref8 = _ref7.variable, idx = _ref8.base), obj = _ref7.value;
+          } else {
+            if (obj.base instanceof Parens) {
+              _ref9 = new Value(obj.unwrapAll()).cacheReference(o), obj = _ref9[0], idx = _ref9[1];
+            } else {
+              idx = obj["this"] ? obj.properties[0].name : obj;
+            }
+          }
+        }
+        if (!splat && obj instanceof Splat) {
+          name = obj.name.unwrap().value;
+          obj = obj.unwrap();
+          val = "" + olen + " <= " + vvar + ".length ? " + (utility('slice')) + ".call(" + vvar + ", " + i;
+          if (rest = olen - i - 1) {
+            ivar = o.scope.freeVariable('i');
+            val += ", " + ivar + " = " + vvar + ".length - " + rest + ") : (" + ivar + " = " + i + ", [])";
+          } else {
+            val += ") : []";
+          }
+          val = new Literal(val);
+          splat = "" + ivar + "++";
+        } else {
+          name = obj.unwrap().value;
+          if (obj instanceof Splat) {
+            obj = obj.name.compile(o);
+            throw new SyntaxError("multiple splats are disallowed in an assignment: " + obj + "...");
+          }
+          if (typeof idx === 'number') {
+            idx = new Literal(splat || idx);
+            acc = false;
+          } else {
+            acc = isObject && IDENTIFIER.test(idx.unwrap().value || 0);
+          }
+          val = new Value(new Literal(vvar), [new (acc ? Access : Index)(idx)]);
+        }
+        if ((name != null) && __indexOf.call(RESERVED, name) >= 0) {
+          throw new SyntaxError("assignment to a reserved word: " + (obj.compile(o)) + " = " + (val.compile(o)));
+        }
+        assigns.push(new Assign(obj, val, null, {
+          param: this.param,
+          subpattern: true
+        }).compile(o, LEVEL_LIST));
+      }
+      if (!(top || this.subpattern)) assigns.push(vvar);
+      code = assigns.join(', ');
+      if (o.level < LEVEL_LIST) {
+        return code;
+      } else {
+        return "(" + code + ")";
+      }
+    };
+
+    Assign.prototype.compileConditional = function(o) {
+      var left, rite, _ref3;
+      _ref3 = this.variable.cacheReference(o), left = _ref3[0], rite = _ref3[1];
+      if (__indexOf.call(this.context, "?") >= 0) o.isExistentialEquals = true;
+      return new Op(this.context.slice(0, -1), left, new Assign(rite, this.value, '=')).compile(o);
+    };
+
+    Assign.prototype.compileSplice = function(o) {
+      var code, exclusive, from, fromDecl, fromRef, name, to, valDef, valRef, _ref3, _ref4, _ref5;
+      _ref3 = this.variable.properties.pop().range, from = _ref3.from, to = _ref3.to, exclusive = _ref3.exclusive;
+      name = this.variable.compile(o);
+      _ref4 = (from != null ? from.cache(o, LEVEL_OP) : void 0) || ['0', '0'], fromDecl = _ref4[0], fromRef = _ref4[1];
+      if (to) {
+        if ((from != null ? from.isSimpleNumber() : void 0) && to.isSimpleNumber()) {
+          to = +to.compile(o) - +fromRef;
+          if (!exclusive) to += 1;
+        } else {
+          to = to.compile(o, LEVEL_ACCESS) + ' - ' + fromRef;
+          if (!exclusive) to += ' + 1';
+        }
+      } else {
+        to = "9e9";
+      }
+      _ref5 = this.value.cache(o, LEVEL_LIST), valDef = _ref5[0], valRef = _ref5[1];
+      code = "[].splice.apply(" + name + ", [" + fromDecl + ", " + to + "].concat(" + valDef + ")), " + valRef;
+      if (o.level > LEVEL_TOP) {
+        return "(" + code + ")";
+      } else {
+        return code;
+      }
+    };
+
+    return Assign;
+
+  })(Base);
+
+  exports.Code = Code = (function(_super) {
+
+    __extends(Code, _super);
+
+    Code.name = 'Code';
+
+    function Code(params, body, tag) {
+      Code.__super__.constructor.call(this);
+      this.params = params || [];
+      this.body = body || new Block;
+      this.icedgen = tag === 'icedgen';
+      this.bound = tag === 'boundfunc' || this.icedgen;
+      if (this.bound || this.icedgen) this.context = '_this';
+      this.icedPassedDeferral = null;
+    }
+
+    Code.prototype.children = ['params', 'body'];
+
+    Code.prototype.isStatement = function() {
+      return !!this.ctor;
+    };
+
+    Code.prototype.traceName = function() {
+      var parts;
+      parts = [];
+      if (this.klass) parts.push(this.klass);
+      if (this.name) parts.push(this.name);
+      return parts.join('.');
+    };
+
+    Code.prototype.jumps = NO;
+
+    Code.prototype.compileNode = function(o) {
+      var code, exprs, f, i, idt, k_id, lhs, lit, name, p, param, params, ref, rhs, splats, uniqs, val, wasEmpty, _i, _j, _k, _l, _len, _len2, _len3, _len4, _len5, _len6, _m, _n, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      o.scope = new Scope(o.scope, this.body, this);
+      o.scope.shared = del(o, 'sharedScope') || this.icedgen;
+      o.indent += TAB;
+      delete o.bare;
+      params = [];
+      exprs = [];
+      _ref3 = this.paramNames();
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        name = _ref3[_i];
+        if (!o.scope.check(name)) o.scope.parameter(name);
+      }
+      _ref4 = this.params;
+      for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+        param = _ref4[_j];
+        if (!param.splat) continue;
+        _ref5 = this.params;
+        for (_k = 0, _len3 = _ref5.length; _k < _len3; _k++) {
+          p = _ref5[_k];
+          if (p.name.value) o.scope.add(p.name.value, 'var', true);
+        }
+        splats = new Assign(new Value(new Arr((function() {
+          var _l, _len4, _ref6, _results;
+          _ref6 = this.params;
+          _results = [];
+          for (_l = 0, _len4 = _ref6.length; _l < _len4; _l++) {
+            p = _ref6[_l];
+            _results.push(p.asReference(o));
+          }
+          return _results;
+        }).call(this))), new Value(new Literal('arguments')));
+        break;
+      }
+      _ref6 = this.params;
+      for (_l = 0, _len4 = _ref6.length; _l < _len4; _l++) {
+        param = _ref6[_l];
+        if (param.isComplex()) {
+          val = ref = param.asReference(o);
+          if (param.value) val = new Op('?', ref, param.value);
+          exprs.push(new Assign(new Value(param.name), val, '=', {
+            param: true
+          }));
+        } else {
+          ref = param;
+          if (param.value) {
+            lit = new Literal(ref.name.value + ' == null');
+            val = new Assign(new Value(param.name), param.value, '=');
+            exprs.push(new If(lit, val));
+          }
+        }
+        if (!splats) params.push(ref);
+      }
+      wasEmpty = this.body.isEmpty();
+      if (splats) exprs.unshift(splats);
+      if (exprs.length) {
+        (_ref7 = this.body.expressions).unshift.apply(_ref7, exprs);
+      }
+      for (i = _m = 0, _len5 = params.length; _m < _len5; i = ++_m) {
+        p = params[i];
+        o.scope.parameter(params[i] = p.compile(o));
+      }
+      uniqs = [];
+      _ref8 = this.paramNames();
+      for (_n = 0, _len6 = _ref8.length; _n < _len6; _n++) {
+        name = _ref8[_n];
+        if (__indexOf.call(uniqs, name) >= 0) {
+          throw SyntaxError("multiple parameters named '" + name + "'");
+        }
+        uniqs.push(name);
+      }
+      if (this.icedHasAutocbFlag) wasEmpty = false;
+      if (!(wasEmpty || this.noReturn)) this.body.makeReturn();
+      if (this.bound) {
+        if ((_ref9 = o.scope.parent.method) != null ? _ref9.bound : void 0) {
+          this.bound = this.context = o.scope.parent.method.context;
+        } else if (!this["static"]) {
+          o.scope.parent.assign('_this', 'this');
+        }
+      }
+      idt = o.indent;
+      code = 'function';
+      if (this.ctor) code += ' ' + this.name;
+      code += '(' + params.join(', ') + ') {';
+      if (this.icedNodeFlag && !this.icedgen) {
+        this.icedPassedDeferral = o.scope.freeVariable(iced["const"].passed_deferral);
+        lhs = new Value(new Literal(this.icedPassedDeferral));
+        f = new Value(new Literal(iced["const"].ns));
+        f.add(new Access(new Value(new Literal(iced["const"].findDeferral))));
+        rhs = new Call(f, [new Value(new Literal('arguments'))]);
+        this.body.unshift(new Assign(lhs, rhs));
+      }
+      if (this.icedNodeFlag) o.iced_scope = o.scope;
+      if (!this.icedgen && this.icedNodeFlag && this.icedHasAutocbFlag) {
+        rhs = new Value(new Literal(iced["const"].autocb));
+        k_id = new Value(new Literal(iced["const"].k));
+        this.body.unshift(new Assign(k_id, rhs, null, {
+          param: true
+        }));
+      }
+      if (!this.body.isEmpty()) {
+        code += "\n" + (this.body.compileWithDeclarations(o)) + "\n" + this.tab;
+      }
+      code += '}';
+      if (this.ctor) return this.tab + code;
+      if (this.front || (o.level >= LEVEL_ACCESS)) {
+        return "(" + code + ")";
+      } else {
+        return code;
+      }
+    };
+
+    Code.prototype.paramNames = function() {
+      var names, param, _i, _len, _ref3;
+      names = [];
+      _ref3 = this.params;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        param = _ref3[_i];
+        names.push.apply(names, param.names());
+      }
+      return names;
+    };
+
+    Code.prototype.traverseChildren = function(crossScope, func) {
+      if (crossScope) {
+        return Code.__super__.traverseChildren.call(this, crossScope, func);
+      }
+    };
+
+    Code.prototype.icedWalkAst = function(parent, o) {
+      var cf_prev, fa_prev, param, _i, _len, _ref3;
+      this.icedParentAwait = parent;
+      fa_prev = o.foundAutocb;
+      cf_prev = o.currFunc;
+      o.foundAutocb = false;
+      o.currFunc = this;
+      _ref3 = this.params;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        param = _ref3[_i];
+        if (param.name instanceof Literal && param.name.value === iced["const"].autocb) {
+          o.foundAutocb = true;
+          break;
+        }
+      }
+      this.icedHasAutocbFlag = o.foundAutocb;
+      Code.__super__.icedWalkAst.call(this, parent, o);
+      o.foundAutocb = fa_prev;
+      o.currFunc = cf_prev;
+      return false;
+    };
+
+    Code.prototype.icedWalkAstLoops = function(flood) {
+      if (Code.__super__.icedWalkAstLoops.call(this, false)) {
+        this.icedLoopFlag = true;
+      }
+      return false;
+    };
+
+    Code.prototype.icedWalkCpsPivots = function() {
+      Code.__super__.icedWalkCpsPivots.call(this);
+      return this.icedCpsPivotFlag = false;
+    };
+
+    return Code;
+
+  })(Base);
+
+  exports.Param = Param = (function(_super) {
+
+    __extends(Param, _super);
+
+    Param.name = 'Param';
+
+    function Param(name, value, splat) {
+      var _ref3, _ref4;
+      this.name = name;
+      this.value = value;
+      this.splat = splat;
+      Param.__super__.constructor.call(this);
+      if (name = (_ref3 = (_ref4 = this.name) != null ? _ref4.unwrapAll().value : void 0, __indexOf.call(STRICT_PROSCRIBED, _ref3) >= 0)) {
+        throw SyntaxError("parameter name \"" + name + "\" is not allowed");
+      }
+    }
+
+    Param.prototype.children = ['name', 'value'];
+
+    Param.prototype.compile = function(o) {
+      return this.name.compile(o, LEVEL_LIST);
+    };
+
+    Param.prototype.asReference = function(o) {
+      var node;
+      if (this.reference) return this.reference;
+      node = this.name;
+      if (node["this"]) {
+        node = node.properties[0].name;
+        if (node.value.reserved) {
+          node = new Literal(o.scope.freeVariable(node.value));
+        }
+      } else if (node.isComplex()) {
+        node = new Literal(o.scope.freeVariable('arg'));
+      }
+      node = new Value(node);
+      if (this.splat) node = new Splat(node);
+      return this.reference = node;
+    };
+
+    Param.prototype.isComplex = function() {
+      return this.name.isComplex();
+    };
+
+    Param.prototype.names = function(name) {
+      var atParam, names, obj, _i, _len, _ref3;
+      if (name == null) name = this.name;
+      atParam = function(obj) {
+        var value;
+        value = obj.properties[0].name.value;
+        if (value.reserved) {
+          return [];
+        } else {
+          return [value];
+        }
+      };
+      if (name instanceof Literal) return [name.value];
+      if (name instanceof Value) return atParam(name);
+      names = [];
+      _ref3 = name.objects;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        obj = _ref3[_i];
+        if (obj instanceof Assign) {
+          names.push(obj.variable.base.value);
+        } else if (obj.isArray() || obj.isObject()) {
+          names.push.apply(names, this.names(obj.base));
+        } else if (obj["this"]) {
+          names.push.apply(names, atParam(obj));
+        } else {
+          names.push(obj.base.value);
+        }
+      }
+      return names;
+    };
+
+    return Param;
+
+  })(Base);
+
+  exports.Splat = Splat = (function(_super) {
+
+    __extends(Splat, _super);
+
+    Splat.name = 'Splat';
+
+    Splat.prototype.children = ['name'];
+
+    Splat.prototype.isAssignable = YES;
+
+    function Splat(name) {
+      Splat.__super__.constructor.call(this);
+      this.name = name.compile ? name : new Literal(name);
+    }
+
+    Splat.prototype.assigns = function(name) {
+      return this.name.assigns(name);
+    };
+
+    Splat.prototype.compile = function(o) {
+      if (this.index != null) {
+        return this.compileParam(o);
+      } else {
+        return this.name.compile(o);
+      }
+    };
+
+    Splat.prototype.unwrap = function() {
+      return this.name;
+    };
+
+    Splat.prototype.toSlot = function() {
+      return new Slot(new Value(this.name), null, true);
+    };
+
+    Splat.compileSplattedArray = function(o, list, apply) {
+      var args, base, code, i, index, node, _i, _len;
+      index = -1;
+      while ((node = list[++index]) && !(node instanceof Splat)) {
+        continue;
+      }
+      if (index >= list.length) return '';
+      if (list.length === 1) {
+        code = list[0].compile(o, LEVEL_LIST);
+        if (apply) return code;
+        return "" + (utility('slice')) + ".call(" + code + ")";
+      }
+      args = list.slice(index);
+      for (i = _i = 0, _len = args.length; _i < _len; i = ++_i) {
+        node = args[i];
+        code = node.compile(o, LEVEL_LIST);
+        args[i] = node instanceof Splat ? "" + (utility('slice')) + ".call(" + code + ")" : "[" + code + "]";
+      }
+      if (index === 0) {
+        return args[0] + (".concat(" + (args.slice(1).join(', ')) + ")");
+      }
+      base = (function() {
+        var _j, _len2, _ref3, _results;
+        _ref3 = list.slice(0, index);
+        _results = [];
+        for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+          node = _ref3[_j];
+          _results.push(node.compile(o, LEVEL_LIST));
+        }
+        return _results;
+      })();
+      return "[" + (base.join(', ')) + "].concat(" + (args.join(', ')) + ")";
+    };
+
+    return Splat;
+
+  })(Base);
+
+  exports.While = While = (function(_super) {
+
+    __extends(While, _super);
+
+    While.name = 'While';
+
+    function While(condition, options) {
+      While.__super__.constructor.call(this);
+      this.condition = (options != null ? options.invert : void 0) ? condition.invert() : condition;
+      this.guard = options != null ? options.guard : void 0;
+    }
+
+    While.prototype.children = ['condition', 'guard', 'body'];
+
+    While.prototype.isStatement = YES;
+
+    While.prototype.isLoop = YES;
+
+    While.prototype.makeReturn = function(res) {
+      if (res) {
+        return While.__super__.makeReturn.apply(this, arguments);
+      } else {
+        this.returns = !this.jumps({
+          loop: true
+        });
+        return this;
+      }
+    };
+
+    While.prototype.addBody = function(body) {
+      this.body = body;
+      return this;
+    };
+
+    While.prototype.jumps = function() {
+      var expressions, node, _i, _len;
+      expressions = this.body.expressions;
+      if (!expressions.length) return false;
+      for (_i = 0, _len = expressions.length; _i < _len; _i++) {
+        node = expressions[_i];
+        if (node.jumps({
+          loop: true
+        })) return node;
+      }
+      return false;
+    };
+
+    While.prototype.icedWrap = function(d) {
+      var body, break_assign, break_block, break_body, break_expr, break_id, call1, call2, cond, condition, continue_assign, continue_block, continue_body, continue_id, f, k_id, k_param, next_arg, next_assign, next_block, next_body, next_id, outStatements, rvar, rvar_init, rvar_value, top_assign, top_block, top_body, top_call, top_func, top_id, top_statements;
+      condition = d.condition;
+      body = d.body;
+      rvar = d.rvar;
+      outStatements = [];
+      if (rvar) rvar_value = new Value(new Literal(rvar));
+      top_id = new Value(new Literal(iced["const"].t_while));
+      k_id = new Value(new Literal(iced["const"].k));
+      k_param = new Param(new Literal(iced["const"].k));
+      break_id = new Value(new Literal(iced["const"].b_while));
+      if (rvar) {
+        break_expr = new Call(k_id, [rvar_value]);
+        break_block = new Block([break_expr]);
+        break_body = new Code([], break_block, 'icedgen');
+        break_assign = new Assign(break_id, break_body, null, {
+          icedlocal: true
+        });
+      } else {
+        break_assign = new Assign(break_id, k_id, null, {
+          icedlocal: true
+        });
+      }
+      continue_id = new Value(new Literal(iced["const"].c_while));
+      continue_block = new Block([new Call(top_id, [k_id])]);
+      if (d.step) continue_block.unshift(d.step);
+      continue_body = new Code([], continue_block, 'icedgen');
+      continue_assign = new Assign(continue_id, continue_body, null, {
+        icedlocal: true
+      });
+      next_id = new Value(new Literal(iced["const"].n_while));
+      if (rvar) {
+        next_arg = new Param(new Literal(iced["const"].n_arg));
+        f = rvar_value.copy();
+        f.add(new Access(new Value(new Literal('push'))));
+        call1 = new Call(f, [next_arg]);
+        call2 = new Call(continue_id, []);
+        next_block = new Block([call1, call2]);
+        next_body = new Code([next_arg], next_block, 'icedgen');
+        next_assign = new Assign(next_id, next_body, null, {
+          icedlocal: true
+        });
+      } else {
+        next_assign = new Assign(next_id, continue_id);
+      }
+      cond = new If(condition.invert(), new Block([new Call(break_id, [])]));
+      if (d.guard) {
+        cond.addElse(new If(d.guard, body));
+        cond.addElse(new Block([new Call(continue_id, [])]));
+      } else {
+        cond.addElse(body);
+      }
+      top_body = new Block([break_assign, continue_assign, next_assign, cond]);
+      top_func = new Code([k_param], top_body, 'icedgen');
+      top_assign = new Assign(top_id, top_func, null, {
+        icedlocal: true
+      });
+      top_call = new Call(top_id, [k_id]);
+      top_statements = [];
+      if (d.init) top_statements = top_statements.concat(d.init);
+      if (rvar) {
+        rvar_init = new Assign(rvar_value, new Arr);
+        top_statements.push(rvar_init);
+      }
+      top_statements = top_statements.concat([top_assign, top_call]);
+      return top_block = new Block(top_statements);
+    };
+
+    While.prototype.icedCallContinuation = function() {
+      return this.body.icedThreadReturn(new IcedTailCall(iced["const"].n_while));
+    };
+
+    While.prototype.compileIced = function(o) {
+      var b, opts;
+      if (!this.icedNodeFlag) return null;
+      opts = {
+        condition: this.condition,
+        body: this.body,
+        guard: this.guard
+      };
+      if (this.returns) opts.rvar = o.scope.freeVariable('results');
+      b = this.icedWrap(opts);
+      return b.compile(o);
+    };
+
+    While.prototype.compileNode = function(o) {
+      var body, code, rvar, set;
+      if (code = this.compileIced(o)) return code;
+      o.indent += TAB;
+      set = '';
+      body = this.body;
+      if (body.isEmpty()) {
+        body = '';
+      } else {
+        if (this.returns) {
+          body.makeReturn(rvar = o.scope.freeVariable('results'));
+          set = "" + this.tab + rvar + " = [];\n";
+        }
+        if (this.guard) {
+          if (body.expressions.length > 1) {
+            body.expressions.unshift(new If((new Parens(this.guard)).invert(), new Literal("continue")));
+          } else {
+            if (this.guard) body = Block.wrap([new If(this.guard, body)]);
+          }
+        }
+        body = "\n" + (body.compile(o, LEVEL_TOP)) + "\n" + this.tab;
+      }
+      code = set + this.tab + ("while (" + (this.condition.compile(o, LEVEL_PAREN)) + ") {" + body + "}");
+      if (this.returns) {
+        if (this.icedHasAutocbFlag) {
+          code += "\n" + this.tab + iced["const"].autocb + "(" + rvar + ");";
+          code += "\n" + this.tab + "return;";
+        } else {
+          code += "\n" + this.tab + "return " + rvar + ";";
+        }
+      }
+      return code;
+    };
+
+    return While;
+
+  })(Base);
+
+  exports.Op = Op = (function(_super) {
+    var CONVERSIONS, INVERSIONS;
+
+    __extends(Op, _super);
+
+    Op.name = 'Op';
+
+    function Op(op, first, second, flip) {
+      Op.__super__.constructor.call(this);
+      if (op === 'in') return new In(first, second);
+      if (op === 'do') return this.generateDo(first);
+      if (op === 'new') {
+        if (first instanceof Call && !first["do"] && !first.isNew) {
+          return first.newInstance();
+        }
+        if (first instanceof Code && first.bound || first["do"]) {
+          first = new Parens(first);
+        }
+      }
+      this.operator = CONVERSIONS[op] || op;
+      this.first = first;
+      this.second = second;
+      this.flip = !!flip;
+      return this;
+    }
+
+    Op.prototype.icedWrapContinuation = function() {
+      return this.icedCallContinuationFlag;
+    };
+
+    CONVERSIONS = {
+      '==': '===',
+      '!=': '!==',
+      'of': 'in'
+    };
+
+    INVERSIONS = {
+      '!==': '===',
+      '===': '!=='
+    };
+
+    Op.prototype.children = ['first', 'second'];
+
+    Op.prototype.isSimpleNumber = NO;
+
+    Op.prototype.isUnary = function() {
+      return !this.second;
+    };
+
+    Op.prototype.isComplex = function() {
+      var _ref3;
+      return !(this.isUnary() && ((_ref3 = this.operator) === '+' || _ref3 === '-')) || this.first.isComplex();
+    };
+
+    Op.prototype.isChainable = function() {
+      var _ref3;
+      return (_ref3 = this.operator) === '<' || _ref3 === '>' || _ref3 === '>=' || _ref3 === '<=' || _ref3 === '===' || _ref3 === '!==';
+    };
+
+    Op.prototype.icedCpsRotate = function() {
+      var fnv, snv;
+      if (this.first && (fnv = this.icedCpsExprRotate(this.first))) {
+        this.first = fnv;
+      }
+      if (this.second && (snv = this.icedCpsExprRotate(this.second))) {
+        return this.second = snv;
+      }
+    };
+
+    Op.prototype.invert = function() {
+      var allInvertable, curr, fst, op, _ref3;
+      if (this.isChainable() && this.first.isChainable()) {
+        allInvertable = true;
+        curr = this;
+        while (curr && curr.operator) {
+          allInvertable && (allInvertable = curr.operator in INVERSIONS);
+          curr = curr.first;
+        }
+        if (!allInvertable) return new Parens(this).invert();
+        curr = this;
+        while (curr && curr.operator) {
+          curr.invert = !curr.invert;
+          curr.operator = INVERSIONS[curr.operator];
+          curr = curr.first;
+        }
+        return this;
+      } else if (op = INVERSIONS[this.operator]) {
+        this.operator = op;
+        if (this.first.unwrap() instanceof Op) this.first.invert();
+        return this;
+      } else if (this.second) {
+        return new Parens(this).invert();
+      } else if (this.operator === '!' && (fst = this.first.unwrap()) instanceof Op && ((_ref3 = fst.operator) === '!' || _ref3 === 'in' || _ref3 === 'instanceof')) {
+        return fst;
+      } else {
+        return new Op('!', this);
+      }
+    };
+
+    Op.prototype.unfoldSoak = function(o) {
+      var _ref3;
+      return ((_ref3 = this.operator) === '++' || _ref3 === '--' || _ref3 === 'delete') && unfoldSoak(o, this, 'first');
+    };
+
+    Op.prototype.generateDo = function(exp) {
+      var call, func, param, passedParams, ref, _i, _len, _ref3;
+      passedParams = [];
+      func = exp instanceof Assign && (ref = exp.value.unwrap()) instanceof Code ? ref : exp;
+      _ref3 = func.params || [];
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        param = _ref3[_i];
+        if (param.value) {
+          passedParams.push(param.value);
+          delete param.value;
+        } else {
+          passedParams.push(param);
+        }
+      }
+      call = new Call(exp, passedParams);
+      call["do"] = true;
+      return call;
+    };
+
+    Op.prototype.compileNode = function(o) {
+      var code, isChain, _ref3, _ref4;
+      isChain = this.isChainable() && this.first.isChainable();
+      if (!isChain) this.first.front = this.front;
+      if (this.operator === 'delete' && o.scope.check(this.first.unwrapAll().value)) {
+        throw SyntaxError('delete operand may not be argument or var');
+      }
+      if (((_ref3 = this.operator) === '--' || _ref3 === '++') && (_ref4 = this.first.unwrapAll().value, __indexOf.call(STRICT_PROSCRIBED, _ref4) >= 0)) {
+        throw SyntaxError('prefix increment/decrement may not have eval or arguments operand');
+      }
+      if (this.isUnary()) return this.compileUnary(o);
+      if (isChain) return this.compileChain(o);
+      if (this.operator === '?') return this.compileExistence(o);
+      code = this.first.compile(o, LEVEL_OP) + ' ' + this.operator + ' ' + this.second.compile(o, LEVEL_OP);
+      if (o.level <= LEVEL_OP) {
+        return code;
+      } else {
+        return "(" + code + ")";
+      }
+    };
+
+    Op.prototype.compileChain = function(o) {
+      var code, fst, shared, _ref3;
+      _ref3 = this.first.second.cache(o), this.first.second = _ref3[0], shared = _ref3[1];
+      fst = this.first.compile(o, LEVEL_OP);
+      code = "" + fst + " " + (this.invert ? '&&' : '||') + " " + (shared.compile(o)) + " " + this.operator + " " + (this.second.compile(o, LEVEL_OP));
+      return "(" + code + ")";
+    };
+
+    Op.prototype.compileExistence = function(o) {
+      var fst, ref;
+      if (this.first.isComplex() && o.level > LEVEL_TOP) {
+        ref = new Literal(o.scope.freeVariable('ref'));
+        fst = new Parens(new Assign(ref, this.first));
+      } else {
+        fst = this.first;
+        ref = fst;
+      }
+      return new If(new Existence(fst), ref, {
+        type: 'if'
+      }).addElse(this.second).compile(o);
+    };
+
+    Op.prototype.compileUnary = function(o) {
+      var op, parts, plusMinus;
+      if (o.level >= LEVEL_ACCESS) return (new Parens(this)).compile(o);
+      parts = [op = this.operator];
+      plusMinus = op === '+' || op === '-';
+      if ((op === 'new' || op === 'typeof' || op === 'delete') || plusMinus && this.first instanceof Op && this.first.operator === op) {
+        parts.push(' ');
+      }
+      if ((plusMinus && this.first instanceof Op) || (op === 'new' && this.first.isStatement(o))) {
+        this.first = new Parens(this.first);
+      }
+      parts.push(this.first.compile(o, LEVEL_OP));
+      if (this.flip) parts.reverse();
+      return parts.join('');
+    };
+
+    Op.prototype.toString = function(idt) {
+      return Op.__super__.toString.call(this, idt, this.constructor.name + ' ' + this.operator);
+    };
+
+    return Op;
+
+  })(Base);
+
+  exports.In = In = (function(_super) {
+
+    __extends(In, _super);
+
+    In.name = 'In';
+
+    function In(object, array) {
+      this.object = object;
+      this.array = array;
+      In.__super__.constructor.call(this);
+    }
+
+    In.prototype.children = ['object', 'array'];
+
+    In.prototype.invert = NEGATE;
+
+    In.prototype.compileNode = function(o) {
+      var hasSplat, obj, _i, _len, _ref3;
+      if (this.array instanceof Value && this.array.isArray()) {
+        _ref3 = this.array.base.objects;
+        for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+          obj = _ref3[_i];
+          if (!(obj instanceof Splat)) continue;
+          hasSplat = true;
+          break;
+        }
+        if (!hasSplat) return this.compileOrTest(o);
+      }
+      return this.compileLoopTest(o);
+    };
+
+    In.prototype.compileOrTest = function(o) {
+      var cmp, cnj, i, item, ref, sub, tests, _ref3, _ref4;
+      if (this.array.base.objects.length === 0) return "" + (!!this.negated);
+      _ref3 = this.object.cache(o, LEVEL_OP), sub = _ref3[0], ref = _ref3[1];
+      _ref4 = this.negated ? [' !== ', ' && '] : [' === ', ' || '], cmp = _ref4[0], cnj = _ref4[1];
+      tests = (function() {
+        var _i, _len, _ref5, _results;
+        _ref5 = this.array.base.objects;
+        _results = [];
+        for (i = _i = 0, _len = _ref5.length; _i < _len; i = ++_i) {
+          item = _ref5[i];
+          _results.push((i ? ref : sub) + cmp + item.compile(o, LEVEL_ACCESS));
+        }
+        return _results;
+      }).call(this);
+      tests = tests.join(cnj);
+      if (o.level < LEVEL_OP) {
+        return tests;
+      } else {
+        return "(" + tests + ")";
+      }
+    };
+
+    In.prototype.compileLoopTest = function(o) {
+      var code, ref, sub, _ref3;
+      _ref3 = this.object.cache(o, LEVEL_LIST), sub = _ref3[0], ref = _ref3[1];
+      code = utility('indexOf') + (".call(" + (this.array.compile(o, LEVEL_LIST)) + ", " + ref + ") ") + (this.negated ? '< 0' : '>= 0');
+      if (sub === ref) return code;
+      code = sub + ', ' + code;
+      if (o.level < LEVEL_LIST) {
+        return code;
+      } else {
+        return "(" + code + ")";
+      }
+    };
+
+    In.prototype.toString = function(idt) {
+      return In.__super__.toString.call(this, idt, this.constructor.name + (this.negated ? '!' : ''));
+    };
+
+    return In;
+
+  })(Base);
+
+  exports.Slot = Slot = (function(_super) {
+
+    __extends(Slot, _super);
+
+    Slot.name = 'Slot';
+
+    function Slot(value, suffix, splat) {
+      Slot.__super__.constructor.call(this);
+      this.value = value;
+      this.suffix = suffix;
+      this.splat = splat;
+    }
+
+    Slot.prototype.children = ['value', 'suffix'];
+
+    return Slot;
+
+  })(Base);
+
+  exports.Defer = Defer = (function(_super) {
+
+    __extends(Defer, _super);
+
+    Defer.name = 'Defer';
+
+    function Defer(args, lineno) {
+      var a;
+      this.lineno = lineno;
+      Defer.__super__.constructor.call(this);
+      this.slots = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = args.length; _i < _len; _i++) {
+          a = args[_i];
+          _results.push(a.toSlot());
+        }
+        return _results;
+      })();
+      this.params = [];
+      this.vars = [];
+    }
+
+    Defer.prototype.children = ['slots'];
+
+    Defer.prototype.newParam = function() {
+      var l;
+      l = "" + iced["const"].slot + "_" + (this.params.length + 1);
+      this.params.push(new Param(new Literal(l)));
+      return new Value(new Literal(l));
+    };
+
+    Defer.prototype.makeAssignFn = function(o) {
+      var a, args, assign, assignments, block, call, func, i, i_lit, inner_fn, lit, outer_block, outer_fn, prop, s, slot, _i, _len, _ref3;
+      if (this.slots.length === 0) return null;
+      assignments = [];
+      args = [];
+      i = 0;
+      _ref3 = this.slots;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        s = _ref3[_i];
+        a = new Value(new Literal("arguments"));
+        i_lit = new Value(new Literal(i));
+        if (s.splat) {
+          func = new Value(new Literal(utility('slice')));
+          func.add(new Access(new Value(new Literal('call'))));
+          call = new Call(func, [a, i_lit]);
+          slot = s.value;
+          this.vars.push(slot);
+          assign = new Assign(slot, call);
+        } else {
+          a.add(new Index(i_lit));
+          if (!s.suffix) {
+            lit = s.value.compile(o, LEVEL_TOP);
+            if (lit === "_") {
+              slot = new Value(new Literal(iced["const"].deferrals));
+              slot.add(new Access(new Value(new Literal(iced["const"].retslot))));
+            } else {
+              slot = s.value;
+              this.vars.push(slot);
+            }
+          } else {
+            args.push(s.value);
+            slot = this.newParam();
+            if (s.suffix instanceof Index) {
+              prop = new Index(this.newParam());
+              args.push(s.suffix.index);
+            } else {
+              prop = s.suffix;
+            }
+            slot.add(prop);
+          }
+          assign = new Assign(slot, a);
+        }
+        assignments.push(assign);
+        i++;
+      }
+      block = new Block(assignments);
+      inner_fn = new Code([], block, 'icedgen');
+      outer_block = new Block([new Return(inner_fn)]);
+      outer_fn = new Code(this.params, outer_block, 'icedgen');
+      return call = new Call(outer_fn, args);
+    };
+
+    Defer.prototype.transform = function(o) {
+      var assign_fn, assignments, fn, ln_assign, ln_lhs, ln_rhs, meth;
+      fn = new Value(new Literal(iced["const"].deferrals));
+      meth = new Value(new Literal(iced["const"].defer_method));
+      fn.add(new Access(meth));
+      assignments = [];
+      if ((assign_fn = this.makeAssignFn(o))) {
+        assignments.push(new Assign(new Value(new Literal(iced["const"].assign_fn)), assign_fn, "object"));
+      }
+      ln_lhs = new Value(new Literal(iced["const"].lineno));
+      ln_rhs = new Value(new Literal(this.lineno));
+      ln_assign = new Assign(ln_lhs, ln_rhs, "object");
+      assignments.push(ln_assign);
+      o = new Obj(assignments);
+      return new Call(fn, [new Value(o)]);
+    };
+
+    Defer.prototype.compileNode = function(o) {
+      var call, name, scope, v, _i, _len, _ref3;
+      call = this.transform(o);
+      _ref3 = this.vars;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        v = _ref3[_i];
+        name = v.compile(o, LEVEL_LIST);
+        scope = o.scope;
+        scope.add(name, 'var');
+      }
+      return call.compile(o);
+    };
+
+    Defer.prototype.icedWalkAst = function(p, o) {
+      this.icedHasAutocbFlag = o.foundAutocb;
+      o.foundDefer = true;
+      this.parentFunc = o.currFunc;
+      return Defer.__super__.icedWalkAst.call(this, p, o);
+    };
+
+    return Defer;
+
+  })(Base);
+
+  exports.Await = Await = (function(_super) {
+
+    __extends(Await, _super);
+
+    Await.name = 'Await';
+
+    function Await(body) {
+      this.body = body;
+      Await.__super__.constructor.call(this);
+    }
+
+    Await.prototype.transform = function(o) {
+      var assign, assignments, body, call, cb_assignment, cb_lhs, cb_rhs, cls, fn_assignment, fn_lhs, fn_rhs, func_assignment, func_lhs, func_rhs, lhs, meth, n, name, rhs, trace, _ref3, _ref4;
+      body = this.body;
+      name = iced["const"].deferrals;
+      o.scope.add(name, 'var');
+      lhs = new Value(new Literal(name));
+      cls = new Value(new Literal(iced["const"].ns));
+      cls.add(new Access(new Value(new Literal(iced["const"].Deferrals))));
+      assignments = [];
+      if (n = (_ref3 = this.parentFunc) != null ? _ref3.icedPassedDeferral : void 0) {
+        cb_lhs = new Value(new Literal(iced["const"].parent));
+        cb_rhs = new Value(new Literal(n));
+        cb_assignment = new Assign(cb_lhs, cb_rhs, "object");
+        assignments.push(cb_assignment);
+      }
+      if (o.filename != null) {
+        fn_lhs = new Value(new Literal(iced["const"].filename));
+        fn_rhs = new Value(new Literal("'" + o.filename + "'"));
+        fn_assignment = new Assign(fn_lhs, fn_rhs, "object");
+        assignments.push(fn_assignment);
+      }
+      if (n = (_ref4 = this.parentFunc) != null ? _ref4.traceName() : void 0) {
+        func_lhs = new Value(new Literal(iced["const"].funcname));
+        func_rhs = new Value(new Literal("'" + n + "'"));
+        func_assignment = new Assign(func_lhs, func_rhs, "object");
+        assignments.push(func_assignment);
+      }
+      trace = new Obj(assignments, true);
+      call = new Call(cls, [new Value(new Literal(iced["const"].k)), trace]);
+      rhs = new Op("new", call);
+      assign = new Assign(lhs, rhs);
+      body.unshift(assign);
+      meth = lhs.copy().add(new Access(new Value(new Literal(iced["const"].fulfill))));
+      call = new Call(meth, []);
+      body.push(call);
+      return this.body = body;
+    };
+
+    Await.prototype.children = ['body'];
+
+    Await.prototype.isStatement = function() {
+      return YES;
+    };
+
+    Await.prototype.makeReturn = THIS;
+
+    Await.prototype.compileNode = function(o) {
+      this.transform(o);
+      return this.body.compile(o);
+    };
+
+    Await.prototype.icedWalkAst = function(p, o) {
+      this.icedHasAutocbFlag = o.foundAutocb;
+      this.parentFunc = o.currFunc;
+      p = p || this;
+      this.icedParentAwait = p;
+      Await.__super__.icedWalkAst.call(this, p, o);
+      return this.icedNodeFlag = o.foundAwait = true;
+    };
+
+    return Await;
+
+  })(Base);
+
+  exports.IcedRequire = IcedRequire = (function(_super) {
+
+    __extends(IcedRequire, _super);
+
+    IcedRequire.name = 'IcedRequire';
+
+    function IcedRequire(foundDefer) {
+      this.foundDefer = foundDefer;
+      IcedRequire.__super__.constructor.call(this);
+    }
+
+    IcedRequire.prototype.compileNode = function(o) {
+      var access, call, callv, file, inc, k, lhs, ns, out, req, rhs, v, window_mode, window_val;
+      this.tab = o.indent;
+      v = o.runtime ? o.runtime : o.bare ? "none" : "node";
+      window_mode = false;
+      window_val = null;
+      inc = null;
+      inc = (function() {
+        switch (v) {
+          case "inline":
+          case "window":
+            if (v === "window") window_mode = true;
+            if (window_mode) window_val = new Value(new Literal(v));
+            return InlineRuntime.generate(window_val ? window_val.copy() : null);
+          case "node":
+            file = new Literal("'iced-coffee-script'");
+            access = new Access(new Literal(iced["const"].ns));
+            req = new Value(new Literal("require"));
+            call = new Call(req, [file]);
+            callv = new Value(call);
+            callv.add(access);
+            ns = new Value(new Literal(iced["const"].ns));
+            return new Block([new Assign(ns, callv)]);
+          case "none":
+            return null;
+          default:
+            throw SyntaxError(this.usage);
+        }
+      }).call(this);
+      out = inc ? "" + this.tab + (inc.compile(o, LEVEL_TOP)) + "\n" : "";
+      rhs = new Code([], new Block([]));
+      lhs = new Value(new Literal(iced["const"].k));
+      if (window_val) {
+        window_val.add(new Access(lhs));
+        lhs = window_val;
+      }
+      k = new Assign(lhs, rhs);
+      return out + ("" + this.tab) + k.compile(o, LEVEL_TOP);
+    };
+
+    IcedRequire.prototype.icedWalkAst = function(p, o) {
+      this.icedHasAutocbFlag = o.foundAutocb;
+      return IcedRequire.__super__.icedWalkAst.call(this, p, o);
+    };
+
+    return IcedRequire;
+
+  })(Base);
+
+  exports.Try = Try = (function(_super) {
+
+    __extends(Try, _super);
+
+    Try.name = 'Try';
+
+    function Try(attempt, error, recovery, ensure) {
+      this.attempt = attempt;
+      this.error = error;
+      this.recovery = recovery;
+      this.ensure = ensure;
+      Try.__super__.constructor.call(this);
+    }
+
+    Try.prototype.children = ['attempt', 'recovery', 'ensure'];
+
+    Try.prototype.isStatement = YES;
+
+    Try.prototype.jumps = function(o) {
+      var _ref3;
+      return this.attempt.jumps(o) || ((_ref3 = this.recovery) != null ? _ref3.jumps(o) : void 0);
+    };
+
+    Try.prototype.makeReturn = function(res) {
+      if (this.attempt) this.attempt = this.attempt.makeReturn(res);
+      if (this.recovery) this.recovery = this.recovery.makeReturn(res);
+      return this;
+    };
+
+    Try.prototype.compileNode = function(o) {
+      var catchPart, ensurePart, errorPart, tryPart;
+      o.indent += TAB;
+      errorPart = this.error ? " (" + (this.error.compile(o)) + ") " : ' ';
+      tryPart = this.attempt.compile(o, LEVEL_TOP);
+      catchPart = (function() {
+        var _ref3;
+        if (this.recovery) {
+          if (_ref3 = this.error.value, __indexOf.call(STRICT_PROSCRIBED, _ref3) >= 0) {
+            throw SyntaxError("catch variable may not be \"" + this.error.value + "\"");
+          }
+          if (!o.scope.check(this.error.value)) {
+            o.scope.add(this.error.value, 'param');
+          }
+          return " catch" + errorPart + "{\n" + (this.recovery.compile(o, LEVEL_TOP)) + "\n" + this.tab + "}";
+        } else if (!(this.ensure || this.recovery)) {
+          return ' catch (_error) {}';
+        }
+      }).call(this);
+      ensurePart = this.ensure ? " finally {\n" + (this.ensure.compile(o, LEVEL_TOP)) + "\n" + this.tab + "}" : '';
+      return "" + this.tab + "try {\n" + tryPart + "\n" + this.tab + "}" + (catchPart || '') + ensurePart;
+    };
+
+    return Try;
+
+  })(Base);
+
+  exports.Throw = Throw = (function(_super) {
+
+    __extends(Throw, _super);
+
+    Throw.name = 'Throw';
+
+    function Throw(expression) {
+      this.expression = expression;
+      Throw.__super__.constructor.call(this);
+    }
+
+    Throw.prototype.children = ['expression'];
+
+    Throw.prototype.isStatement = YES;
+
+    Throw.prototype.jumps = NO;
+
+    Throw.prototype.makeReturn = THIS;
+
+    Throw.prototype.compileNode = function(o) {
+      return this.tab + ("throw " + (this.expression.compile(o)) + ";");
+    };
+
+    return Throw;
+
+  })(Base);
+
+  exports.Existence = Existence = (function(_super) {
+
+    __extends(Existence, _super);
+
+    Existence.name = 'Existence';
+
+    function Existence(expression) {
+      this.expression = expression;
+      Existence.__super__.constructor.call(this);
+    }
+
+    Existence.prototype.children = ['expression'];
+
+    Existence.prototype.invert = NEGATE;
+
+    Existence.prototype.compileNode = function(o) {
+      var cmp, cnj, code, _ref3;
+      this.expression.front = this.front;
+      code = this.expression.compile(o, LEVEL_OP);
+      if (IDENTIFIER.test(code) && !o.scope.check(code)) {
+        _ref3 = this.negated ? ['===', '||'] : ['!==', '&&'], cmp = _ref3[0], cnj = _ref3[1];
+        code = "typeof " + code + " " + cmp + " \"undefined\" " + cnj + " " + code + " " + cmp + " null";
+      } else {
+        code = "" + code + " " + (this.negated ? '==' : '!=') + " null";
+      }
+      if (o.level <= LEVEL_COND) {
+        return code;
+      } else {
+        return "(" + code + ")";
+      }
+    };
+
+    return Existence;
+
+  })(Base);
+
+  exports.Parens = Parens = (function(_super) {
+
+    __extends(Parens, _super);
+
+    Parens.name = 'Parens';
+
+    function Parens(body) {
+      this.body = body;
+      Parens.__super__.constructor.call(this);
+    }
+
+    Parens.prototype.children = ['body'];
+
+    Parens.prototype.unwrap = function() {
+      return this.icedUnwrap(this.body);
+    };
+
+    Parens.prototype.isComplex = function() {
+      return this.body.isComplex();
+    };
+
+    Parens.prototype.compileNode = function(o) {
+      var bare, code, expr;
+      expr = this.body.unwrap();
+      if (expr instanceof Value && expr.isAtomic()) {
+        expr.front = this.front;
+        return expr.compile(o);
+      }
+      code = expr.compile(o, LEVEL_PAREN);
+      bare = o.level < LEVEL_OP && (expr instanceof Op || expr instanceof Call || (expr instanceof For && expr.returns));
+      if (bare) {
+        return code;
+      } else {
+        return "(" + code + ")";
+      }
+    };
+
+    return Parens;
+
+  })(Base);
+
+  exports.For = For = (function(_super) {
+
+    __extends(For, _super);
+
+    For.name = 'For';
+
+    function For(body, source) {
+      var _ref3;
+      For.__super__.constructor.call(this);
+      this.condition = null;
+      this.source = source.source, this.guard = source.guard, this.step = source.step, this.name = source.name, this.index = source.index;
+      this.body = Block.wrap([body]);
+      this.own = !!source.own;
+      this.object = !!source.object;
+      if (this.object) {
+        _ref3 = [this.index, this.name], this.name = _ref3[0], this.index = _ref3[1];
+      }
+      if (this.index instanceof Value) {
+        throw SyntaxError('index cannot be a pattern matching expression');
+      }
+      this.range = this.source instanceof Value && this.source.base instanceof Range && !this.source.properties.length;
+      this.pattern = this.name instanceof Value;
+      if (this.range && this.index) {
+        throw SyntaxError('indexes do not apply to range loops');
+      }
+      if (this.range && this.pattern) {
+        throw SyntaxError('cannot pattern match over range loops');
+      }
+      this.returns = false;
+    }
+
+    For.prototype.children = ['body', 'source', 'guard', 'step'];
+
+    For.prototype.compileIced = function(o, d) {
+      var a1, a2, a3, a4, a5, b, body, condition, empty_arr, guard, iname, init, ival, key, key_lit, key_val, keys, keys_access, keys_len, keys_val, kval, len, len_rhs, len_val, loop_body, loop_keys, loop_source, ref, ref_val, ref_val_copy, rvar, scope, source_access, step;
+      if (!this.icedNodeFlag) return null;
+      body = d.body;
+      condition = null;
+      init = [];
+      step = null;
+      scope = o.scope;
+      if (this.object) {
+        ref = scope.freeVariable('ref');
+        ref_val = new Value(new Literal(ref));
+        a1 = new Assign(ref_val, this.source);
+        keys = scope.freeVariable('keys');
+        keys_val = new Value(new Literal(keys));
+        key = scope.freeVariable('k');
+        key_lit = new Literal(key);
+        key_val = new Value(key_lit);
+        empty_arr = new Value(new Arr);
+        loop_body = new Block([key_val]);
+        loop_source = {
+          object: true,
+          name: key_lit,
+          source: ref_val
+        };
+        loop_keys = new For(loop_body, loop_source);
+        a2 = new Assign(keys_val, loop_keys);
+        iname = scope.freeVariable('i');
+        ival = new Value(new Literal(iname));
+        a3 = new Assign(ival, new Value(new Literal(0)));
+        init = [a1, a2, a3];
+        keys_len = keys_val.copy();
+        keys_len.add(new Access(new Value(new Literal("length"))));
+        condition = new Op('<', ival, keys_len);
+        step = new Op('++', ival);
+        if (this.name) {
+          source_access = ref_val.copy();
+          source_access.add(new Index(this.index));
+          a5 = new Assign(this.name, source_access);
+          body.unshift(a5);
+        }
+        keys_access = keys_val.copy();
+        keys_access.add(new Index(ival));
+        a4 = new Assign(this.index, keys_access);
+        body.unshift(a4);
+      } else if (this.range && this.name) {
+        condition = new Op('<=', this.name, this.source.base.to);
+        init = [new Assign(this.name, this.source.base.from)];
+        step = new Op('++', this.name);
+      } else if (!this.range && this.name) {
+        kval = new Value(new Literal(d.kvar));
+        len = scope.freeVariable('len');
+        ref = scope.freeVariable('ref');
+        ref_val = new Value(new Literal(ref));
+        len_val = new Value(new Literal(len));
+        a1 = new Assign(ref_val, this.source);
+        len_rhs = ref_val.copy().add(new Access(new Value(new Literal("length"))));
+        a2 = new Assign(len_val, len_rhs);
+        a3 = new Assign(kval, new Value(new Literal(0)));
+        init = [a1, a2, a3];
+        condition = new Op('<', kval, len_val);
+        step = new Op('++', kval);
+        ref_val_copy = ref_val.copy();
+        ref_val_copy.add(new Index(kval));
+        a4 = new Assign(this.name, ref_val_copy);
+        body.unshift(a4);
+      }
+      rvar = d.rvar;
+      guard = d.guard;
+      b = this.icedWrap({
+        condition: condition,
+        body: body,
+        init: init,
+        step: step,
+        rvar: rvar,
+        guard: guard
+      });
+      return b.compile(o);
+    };
+
+    For.prototype.compileNode = function(o) {
+      var body, code, defPart, forPart, forVarPart, guardPart, idt1, index, ivar, kvar, kvarAssign, lastJumps, lvar, name, namePart, ref, resultPart, returnResult, rvar, scope, source, stepPart, stepvar, svar, varPart, _ref3;
+      body = Block.wrap([this.body]);
+      lastJumps = (_ref3 = last(body.expressions)) != null ? _ref3.jumps() : void 0;
+      if (lastJumps && lastJumps instanceof Return) this.returns = false;
+      source = this.range ? this.source.base : this.source;
+      scope = o.scope;
+      name = this.name && this.name.compile(o, LEVEL_LIST);
+      index = this.index && this.index.compile(o, LEVEL_LIST);
+      if (name && !this.pattern) {
+        scope.find(name, {
+          immediate: true
+        });
+      }
+      if (index) {
+        scope.find(index, {
+          immediate: true
+        });
+      }
+      if (this.returns) rvar = scope.freeVariable('results');
+      ivar = (this.object && index) || scope.freeVariable('i');
+      kvar = (this.range && name) || index || ivar;
+      kvarAssign = kvar !== ivar ? "" + kvar + " = " : "";
+      if (this.step && !this.range) stepvar = scope.freeVariable("step");
+      if (this.pattern) name = ivar;
+      varPart = '';
+      guardPart = '';
+      defPart = '';
+      idt1 = this.tab + TAB;
+      if (code = this.compileIced(o, {
+        stepvar: stepvar,
+        body: body,
+        rvar: rvar,
+        kvar: kvar,
+        guard: this.guard
+      })) {
+        return code;
+      }
+      if (this.range) {
+        forPart = source.compile(merge(o, {
+          index: ivar,
+          name: name,
+          step: this.step
+        }));
+      } else {
+        svar = this.source.compile(o, LEVEL_LIST);
+        if ((name || this.own) && !IDENTIFIER.test(svar)) {
+          defPart = "" + this.tab + (ref = scope.freeVariable('ref')) + " = " + svar + ";\n";
+          svar = ref;
+        }
+        if (name && !this.pattern) {
+          namePart = "" + name + " = " + svar + "[" + kvar + "]";
+        }
+        if (!this.object) {
+          lvar = scope.freeVariable('len');
+          forVarPart = "" + kvarAssign + ivar + " = 0, " + lvar + " = " + svar + ".length";
+          if (this.step) {
+            forVarPart += ", " + stepvar + " = " + (this.step.compile(o, LEVEL_OP));
+          }
+          stepPart = "" + kvarAssign + (this.step ? "" + ivar + " += " + stepvar : (kvar !== ivar ? "++" + ivar : "" + ivar + "++"));
+          forPart = "" + forVarPart + "; " + ivar + " < " + lvar + "; " + stepPart;
+        }
+      }
+      if (this.returns) {
+        resultPart = "" + this.tab + rvar + " = [];\n";
+        returnResult = this.icedHasAutocbFlag ? "\n" + this.tab + iced["const"].autocb + "(" + rvar + "); return;" : "\n" + this.tab + "return " + rvar + ";";
+        body.makeReturn(rvar);
+      }
+      if (this.guard) {
+        if (body.expressions.length > 1) {
+          body.expressions.unshift(new If((new Parens(this.guard)).invert(), new Literal("continue")));
+        } else {
+          if (this.guard) body = Block.wrap([new If(this.guard, body)]);
+        }
+      }
+      if (this.pattern) {
+        body.expressions.unshift(new Assign(this.name, new Literal("" + svar + "[" + kvar + "]")));
+      }
+      defPart += this.pluckDirectCall(o, body);
+      if (namePart) varPart = "\n" + idt1 + namePart + ";";
+      if (this.object) {
+        forPart = "" + kvar + " in " + svar;
+        if (this.own) {
+          guardPart = "\n" + idt1 + "if (!" + (utility('hasProp')) + ".call(" + svar + ", " + kvar + ")) continue;";
+        }
+      }
+      body = body.compile(merge(o, {
+        indent: idt1
+      }), LEVEL_TOP);
+      if (body) body = '\n' + body + '\n';
+      return "" + defPart + (resultPart || '') + this.tab + "for (" + forPart + ") {" + guardPart + varPart + body + this.tab + "}" + (returnResult || '');
+    };
+
+    For.prototype.pluckDirectCall = function(o, body) {
+      var base, defs, expr, fn, idx, ref, val, _i, _len, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+      defs = '';
+      _ref3 = body.expressions;
+      for (idx = _i = 0, _len = _ref3.length; _i < _len; idx = ++_i) {
+        expr = _ref3[idx];
+        expr = expr.unwrapAll();
+        if (!(expr instanceof Call)) continue;
+        val = expr.variable.unwrapAll();
+        if (!((val instanceof Code) || (val instanceof Value && ((_ref4 = val.base) != null ? _ref4.unwrapAll() : void 0) instanceof Code && val.properties.length === 1 && ((_ref5 = (_ref6 = val.properties[0].name) != null ? _ref6.value : void 0) === 'call' || _ref5 === 'apply')))) {
+          continue;
+        }
+        fn = ((_ref7 = val.base) != null ? _ref7.unwrapAll() : void 0) || val;
+        ref = new Literal(o.scope.freeVariable('fn'));
+        base = new Value(ref);
+        if (val.base) _ref8 = [base, val], val.base = _ref8[0], base = _ref8[1];
+        body.expressions[idx] = new Call(base, expr.args);
+        defs += this.tab + new Assign(ref, fn).compile(o, LEVEL_TOP) + ';\n';
+      }
+      return defs;
+    };
+
+    return For;
+
+  })(While);
+
+  exports.Switch = Switch = (function(_super) {
+
+    __extends(Switch, _super);
+
+    Switch.name = 'Switch';
+
+    function Switch(subject, cases, otherwise) {
+      this.subject = subject;
+      this.cases = cases;
+      this.otherwise = otherwise;
+      Switch.__super__.constructor.call(this);
+    }
+
+    Switch.prototype.children = ['subject', 'cases', 'otherwise'];
+
+    Switch.prototype.isStatement = YES;
+
+    Switch.prototype.jumps = function(o) {
+      var block, conds, _i, _len, _ref3, _ref4, _ref5;
+      if (o == null) {
+        o = {
+          block: true
+        };
+      }
+      _ref3 = this.cases;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        _ref4 = _ref3[_i], conds = _ref4[0], block = _ref4[1];
+        if (block.jumps(o)) return block;
+      }
+      return (_ref5 = this.otherwise) != null ? _ref5.jumps(o) : void 0;
+    };
+
+    Switch.prototype.makeReturn = function(res) {
+      var pair, _i, _len, _ref3, _ref4;
+      _ref3 = this.cases;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        pair = _ref3[_i];
+        pair[1].makeReturn(res);
+      }
+      if (res) {
+        this.otherwise || (this.otherwise = new Block([new Literal('void 0')]));
+      }
+      if ((_ref4 = this.otherwise) != null) _ref4.makeReturn(res);
+      return this;
+    };
+
+    Switch.prototype.icedCallContinuation = function() {
+      var block, condition, _i, _len, _ref3, _ref4, _ref5;
+      _ref3 = this.cases;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        _ref4 = _ref3[_i], condition = _ref4[0], block = _ref4[1];
+        block.icedThreadReturn();
+      }
+      return (_ref5 = this.otherwise) != null ? _ref5.icedThreadReturn() : void 0;
+    };
+
+    Switch.prototype.compileNode = function(o) {
+      var block, body, code, cond, conditions, expr, i, idt1, idt2, _i, _j, _len, _len2, _ref3, _ref4, _ref5, _ref6;
+      idt1 = o.indent + TAB;
+      idt2 = o.indent = idt1 + TAB;
+      code = this.tab + ("switch (" + (((_ref3 = this.subject) != null ? _ref3.compile(o, LEVEL_PAREN) : void 0) || false) + ") {\n");
+      _ref4 = this.cases;
+      for (i = _i = 0, _len = _ref4.length; _i < _len; i = ++_i) {
+        _ref5 = _ref4[i], conditions = _ref5[0], block = _ref5[1];
+        _ref6 = flatten([conditions]);
+        for (_j = 0, _len2 = _ref6.length; _j < _len2; _j++) {
+          cond = _ref6[_j];
+          if (!this.subject) cond = cond.invert();
+          code += idt1 + ("case " + (cond.compile(o, LEVEL_PAREN)) + ":\n");
+        }
+        if (body = block.compile(o, LEVEL_TOP)) code += body + '\n';
+        if (i === this.cases.length - 1 && !this.otherwise) break;
+        expr = this.lastNonComment(block.expressions);
+        if (expr instanceof Return || (expr instanceof Literal && expr.jumps() && expr.value !== 'debugger')) {
+          continue;
+        }
+        code += idt2 + 'break;\n';
+      }
+      if (this.otherwise && this.otherwise.expressions.length) {
+        code += idt1 + ("default:\n" + (this.otherwise.compile(o, LEVEL_TOP)) + "\n");
+      }
+      return code + this.tab + '}';
+    };
+
+    return Switch;
+
+  })(Base);
+
+  exports.If = If = (function(_super) {
+
+    __extends(If, _super);
+
+    If.name = 'If';
+
+    function If(condition, body, options) {
+      this.body = body;
+      if (options == null) options = {};
+      If.__super__.constructor.call(this);
+      this.condition = options.type === 'unless' ? condition.invert() : condition;
+      this.elseBody = null;
+      this.isChain = false;
+      this.soak = options.soak;
+    }
+
+    If.prototype.children = ['condition', 'body', 'elseBody'];
+
+    If.prototype.bodyNode = function() {
+      var _ref3;
+      return (_ref3 = this.body) != null ? _ref3.unwrap() : void 0;
+    };
+
+    If.prototype.elseBodyNode = function() {
+      var _ref3;
+      return (_ref3 = this.elseBody) != null ? _ref3.unwrap() : void 0;
+    };
+
+    If.prototype.addElse = function(elseBody) {
+      if (this.isChain) {
+        this.elseBodyNode().addElse(elseBody);
+      } else {
+        this.isChain = elseBody instanceof If;
+        this.elseBody = this.ensureBlock(elseBody);
+      }
+      return this;
+    };
+
+    If.prototype.icedCallContinuation = function() {
+      if (this.elseBody) {
+        this.elseBody.icedThreadReturn();
+        this.isChain = false;
+      } else {
+        this.addElse(new IcedTailCall);
+      }
+      return this.body.icedThreadReturn();
+    };
+
+    If.prototype.isStatement = function(o) {
+      var _ref3;
+      return (o != null ? o.level : void 0) === LEVEL_TOP || this.bodyNode().isStatement(o) || ((_ref3 = this.elseBodyNode()) != null ? _ref3.isStatement(o) : void 0) || this.icedHasContinuation();
+    };
+
+    If.prototype.jumps = function(o) {
+      var _ref3;
+      return this.body.jumps(o) || ((_ref3 = this.elseBody) != null ? _ref3.jumps(o) : void 0);
+    };
+
+    If.prototype.compileNode = function(o) {
+      if (this.isStatement(o || this.icedIsCpsPivot())) {
+        return this.compileStatement(o);
+      } else {
+        return this.compileExpression(o);
+      }
+    };
+
+    If.prototype.makeReturn = function(res) {
+      if (res) {
+        this.elseBody || (this.elseBody = new Block([new Literal('void 0')]));
+      }
+      this.body && (this.body = new Block([this.body.makeReturn(res)]));
+      this.elseBody && (this.elseBody = new Block([this.elseBody.makeReturn(res)]));
+      return this;
+    };
+
+    If.prototype.ensureBlock = function(node) {
+      if (node instanceof Block) {
+        return node;
+      } else {
+        return new Block([node]);
+      }
+    };
+
+    If.prototype.compileStatement = function(o) {
+      var body, bodyc, child, cond, exeq, ifPart, _ref3;
+      child = del(o, 'chainChild');
+      exeq = del(o, 'isExistentialEquals');
+      if (exeq) {
+        return new If(this.condition.invert(), this.elseBodyNode(), {
+          type: 'if'
+        }).compile(o);
+      }
+      cond = this.condition.compile(o, LEVEL_PAREN);
+      o.indent += TAB;
+      body = this.ensureBlock(this.body);
+      bodyc = body.compile(o);
+      if (1 === ((_ref3 = body.expressions) != null ? _ref3.length : void 0) && !this.elseBody && !child && bodyc && cond && -1 === (bodyc.indexOf('\n')) && 80 > cond.length + bodyc.length) {
+        return "" + this.tab + "if (" + cond + ") " + (bodyc.replace(/^\s+/, ''));
+      }
+      if (bodyc) bodyc = "\n" + bodyc + "\n" + this.tab;
+      ifPart = "if (" + cond + ") {" + bodyc + "}";
+      if (!child) ifPart = this.tab + ifPart;
+      if (!this.elseBody) return ifPart;
+      return ifPart + ' else ' + (this.isChain ? (o.indent = this.tab, o.chainChild = true, this.elseBody.unwrap().compile(o, LEVEL_TOP)) : "{\n" + (this.elseBody.compile(o, LEVEL_TOP)) + "\n" + this.tab + "}");
+    };
+
+    If.prototype.compileExpression = function(o) {
+      var alt, body, code, cond;
+      cond = this.condition.compile(o, LEVEL_COND);
+      body = this.bodyNode().compile(o, LEVEL_LIST);
+      alt = this.elseBodyNode() ? this.elseBodyNode().compile(o, LEVEL_LIST) : 'void 0';
+      code = "" + cond + " ? " + body + " : " + alt;
+      if (o.level >= LEVEL_COND) {
+        return "(" + code + ")";
+      } else {
+        return code;
+      }
+    };
+
+    If.prototype.unfoldSoak = function() {
+      return this.soak && this;
+    };
+
+    return If;
+
+  })(Base);
+
+  Closure = {
+    wrap: function(expressions, statement, noReturn) {
+      var args, call, func, mentionsArgs, meth;
+      if (expressions.jumps()) return expressions;
+      func = new Code([], Block.wrap([expressions]));
+      args = [];
+      if ((mentionsArgs = expressions.contains(this.literalArgs)) || expressions.contains(this.literalThis)) {
+        meth = new Literal(mentionsArgs ? 'apply' : 'call');
+        args = [new Literal('this')];
+        if (mentionsArgs) args.push(new Literal('arguments'));
+        func = new Value(func, [new Access(meth)]);
+      }
+      func.noReturn = noReturn;
+      call = new Call(func, args);
+      if (statement) {
+        return Block.wrap([call]);
+      } else {
+        return call;
+      }
+    },
+    literalArgs: function(node) {
+      return node instanceof Literal && node.value === 'arguments' && !node.asKey;
+    },
+    literalThis: function(node) {
+      return (node instanceof Literal && node.value === 'this' && !node.asKey) || (node instanceof Code && node.bound);
+    }
+  };
+
+  CpsCascade = {
+    wrap: function(statement, rest, returnValue, o) {
+      var args, block, call, cont, e, func;
+      func = new Code([new Param(new Literal(iced["const"].k))], Block.wrap([statement]), 'icedgen');
+      args = [];
+      if (returnValue) {
+        returnValue.bindName(o);
+        args.push(returnValue);
+      }
+      block = Block.wrap([rest]);
+      if ((e = block.getSingle()) && e instanceof IcedTailCall && e.canInline()) {
+        cont = e.extractFunc();
+      } else {
+        cont = new Code(args, block, 'icedgen');
+      }
+      call = new Call(func, [cont]);
+      return new Block([call]);
+    }
+  };
+
+  IcedTailCall = (function(_super) {
+
+    __extends(IcedTailCall, _super);
+
+    IcedTailCall.name = 'IcedTailCall';
+
+    function IcedTailCall(func, val) {
+      this.func = func;
+      if (val == null) val = null;
+      IcedTailCall.__super__.constructor.call(this);
+      if (!this.func) this.func = iced["const"].k;
+      this.value = val;
+    }
+
+    IcedTailCall.prototype.children = ['value'];
+
+    IcedTailCall.prototype.assignValue = function(v) {
+      return this.value = v;
+    };
+
+    IcedTailCall.prototype.canInline = function() {
+      return !this.value || this.value instanceof IcedReturnValue;
+    };
+
+    IcedTailCall.prototype.literalFunc = function() {
+      return new Literal(this.func);
+    };
+
+    IcedTailCall.prototype.extractFunc = function() {
+      return new Value(this.literalFunc());
+    };
+
+    IcedTailCall.prototype.icedCpsRotate = function() {
+      var nv;
+      if (this.value) {
+        if ((nv = this.icedCpsExprRotate(this.value))) return this.value = nv;
+      }
+    };
+
+    IcedTailCall.prototype.compileNode = function(o) {
+      var args, f, out;
+      f = this.literalFunc();
+      out = o.level === LEVEL_TOP ? this.value ? new Block([this.value, new Call(f)]) : new Call(f) : (args = this.value ? [this.value] : [], new Call(f, args));
+      return out.compileNode(o);
+    };
+
+    return IcedTailCall;
+
+  })(Base);
+
+  IcedReturnValue = (function(_super) {
+
+    __extends(IcedReturnValue, _super);
+
+    IcedReturnValue.name = 'IcedReturnValue';
+
+    IcedReturnValue.counter = 0;
+
+    function IcedReturnValue() {
+      IcedReturnValue.__super__.constructor.call(this, null, null, false);
+    }
+
+    IcedReturnValue.prototype.bindName = function(o) {
+      var l;
+      l = "" + (o.scope.freeVariable(iced["const"].param, false)) + "_" + (IcedReturnValue.counter++);
+      return this.name = new Literal(l);
+    };
+
+    IcedReturnValue.prototype.compile = function(o) {
+      if (!this.name) this.bindName(o);
+      return IcedReturnValue.__super__.compile.call(this, o);
+    };
+
+    return IcedReturnValue;
+
+  })(Param);
+
+  InlineRuntime = {
+    generate: function(ns_window) {
+      var a1, a2, af, apply_call, assignments, body, call_meth, cn, cnt, cnt_member, constructor_assign, constructor_body, constructor_code, constructor_name, constructor_params, decr, defer_assign, defer_body, defer_code, defer_name, defer_params, dp, dp_value, fn_assign, fn_code, fn_name, if_body, if_cond, if_expr, inc, inner_body, inner_code, inner_params, ip, k, k_member, klass, klass_assign, my_apply, my_if, my_null, ns, ns_obj, ns_val, obj, outer_block, p1, ret_member, _fulfill_assign, _fulfill_body, _fulfill_call, _fulfill_code, _fulfill_method, _fulfill_name;
+      k = new Literal("continuation");
+      cnt = new Literal("count");
+      cn = new Value(new Literal(iced["const"].Deferrals));
+      ns = new Value(new Literal(iced["const"].ns));
+      if (ns_window) {
+        ns_window.add(new Access(ns));
+        ns = ns_window;
+      }
+      k_member = new Value(new Literal("this"));
+      k_member.add(new Access(k));
+      p1 = new Param(k_member);
+      cnt_member = new Value(new Literal("this"));
+      cnt_member.add(new Access(cnt));
+      ret_member = new Value(new Literal("this"));
+      ret_member.add(new Access(new Value(new Literal(iced["const"].retslot))));
+      a1 = new Assign(cnt_member, new Value(new Literal(1)));
+      a2 = new Assign(ret_member, NULL());
+      constructor_params = [p1];
+      constructor_body = new Block([a1, a2]);
+      constructor_code = new Code(constructor_params, constructor_body);
+      constructor_name = new Value(new Literal("constructor"));
+      constructor_assign = new Assign(constructor_name, constructor_code);
+      if_expr = new Call(k_member, [ret_member]);
+      if_body = new Block([if_expr]);
+      decr = new Op('--', cnt_member);
+      if_cond = new Op('!', decr);
+      my_if = new If(if_cond, if_body);
+      _fulfill_body = new Block([my_if]);
+      _fulfill_code = new Code([], _fulfill_body);
+      _fulfill_name = new Value(new Literal(iced["const"].fulfill));
+      _fulfill_assign = new Assign(_fulfill_name, _fulfill_code);
+      inc = new Op("++", cnt_member);
+      ip = new Literal("inner_params");
+      dp = new Literal("defer_params");
+      dp_value = new Value(dp);
+      call_meth = new Value(dp);
+      af = new Literal(iced["const"].assign_fn);
+      call_meth.add(new Access(af, "soak"));
+      my_apply = new Literal("apply");
+      call_meth.add(new Access(my_apply, "soak"));
+      my_null = NULL();
+      apply_call = new Call(call_meth, [my_null, new Value(ip)]);
+      _fulfill_method = new Value(new Literal("this"));
+      _fulfill_method.add(new Access(new Literal(iced["const"].fulfill)));
+      _fulfill_call = new Call(_fulfill_method, []);
+      inner_body = new Block([apply_call, _fulfill_call]);
+      inner_params = [new Param(ip, null, true)];
+      inner_code = new Code(inner_params, inner_body, "boundfunc");
+      defer_body = new Block([inc, inner_code]);
+      defer_params = [new Param(dp)];
+      defer_code = new Code(defer_params, defer_body);
+      defer_name = new Value(new Literal(iced["const"].defer_method));
+      defer_assign = new Assign(defer_name, defer_code);
+      assignments = [constructor_assign, _fulfill_assign, defer_assign];
+      obj = new Obj(assignments, true);
+      body = new Block([new Value(obj)]);
+      klass = new Class(null, null, body);
+      klass_assign = new Assign(cn, klass, "object");
+      outer_block = new Block([NULL()]);
+      fn_code = new Code([], outer_block);
+      fn_name = new Value(new Literal(iced["const"].findDeferral));
+      fn_assign = new Assign(fn_name, fn_code, "object");
+      ns_obj = new Obj([klass_assign, fn_assign], true);
+      ns_val = new Value(ns_obj);
+      return new Assign(ns, ns_val);
+    }
+  };
+
+  unfoldSoak = function(o, parent, name) {
+    var ifn;
+    if (!(ifn = parent[name].unfoldSoak(o))) return;
+    parent[name] = ifn.body;
+    ifn.body = new Value(parent);
+    return ifn;
+  };
+
+  UTILITIES = {
+    "extends": function() {
+      return "function(child, parent) { for (var key in parent) { if (" + (utility('hasProp')) + ".call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }";
+    },
+    bind: function() {
+      return 'function(fn, me){ return function(){ return fn.apply(me, arguments); }; }';
+    },
+    indexOf: function() {
+      return "[].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; }";
+    },
+    hasProp: function() {
+      return '{}.hasOwnProperty';
+    },
+    slice: function() {
+      return '[].slice';
+    }
+  };
+
+  LEVEL_TOP = 1;
+
+  LEVEL_PAREN = 2;
+
+  LEVEL_LIST = 3;
+
+  LEVEL_COND = 4;
+
+  LEVEL_OP = 5;
+
+  LEVEL_ACCESS = 6;
+
+  TAB = '  ';
+
+  IDENTIFIER_STR = "[$A-Za-z_\\x7f-\\uffff][$\\w\\x7f-\\uffff]*";
+
+  IDENTIFIER = RegExp("^" + IDENTIFIER_STR + "$");
+
+  SIMPLENUM = /^[+-]?\d+$/;
+
+  METHOD_DEF = RegExp("^(?:(" + IDENTIFIER_STR + ")\\.prototype(?:\\.(" + IDENTIFIER_STR + ")|\\[(\"(?:[^\\\\\"\\r\\n]|\\\\.)*\"|'(?:[^\\\\'\\r\\n]|\\\\.)*')\\]|\\[(0x[\\da-fA-F]+|\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)\\]))|(" + IDENTIFIER_STR + ")$");
+
+  IS_STRING = /^['"]/;
+
+  utility = function(name) {
+    var ref;
+    ref = "__" + name;
+    Scope.root.assign(ref, UTILITIES[name]());
+    return ref;
+  };
+
+  multident = function(code, tab) {
+    code = code.replace(/\n/g, '$&' + tab);
+    return code.replace(/\s+$/, '');
+  };
+
+}).call(this);
+
+};require['./coffee-script'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var EXTENSIONS, Lexer, RESERVED, compile, e, fs, iced, isCoffeeFile, lexer, parser, path, vm, _i, _j, _len, _len2, _ref,
+    __hasProp = {}.hasOwnProperty;
+
+  fs = require('fs');
+
+  path = require('path');
+
+  _ref = require('./lexer'), Lexer = _ref.Lexer, RESERVED = _ref.RESERVED;
+
+  parser = require('./parser').parser;
+
+  iced = require('./iced');
+
+  vm = require('vm');
+
+  exports.EXTENSIONS = EXTENSIONS = [".coffee", ".iced"];
+
+  isCoffeeFile = function(file) {
+    var e, _i, _len;
+    for (_i = 0, _len = EXTENSIONS.length; _i < _len; _i++) {
+      e = EXTENSIONS[_i];
+      if (path.extname(file) === e) return true;
+    }
+    return false;
+  };
+
+  if (require.extensions) {
+    for (_i = 0, _len = EXTENSIONS.length; _i < _len; _i++) {
+      e = EXTENSIONS[_i];
+      require.extensions[e] = function(module, filename) {
+        var content;
+        content = compile(fs.readFileSync(filename, 'utf8'), {
+          filename: filename
+        });
+        return module._compile(content, filename);
+      };
+    }
+  } else if (require.registerExtension) {
+    for (_j = 0, _len2 = EXTENSIONS.length; _j < _len2; _j++) {
+      e = EXTENSIONS[_j];
+      require.registerExtension(e, function(content) {
+        return compile(content);
+      });
+    }
+  }
+
+  exports.VERSION = '1.2.0e';
+
+  exports.RESERVED = RESERVED;
+
+  exports.helpers = require('./helpers');
+
+  exports.compile = compile = function(code, options) {
+    var header, js, merge;
+    if (options == null) options = {};
+    merge = exports.helpers.merge;
+    try {
+      js = (iced.transform(parser.parse(lexer.tokenize(code)))).compile(options);
+      if (!options.header) return js;
+    } catch (err) {
+      if (options.filename) {
+        err.message = "In " + options.filename + ", " + err.message;
+      }
+      throw err;
+    }
+    header = "Generated by IcedCoffeeScript " + this.VERSION;
+    return "// " + header + "\n" + js;
+  };
+
+  exports.tokens = function(code, options) {
+    return lexer.tokenize(code, options);
+  };
+
+  exports.nodes = function(source, options) {
+    if (typeof source === 'string') {
+      return iced.transform(parser.parse(lexer.tokenize(source, options)));
+    } else {
+      return iced.transform(parser.parse(source));
+    }
+  };
+
+  exports.run = function(code, options) {
+    var mainModule;
+    if (options == null) options = {};
+    mainModule = require.main;
+    mainModule.filename = process.argv[1] = options.filename ? fs.realpathSync(options.filename) : '.';
+    mainModule.moduleCache && (mainModule.moduleCache = {});
+    mainModule.paths = require('module')._nodeModulePaths(path.dirname(options.filename));
+    if ((!isCoffeeFile(mainModule.filename)) || require.extensions) {
+      return mainModule._compile(compile(code, options), mainModule.filename);
+    } else {
+      return mainModule._compile(code, mainModule.filename);
+    }
+  };
+
+  exports["eval"] = function(code, options) {
+    var Module, Script, js, k, o, r, sandbox, v, _k, _len3, _module, _ref2, _ref3, _require;
+    if (options == null) options = {};
+    if (!(code = code.trim())) return;
+    Script = vm.Script;
+    if (Script) {
+      if (options.sandbox != null) {
+        if (options.sandbox instanceof Script.createContext().constructor) {
+          sandbox = options.sandbox;
+        } else {
+          sandbox = Script.createContext();
+          _ref2 = options.sandbox;
+          for (k in _ref2) {
+            if (!__hasProp.call(_ref2, k)) continue;
+            v = _ref2[k];
+            sandbox[k] = v;
+          }
+        }
+        sandbox.global = sandbox.root = sandbox.GLOBAL = sandbox;
+      } else {
+        sandbox = global;
+      }
+      sandbox.__filename = options.filename || 'eval';
+      sandbox.__dirname = path.dirname(sandbox.__filename);
+      if (!(sandbox !== global || sandbox.module || sandbox.require)) {
+        Module = require('module');
+        sandbox.module = _module = new Module(options.modulename || 'eval');
+        sandbox.require = _require = function(path) {
+          return Module._load(path, _module, true);
+        };
+        _module.filename = sandbox.__filename;
+        _ref3 = Object.getOwnPropertyNames(require);
+        for (_k = 0, _len3 = _ref3.length; _k < _len3; _k++) {
+          r = _ref3[_k];
+          if (r !== 'paths') _require[r] = require[r];
+        }
+        _require.paths = _module.paths = Module._nodeModulePaths(process.cwd());
+        _require.resolve = function(request) {
+          return Module._resolveFilename(request, _module);
+        };
+      }
+    }
+    o = {};
+    for (k in options) {
+      if (!__hasProp.call(options, k)) continue;
+      v = options[k];
+      o[k] = v;
+    }
+    o.bare = true;
+    js = compile(code, o);
+    if (sandbox === global) {
+      return vm.runInThisContext(js);
+    } else {
+      return vm.runInContext(js, sandbox);
+    }
+  };
+
+  lexer = new Lexer;
+
+  parser.lexer = {
+    lex: function() {
+      var tag, _ref2;
+      _ref2 = this.tokens[this.pos++] || [''], tag = _ref2[0], this.yytext = _ref2[1], this.yylineno = _ref2[2];
+      return tag;
+    },
+    setInput: function(tokens) {
+      this.tokens = tokens;
+      return this.pos = 0;
+    },
+    upcomingInput: function() {
+      return "";
+    }
+  };
+
+  parser.yy = require('./nodes');
+
+  exports.iced = iced.runtime;
+
+}).call(this);
+
+};require['./browser'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var CoffeeScript, runScripts;
+
+  CoffeeScript = require('./coffee-script');
+
+  CoffeeScript.require = require;
+
+  CoffeeScript["eval"] = function(code, options) {
+    return eval(CoffeeScript.compile(code, options));
+  };
+
+  CoffeeScript.run = function(code, options) {
+    if (options == null) options = {};
+    options.bare = true;
+    return Function(CoffeeScript.compile(code, options))();
+  };
+
+  if (typeof window === "undefined" || window === null) return;
+
+  CoffeeScript.load = function(url, callback) {
+    var xhr;
+    xhr = new (window.ActiveXObject || XMLHttpRequest)('Microsoft.XMLHTTP');
+    xhr.open('GET', url, true);
+    if ('overrideMimeType' in xhr) xhr.overrideMimeType('text/plain');
+    xhr.onreadystatechange = function() {
+      var _ref;
+      if (xhr.readyState === 4) {
+        if ((_ref = xhr.status) === 0 || _ref === 200) {
+          CoffeeScript.run(xhr.responseText);
+        } else {
+          throw new Error("Could not load " + url);
+        }
+        if (callback) return callback();
+      }
+    };
+    return xhr.send(null);
+  };
+
+  runScripts = function() {
+    var coffees, execute, index, length, s, scripts;
+    scripts = document.getElementsByTagName('script');
+    coffees = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = scripts.length; _i < _len; _i++) {
+        s = scripts[_i];
+        if (s.type === 'text/coffeescript') _results.push(s);
+      }
+      return _results;
+    })();
+    index = 0;
+    length = coffees.length;
+    (execute = function() {
+      var script;
+      script = coffees[index++];
+      if ((script != null ? script.type : void 0) === 'text/coffeescript') {
+        if (script.src) {
+          return CoffeeScript.load(script.src, execute);
+        } else {
+          CoffeeScript.run(script.innerHTML);
+          return execute();
+        }
+      }
+    })();
+    return null;
+  };
+
+  if (window.addEventListener) {
+    addEventListener('DOMContentLoaded', runScripts, false);
+  } else {
+    attachEvent('onload', runScripts);
+  }
+
+}).call(this);
+
+};require['./icedlib'] = new function() {
+  var exports = this;
+  // Generated by IcedCoffeeScript 1.2.0e
+(function() {
+  var Pipeliner, iced, iced_internals, __iced_k, _timeout,
+    __slice = [].slice;
+
+    __iced_k = function() {};
+
+  iced_internals = require('./iced');
+
+  iced = iced_internals.runtime;
+
+  _timeout = function(cb, t, res, tmp) {
+    var arr, rv, which, ___iced_passed_deferral, __iced_deferrals,
+      _this = this;
+    ___iced_passed_deferral = iced.findDeferral(arguments);
+    rv = new iced.Rendezvous;
+    tmp[0] = rv.id(true).__iced_deferrals.defer({
+      assign_fn: (function() {
+        return function() {
+          return arr = __slice.call(arguments, 0);
+        };
+      })(),
+      lineno: 17
+    });
+    setTimeout(rv.id(false).__iced_deferrals.defer({
+      lineno: 18
+    }), t);
+    (function(__iced_k) {
+      __iced_deferrals = new iced.Deferrals(__iced_k, {
+        parent: ___iced_passed_deferral,
+        filename: 'src/icedlib.coffee',
+        funcname: '_timeout'
+      });
+      rv.wait(__iced_deferrals.defer({
+        assign_fn: (function() {
+          return function() {
+            return which = arguments[0];
+          };
+        })(),
+        lineno: 20
+      }));
+      __iced_deferrals._fulfill();
+    })(function() {
+      if (res) res[0] = which;
+      return cb.apply(null, arr);
+    });
+  };
+
+  exports.timeout = function(cb, t, res) {
+    var tmp;
+    tmp = [];
+    _timeout(cb, t, res, tmp);
+    return tmp[0];
+  };
+
+  exports.Pipeliner = Pipeliner = (function() {
+
+    Pipeliner.name = 'Pipeliner';
+
+    function Pipeliner(window, delay) {
+      this.window = window || 1;
+      this.delay = delay || 0;
+      this.queue = [];
+      this.n_out = 0;
+      this.cb = null;
+      this[iced_internals["const"].deferrals] = this;
+      this["defer"] = this._defer;
+    }
+
+    Pipeliner.prototype.waitInQueue = function(cb) {
+      var ___iced_passed_deferral, __iced_deferrals,
+        _this = this;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      (function(__iced_k) {
+        var _results, _while;
+        _results = [];
+        _while = function(__iced_k) {
+          var _break, _continue, _next;
+          _break = function() {
+            return __iced_k(_results);
+          };
+          _continue = function() {
+            return _while(__iced_k);
+          };
+          _next = function(__iced_next_arg) {
+            _results.push(__iced_next_arg);
+            return _continue();
+          };
+          if (!(_this.n_out > _this.window)) {
+            return _break();
+          } else {
+            (function(__iced_k) {
+              __iced_deferrals = new iced.Deferrals(__iced_k, {
+                parent: ___iced_passed_deferral,
+                filename: 'src/icedlib.coffee',
+                funcname: 'Pipeliner.waitInQueue'
+              });
+              _this.cb = __iced_deferrals.defer({
+                lineno: 56
+              });
+              __iced_deferrals._fulfill();
+            })(_next);
+          }
+        };
+        _while(__iced_k);
+      })(function() {
+        _this.n_out++;
+        (function(__iced_k) {
+          if (_this.delay) {
+            (function(__iced_k) {
+              __iced_deferrals = new iced.Deferrals(__iced_k, {
+                parent: ___iced_passed_deferral,
+                filename: 'src/icedlib.coffee',
+                funcname: 'Pipeliner.waitInQueue'
+              });
+              setTimeout(__iced_deferrals.defer({
+                lineno: 64
+              }), _this.delay);
+              __iced_deferrals._fulfill();
+            })(__iced_k);
+          } else {
+            return __iced_k();
+          }
+        })(function() {
+          return cb();
+        });
+      });
+    };
+
+    Pipeliner.prototype.__defer = function(out, deferArgs) {
+      var tmp, voidCb, ___iced_passed_deferral, __iced_deferrals,
+        _this = this;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          filename: 'src/icedlib.coffee',
+          funcname: 'Pipeliner.__defer'
+        });
+        voidCb = __iced_deferrals.defer({
+          lineno: 77
+        });
+        out[0] = function() {
+          var args, _ref;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          if ((_ref = deferArgs.assign_fn) != null) _ref.apply(null, args);
+          return voidCb();
+        };
+        __iced_deferrals._fulfill();
+      })(function() {
+        _this.n_out--;
+        if (_this.cb) {
+          tmp = _this.cb;
+          _this.cb = null;
+          return tmp();
+        }
+      });
+    };
+
+    Pipeliner.prototype._defer = function(deferArgs) {
+      var tmp;
+      tmp = [];
+      this.__defer(tmp, deferArgs);
+      return tmp[0];
+    };
+
+    Pipeliner.prototype.flush = function(autocb) {
+      var ___iced_passed_deferral, __iced_deferrals, _results, _while,
+        _this = this;
+      __iced_k = autocb;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      _results = [];
+      _while = function(__iced_k) {
+        var _break, _continue, _next;
+        _break = function() {
+          return __iced_k(_results);
+        };
+        _continue = function() {
+          return _while(__iced_k);
+        };
+        _next = function(__iced_next_arg) {
+          _results.push(__iced_next_arg);
+          return _continue();
+        };
+        if (!_this.n_out) {
+          return _break();
+        } else {
+          (function(__iced_k) {
+            __iced_deferrals = new iced.Deferrals(__iced_k, {
+              parent: ___iced_passed_deferral,
+              filename: 'src/icedlib.coffee',
+              funcname: 'Pipeliner.flush'
+            });
+            _this.cb = __iced_deferrals.defer({
+              lineno: 104
+            });
+            __iced_deferrals._fulfill();
+          })(_next);
+        }
+      };
+      _while(__iced_k);
+    };
+
+    return Pipeliner;
+
+  })();
+
+}).call(this);
+
+};
+    return require['./coffee-script'];
+  }();
+
+  if (typeof define === 'function' && define.amd) {
+    define(function() { return CoffeeScript; });
+    define(function() { return CoffeeScript.iced; });
+  } else { 
+    root.CoffeeScript = CoffeeScript;
+    root.iced = CoffeeScript.iced;
+  }
+}(this));

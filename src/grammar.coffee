@@ -79,12 +79,6 @@ grammar =
     o 'Return'
     o 'Comment'
     o 'STATEMENT',                              -> new Literal $1
-    o 'Require'
-  ]
-
-  Require : [
-    o 'ICEDREQUIRE Arguments',                  -> new IcedRequire $2
-
   ]
 
   Await: [
