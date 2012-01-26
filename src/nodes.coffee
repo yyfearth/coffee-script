@@ -2415,10 +2415,10 @@ exports.Await = class Await extends Base
 # By default, the iced libraries are require'd via nodejs' require.
 # You can change this behavior on the command line:
 #
-#    -Iinline --- inlines a simplified runtime to the output file
-#    -Inode   --- force node.js inclusion
-#    -Iwindow --- attach the inlined runtime to the window.* object
-#    -Inone   --- no inclusion, do it yourself...
+#    -I inline --- inlines a simplified runtime to the output file
+#    -I node   --- force node.js inclusion
+#    -I window --- attach the inlined runtime to the window.* object
+#    -I none   --- no inclusion, do it yourself...
 #
 exports.IcedRequire = class IcedRequire extends Base
   constructor: (@foundDefer) ->
