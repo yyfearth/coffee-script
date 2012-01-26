@@ -70,7 +70,7 @@ task 'install', 'install CoffeeScript into /usr/local (or --prefix)', (options) 
 task 'build', 'build the CoffeeScript language from source', build = (cb) ->
   files = fs.readdirSync 'src'
   files = ('src/' + file for file in files when file.match(/\.coffee$/))
-  run ['-c', '-o', 'lib/coffee-script'].concat(files), cb
+  run ['-c', '-o', 'lib/coffee-script', '-I', 'none'].concat(files), cb
 
 
 task 'build:full', 'rebuild the source twice, and run the tests', ->
@@ -114,8 +114,10 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
 
       if (typeof define === 'function' && define.amd) {
         define(function() { return CoffeeScript; });
+        define(function() { return CoffeeScript.iced; });
       } else { 
-        root.CoffeeScript = CoffeeScript; 
+        root.CoffeeScript = CoffeeScript;
+        root.iced = CoffeeScript.iced;
       }
     }(this));
   """
@@ -244,8 +246,9 @@ runTests = (CoffeeScript) ->
   for file in files when file.match /\.coffee$/i
     currentFile = filename = path.join 'test', file
     code = fs.readFileSync filename
+    runtime = if file is 'iced.coffee' then 'inline' else 'none'
     try
-      CoffeeScript.run code.toString(), {filename}
+      CoffeeScript.run code.toString(), { filename, runtime}
     catch error
       failures.push {filename, error}
   return !failures.length
@@ -260,6 +263,5 @@ task 'test:browser', 'run the test suite against the merged browser script', ->
   result = {}
   global.testingBrowser = yes
   (-> eval source).call result
-  global.iced = result.CoffeeScript.iced
   runTests result.CoffeeScript
 

@@ -1,4 +1,3 @@
-icedRequire(none)
 
 iced_internals = require('./iced')
 iced = iced_internals.runtime
