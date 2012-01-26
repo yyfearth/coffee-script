@@ -26,21 +26,25 @@ exports.const = C =
   trace : "__iced_trace"
   passed_deferral : "__iced_passed_deferral"
   findDeferral : "findDeferral"
-  pass_fields : [ "parent_cb", "file", "line", "func_name" ]
+  lineno : "lineno"
+  parent : "parent"
+  filename : "filename"
 
 #=======================================================================
 # runtime
 
-makeDeferReturn = (obj, defer_args, id) ->
+makeDeferReturn = (obj, defer_args, id, trace_template) ->
   ret = (inner_args...) ->
     defer_args?.assign_fn?.apply(null, inner_args)
     obj._fulfill id
 
   if defer_args
-    ret[C.trace] = {}
-    for k in C.pass_fields
-      ret[C.trace][k] = defer_args[k]
-
+    trace = {}
+    trace[C.lineno] = defer_args[C.lineno]
+    for k in [ C.parent, C.filename ]
+      trace[k] = trace_template[k]
+    ret[C.trace] = trace
+    
   ret
 
 #-----------------------------------------------------------------------
@@ -58,6 +62,8 @@ tickCounter = (mod) ->
   else
     false
 
+__active_trace = null
+
 #-----------------------------------------------------------------------
 # Deferrals
 #
@@ -67,22 +73,25 @@ tickCounter = (mod) ->
 
 class Deferrals
 
-  constructor: (k) ->
+  constructor: (k, @trace) ->
     @continuation = k
     @count = 1
     @ret = null
 
+  _call : ->
+    @continuation @ret
+
   _fulfill : ->
     if --@count == 0
       if tickCounter 500
-        process.nextTick (=> @continuation @ret)
+        process.nextTick (=> @_call())
       else
-        @continuation @ret
+        @_call()
 
   defer : (args) ->
     @count++
     self = this
-    return makeDeferReturn self, args, null
+    return makeDeferReturn self, args, null, @trace
 
 #=======================================================================
 
@@ -145,7 +154,7 @@ class Rendezvous
   
   _deferWithId: (id, defer_args) ->
     @count++
-    makeDeferReturn this, defer_args, id
+    makeDeferReturn this, defer_args, id, {}
 
 #=======================================================================
 

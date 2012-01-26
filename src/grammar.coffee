@@ -313,7 +313,7 @@ grammar =
   ]
 
   Defer : [
-    o 'DEFER Arguments',                        -> new Defer $2
+    o 'DEFER Arguments',                        -> new Defer $2, yylineno
   ]
 
   # An optional existence check on a function.
