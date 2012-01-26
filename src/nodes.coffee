@@ -1625,6 +1625,12 @@ exports.Code = class Code extends Base
 
   isStatement: -> !!@ctor
 
+  traceName : ->
+    parts = []
+    parts.push @klass if @klass
+    parts.push @name if @name
+    parts.join '.'
+
   jumps: NO
 
   # Compilation creates a new scope unless explicitly asked to share with the
@@ -2365,6 +2371,12 @@ exports.Await = class Await extends Base
       fn_rhs = new Value new Literal "'#{o.filename}'"
       fn_assignment = new Assign fn_lhs, fn_rhs, "object"
       assignments.push fn_assignment
+
+    if n = @parentFunc?.traceName()
+      func_lhs = new Value new Literal iced.const.funcname
+      func_rhs = new Value new Literal "'#{n}'"
+      func_assignment = new Assign func_lhs, func_rhs, "object"
+      assignments.push func_assignment
     
     trace = new Obj assignments, true
     call = new Call cls, [ (new Value new Literal iced.const.k), trace ]
