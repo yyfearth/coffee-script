@@ -2191,7 +2191,7 @@ exports.Slot = class Slot extends Base
 #### Defer
 
 exports.Defer = class Defer extends Base
-  constructor : (args) ->
+  constructor : (args, @lineno) ->
     super()
     @slots = (a.toSlot() for a in args)
     @params = []
@@ -2293,6 +2293,10 @@ exports.Defer = class Defer extends Base
     if (assign_fn = @makeAssignFn o)
       assignments.push new Assign(new Value(new Literal(iced.const.assign_fn)),
                                   assign_fn, "object")
+    ln_lhs = new Value new Literal iced.const.lineno
+    ln_rhs = new Value new Literal @lineno
+    ln_assign = new Assign ln_lhs, ln_rhs, "object"
+    assignments.push ln_assign
     o = new Obj assignments
 
     # Return the final call
@@ -2325,7 +2329,22 @@ exports.Await = class Await extends Base
     lhs = new Value new Literal name
     cls = new Value new Literal iced.const.ns
     cls.add(new Access(new Value new Literal iced.const.Deferrals))
-    call = new Call cls, [ new Value new Literal iced.const.k ]
+
+    assignments = []
+    if n = @parentFunc?.icedPassedDeferral
+      cb_lhs = new Value new Literal iced.const.parent
+      cb_rhs = new Value new Literal n
+      cb_assignment = new Assign cb_lhs, cb_rhs, "object"
+      assignments.push cb_assignment
+
+    if o.filename?
+      fn_lhs = new Value new Literal iced.const.filename
+      fn_rhs = new Value new Literal "'#{o.filename}'"
+      fn_assignment = new Assign fn_lhs, fn_rhs, "object"
+      assignments.push fn_assignment
+    
+    trace = new Obj assignments, true
+    call = new Call cls, [ (new Value new Literal iced.const.k), trace ]
     rhs = new Op "new", call
     assign = new Assign lhs, rhs
     body.unshift assign
@@ -2350,6 +2369,7 @@ exports.Await = class Await extends Base
   # to our parent that we are iced, since we are!
   icedWalkAst : (p, o) ->
     @icedHasAutocbFlag = o.foundAutocb
+    @parentFunc = o.currFunc
     p = p || this
     @icedParentAwait = p
     super p, o
@@ -3015,18 +3035,10 @@ InlineRuntime =
   #       @continuation @ret if not --@count
   #     defer : (defer_params) ->
   #       @count++
-  #       ret = (inner_params...) =>
+  #       (inner_params...) =>
   #         defer_params?.assign_fn?.apply(null, inner_params)
   #         @_fulfill()
-  #       if defer_args
-  #         ret[C.trace] = {}
-  #         for k in C.pass_fields
-  #           ret[C.trace][k] = defer_args[k]
-  #       ret
-  #   findDeferral : (args) ->
-  #     for a in args
-  #       return a if a?[exports.const.trace]
-  #     return null
+  #   findDeferral : (args) -> null
   #
   generate : (ns_window) ->
     k = new Literal "continuation"
@@ -3076,14 +3088,9 @@ InlineRuntime =
     # Make the defer member:
     #   defer : (defer_params) ->
     #     @count++
-    #     ret = (inner_params...) ->
+    #     (inner_params...) ->
     #       defer_params?.assign_fn?.apply(null, inner_params)
     #       @_fulfill()
-    #     if defer_args
-    #       ret[C.trace] = {}
-    #       for k in C.pass_fields
-    #         ret[C.trace][k] = defer_args[k]
-    #     ret
     #
     inc = new Op "++", cnt_member
     ip = new Literal "inner_params"
@@ -3102,25 +3109,7 @@ InlineRuntime =
     inner_body = new Block [ apply_call, _fulfill_call ]
     inner_params = [ new Param ip, null, on ]
     inner_code = new Code inner_params, inner_body, "boundfunc"
-    ret_literal = new Literal 'ret'
-    ret_value = new Value ret_literal
-    ret_assign = new Assign ret_value, inner_code
-    ret_access = ret_value.copy()
-    ret_access.add new Access new Value new Literal iced.const.trace
-    ret_trace_assign = new Assign ret_access, new Obj
-    k_literal = new Literal 'k'
-    k_value = new Value k_literal
-    fields = ((new Value new Literal "'#{i}'") for i in iced.const.pass_fields)
-    ret_access_inner = ret_value.copy()
-    ret_access_inner.add new Access new Value new Literal iced.const.trace
-    ret_access_inner.add new Index k_literal
-    rhs = dp_value.copy()
-    rhs.add new Index k_literal
-    for_assign = new Assign ret_access_inner, rhs
-    for_body = new Block [ for_assign ]
-    for_block = new For for_body, name: k_value, source: new Arr fields
-    if_body = new If dp_value, new Block [ ret_trace_assign, for_block ]
-    defer_body = new Block [ inc, ret_assign, if_body, ret_value ]
+    defer_body = new Block [ inc, inner_code ]
     defer_params = [ new Param dp ]
     defer_code = new Code defer_params, defer_body
     defer_name = new Value new Literal iced.const.defer_method
@@ -3131,31 +3120,19 @@ InlineRuntime =
     obj = new Obj assignments, true
     body = new Block [ new Value obj ]
     klass = new Class null, null, body
+    klass_assign = new Assign cn, klass, "object"
     
-    #   findDeferral : (args) ->
-    #     for a in args
-    #       return a if a?[iced.const.trace]
-    #     return null
-    args_literal = new Literal 'args'
-    args_value = new Value args_literal
-    args_param = new Param args_literal
-    a = new Value new Literal 'a'
-    a_copy = a.copy()
-    a.add new Access (new Value new Literal iced.const.trace), 'soak'
-    found_block = new Block [ new Return a ]
-    if_block = new If a, found_block
-    for_block = new For if_block, source: args_value, name: a_copy
-    unfound_block = new Block [ new Return NULL() ]
-    outer_block = new Block [ for_block, unfound_block ]
-    fn_code = new Code [ args_param ], outer_block
+    # A stub so that the function still works
+    #      findDeferral : (args) -> null
+    outer_block = new Block [ NULL() ]
+    fn_code = new Code [ ], outer_block
     fn_name = new Value new Literal iced.const.findDeferral
+    fn_assign = new Assign fn_name, fn_code, "object"
       
     # iced =
     #   Deferrals : <class>
     #   findDeferral : <code>
     #
-    klass_assign = new Assign cn, klass, "object"
-    fn_assign = new Assign fn_name, fn_code, "object"
     ns_obj = new Obj [ klass_assign, fn_assign ], true
     ns_val = new Value ns_obj
     new Assign ns, ns_val
