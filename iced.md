@@ -15,12 +15,12 @@ version), and then discusses the specifics of the CoffeeScript implementation.
 
 ICS is available as an npm package:
 
-   npm install -g ice-coffee-script
+    npm install -g ice-coffee-script
 
 You can alternatively checkout ICS and install from source:
 
-   git clone https://github.com/maxtaco/coffee-script
-   ./bin/cake install
+    git clone https://github.com/maxtaco/coffee-script
+    ./bin/cake install
 
 This will give you libraries under `iced-coffee-script` and 
 the binaries `iced` and `icake`, which are replacements
