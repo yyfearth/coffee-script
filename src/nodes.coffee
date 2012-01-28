@@ -2345,13 +2345,13 @@ exports.Await = class Await extends Base
 
     if o.filename?
       fn_lhs = new Value new Literal iced.const.filename
-      fn_rhs = new Value new Literal "'#{o.filename}'"
+      fn_rhs = new Value new Literal '"' + o.filename + '"'
       fn_assignment = new Assign fn_lhs, fn_rhs, "object"
       assignments.push fn_assignment
 
     if n = @parentFunc?.traceName()
       func_lhs = new Value new Literal iced.const.funcname
-      func_rhs = new Value new Literal "'#{n}'"
+      func_rhs = new Value new Literal '"' + n + '"'
       func_assignment = new Assign func_lhs, func_rhs, "object"
       assignments.push func_assignment
     
