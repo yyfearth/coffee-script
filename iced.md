@@ -1,5 +1,4 @@
-What Is IcedCoffeeScript?
-==================
+# What Is IcedCoffeeScript?
 
 IcedCoffeeScript (ICS) is a system for handling callbacks in event-based code.
 There were two existing implementations, one in [the sfslite library for
@@ -11,6 +10,26 @@ flavoring.
 
 This document first presents a "Iced" tutorial (adapted from the JavaScript
 version), and then discusses the specifics of the CoffeeScript implementation.
+
+# Installing and Running ICS
+
+ICS is available as an npm package:
+
+   npm install -g ice-coffee-script
+
+You can alternatively checkout ICS and install from source:
+
+   git clone https://github.com/maxtaco/coffee-script
+   ./bin/cake install
+
+This will give you libraries under `iced-coffee-script` and 
+the binaries `iced` and `icake`, which are replacements
+for `coffee` and `cake` respectively.  In almost all cases,
+`iced` should serve as a drop-in replacement for `coffee`,
+since the ICS language is a superset of CoffeeScript.
+
+For more information about CS and ICS, you can also see
+our <a href="http://maxtaco.github.com/coffee-script">brochure page</a>.
 
 # Quick Tutorial and Examples
 
