@@ -422,7 +422,6 @@ exports.Block = class Block extends Base
   icedThreadReturn: (call)  ->
     call = call || new IcedTailCall
     len = @expressions.length
-    foundReturn = false
     while len--
       expr = @expressions[len]
 
@@ -641,9 +640,6 @@ exports.Block = class Block extends Base
   @wrap: (nodes) ->
     return nodes[0] if nodes.length is 1 and nodes[0] instanceof Block
     new Block nodes
-
-  endsInAwait : ->
-    return @expressions?.length and @expressions[@expressions.length-1] instanceof Await
 
   icedAddRuntime : (foundDefer, foundAwait) ->
     @expressions.unshift new IcedRuntime foundDefer, foundAwait
