@@ -49,7 +49,7 @@ SWITCHES = [
   ['-t', '--tokens',          'print out the tokens that the lexer/rewriter produce']
   ['-v', '--version',         'display the version number']
   ['-w', '--watch',           'watch scripts for changes and rerun commands']
-  ['-I', '--runtime [WHICH]',    'how to include the iced runtime, one of #{runtime_modes_str}; default is "inline"' ]
+  ['-I', '--runtime [WHICH]', "how to include the iced runtime, one of #{runtime_modes_str}; default is 'node'" ]
 ]
 
 # Top-level objects shared by all the functions.
