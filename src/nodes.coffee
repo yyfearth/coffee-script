@@ -45,6 +45,7 @@ exports.Base = class Base
     @icedGotCpsSplitFlag = false
     @icedCpsPivotFlag    = false
     @icedHasAutocbFlag   = false
+    @icedFoundArguments  = false
 
     @icedParentAwait     = null
     @icedCallContinuationFlag = false
@@ -204,6 +205,7 @@ exports.Base = class Base
     extras += "P" if @icedCpsPivotFlag
     extras += "C" if @icedHasAutocbFlag
     extras += "D" if @icedParentAwait
+    extras += "G" if @icedFoundArguments
     if extras.length
       extras = " (" + extras + ")"
     tree = '\n' + idt + name
@@ -275,10 +277,12 @@ exports.Base = class Base
   #   copies, to push information up and down the AST. This parameter is
   #   used with subfields:
   #
-  #      o.foundAutocb  -- on if the parent function has an autocb
-  #      o.foundDefer   -- on if defer() was found anywhere in the AST
-  #      o.foundAwait   -- on if await... was found anywhere in the AST
-  #      o.currFunc     -- the current func we're in
+  #      o.foundAutocb    -- on if the parent function has an autocb
+  #      o.foundDefer     -- on if defer() was found anywhere in the AST
+  #      o.foundAwait     -- on if await... was found anywhere in the AST
+  #      o.foundAwaitFunc -- on if await found in this func
+  #      o.currFunc       -- the current func we're in
+  #      o.foundArguments -- on if we found reference to 'arguments'
   #
   icedWalkAst : (p, o) ->
     @icedParentAwait = p
@@ -669,7 +673,7 @@ exports.Block = class Block extends Base
 # JavaScript without translation, such as: strings, numbers,
 # `true`, `false`, `null`...
 exports.Literal = class Literal extends Base
-  constructor: (@value) ->
+  constructor: (@value, @tag) ->
     super()
 
   makeReturn: ->
@@ -686,6 +690,12 @@ exports.Literal = class Literal extends Base
 
   assigns: (name) ->
     name is @value
+
+  icedWalkAst : (parent, o) ->
+    if @value is 'arguments' and o.foundAwaitFunc
+      o.foundArguments = true
+      @value = "_arguments"
+    false
 
   compileIced: (o) ->
     d =
@@ -1657,6 +1667,9 @@ exports.Code = class Code extends Base
       throw SyntaxError "multiple parameters named '#{name}'" if name in uniqs
       uniqs.push name
 
+    if @icedFoundArguments and @icedNodeFlag
+      o.scope.assign '_arguments', 'arguments'
+
     wasEmpty = false if @icedHasAutocbFlag
     @body.makeReturn() unless wasEmpty or @noReturn
     if @bound
@@ -1718,7 +1731,11 @@ exports.Code = class Code extends Base
     @icedParentAwait = parent
     fa_prev = o.foundAutocb
     cf_prev = o.currFunc
+    fg_prev = o.foundArguments
+    faf_prev = o.foundAwaitFunc
     o.foundAutocb = false
+    o.foundArguments = false
+    o.foundAwaitFunc = false
     o.currFunc = @
     for param in @params
       if param.name instanceof Literal and param.name.value is iced.const.autocb
@@ -1726,6 +1743,9 @@ exports.Code = class Code extends Base
         break
     @icedHasAutocbFlag = o.foundAutocb
     super parent, o
+    @icedFoundArguments = o.foundArguments
+    o.foundAwaitFunc = faf_prev
+    o.foundArguments = fg_prev
     o.foundAutocb = fa_prev
     o.currFunc = cf_prev
     false
@@ -2394,7 +2414,7 @@ exports.Await = class Await extends Base
     p = p || this
     @icedParentAwait = p
     super p, o
-    @icedNodeFlag = o.foundAwait = true
+    @icedNodeFlag = o.foundAwaitFunc = o.foundAwait = true
 
 #### IcedRuntime
 #
