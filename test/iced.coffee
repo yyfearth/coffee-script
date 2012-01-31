@@ -576,3 +576,10 @@ atest "defer and object assignment", (cb) ->
         when 1 then baz defer { b : out[i] }
         when 2 then baz defer { a : out[i] }
   cb( out[0] is 3 and out[1] is 2 and out[2] is 1, {} )
+
+atest 'defer + arguments', (cb) ->
+  bar = (i, cb) ->
+    await delay defer()
+    arguments[1](arguments[0])
+  await bar 10, defer x
+  cb(10 is x, {})
