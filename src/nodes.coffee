@@ -76,14 +76,14 @@ exports.Base = class Base
 
     #
     # This solves this case:
-    # 
+    #
     # foo = (autocb) ->
     #   x = (i for i in [0..10])
     #   x
     #
     #  We don't want the autocb to fire in the evaluation of the list
     #  comprehension on the RHS.
-    # 
+    #
     @icedClearAutocbFlags()
     Closure.wrap(this).compileNode o
 
@@ -805,11 +805,12 @@ exports.Value = class Value extends Base
 
   # If this value is being used as a slot for the purposes of a defer
   # then export it here
-  toSlot : ->
+  toSlot : (i) ->
+    return @base.toSlot i if @base instanceof Obj
     sufffix = null
     if @properties and @properties.length
       suffix = @properties.pop()
-    return new Slot this, suffix
+    return new Slot i, this, suffix
 
   # A reference has base part (`this` value) and name part.
   # We cache them separately for compiling complex expressions.
@@ -1205,6 +1206,10 @@ exports.Obj = class Obj extends Base
     @objects = @properties = props or []
 
   children: ['properties']
+
+  toSlot : (i) ->
+    for prop in @properties when prop instanceof Assign
+      (prop.value.toSlot i).addAccess prop.variable
 
   icedWrapContinuation : YES
   icedCpsRotate : ->
@@ -1678,7 +1683,7 @@ exports.Code = class Code extends Base
       f.add new Access new Value new Literal iced.const.findDeferral
       rhs = new Call f, [ new Value new Literal 'arguments' ]
       @body.unshift(new Assign lhs, rhs)
-    
+
     if @icedNodeFlag
       o.iced_scope = o.scope
 
@@ -1822,8 +1827,8 @@ exports.Splat = class Splat extends Base
 
   unwrap: -> @name
 
-  toSlot: () ->
-    new Slot(new Value(@name), null, true)
+  toSlot: (i) ->
+    new Slot(i, new Value(@name), null, true)
 
   # Utility function that converts an arbitrary number of elements, mixed with
   # splats, to a proper array.
@@ -2187,11 +2192,17 @@ exports.In = class In extends Base
 #  can be converted to slots with the `toSlot` method.
 #
 exports.Slot = class Slot extends Base
-  constructor : (value, suffix, splat) ->
+  constructor : (index, value, suffix, splat) ->
     super()
+    @index = index
     @value = value
     @suffix = suffix
     @splat = splat
+    @access = null
+
+  addAccess : (a) ->
+    @access = a
+    this
 
   children : [ 'value', 'suffix' ]
 
@@ -2200,7 +2211,7 @@ exports.Slot = class Slot extends Base
 exports.Defer = class Defer extends Base
   constructor : (args, @lineno) ->
     super()
-    @slots = (a.toSlot() for a in args)
+    @slots = flatten (a.toSlot i for a,i in args)
     @params = []
     @vars = []
 
@@ -2247,6 +2258,7 @@ exports.Defer = class Defer extends Base
     args = []
     i = 0
     for s in @slots
+      i = s.index
       a = new Value new Literal "arguments"
       i_lit = new Value new Literal i
       if s.splat # case 4
@@ -2258,6 +2270,8 @@ exports.Defer = class Defer extends Base
         assign = new Assign slot, call
       else
         a.add new Index i_lit
+        if s.access
+          a.add new Access s.access
         if not s.suffix # case 1
           lit = s.value.compile o, LEVEL_TOP
           if lit is "_"
@@ -2277,7 +2291,6 @@ exports.Defer = class Defer extends Base
           slot.add prop
         assign = new Assign slot, a
       assignments.push assign
-      i++
 
     block = new Block assignments
     inner_fn = new Code [], block, 'icedgen'
@@ -2355,7 +2368,7 @@ exports.Await = class Await extends Base
       func_rhs = new Value new Literal '"' + n + '"'
       func_assignment = new Assign func_lhs, func_rhs, "object"
       assignments.push func_assignment
-    
+
     trace = new Obj assignments, true
     call = new Call cls, [ (new Value new Literal iced.const.k), trace ]
     rhs = new Op "new", call
@@ -2404,7 +2417,7 @@ class IcedRuntime extends Block
 
   compileNode: (o) ->
     @expressions = []
-    
+
     v = if o.runtime    then o.runtime
     else if o.bare      then "none"
     else if @foundDefer then "node"
@@ -2448,7 +2461,7 @@ class IcedRuntime extends Block
   icedWalkAst : (p,o) ->
     @icedHasAutocbFlag = o.foundAutocb
     super p, o
- 
+
 #### Try
 
 # A classic *try/catch/finally* block.
@@ -3122,14 +3135,14 @@ InlineRuntime =
     body = new Block [ new Value obj ]
     klass = new Class null, null, body
     klass_assign = new Assign cn, klass, "object"
-    
+
     # A stub so that the function still works
     #      findDeferral : (args) -> null
     outer_block = new Block [ NULL() ]
     fn_code = new Code [ ], outer_block
     fn_name = new Value new Literal iced.const.findDeferral
     fn_assign = new Assign fn_name, fn_code, "object"
-      
+
     # iced =
     #   Deferrals : <class>
     #   findDeferral : <code>

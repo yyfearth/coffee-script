@@ -364,7 +364,7 @@ atest 'expressions -- simple, but recursive (2)', (cb) ->
     x = await adder 4, defer _
     ++x
   cb(y is 6, {})
-  
+
 atest 'expressions -- pass value of tail calls', (cb) ->
   adder = (x, cb) ->
     await delay defer()
@@ -387,7 +387,7 @@ atest 'expressions -- addition (2)', (cb) ->
     a+b
   y = (await slowAdd 10, 20, defer _) + (await slowAdd 30, 40, defer _)
   cb(y is 100, {})
-  
+
 atest 'expressions - chaining', (cb) ->
   id = "image data"
   class Img
@@ -397,14 +397,14 @@ atest 'expressions - chaining', (cb) ->
     cb new Img
   x = (await loadImage "test.png", defer _).render()
   cb(x is id, {})
-  
+
 atest 'expressions - call args', (cb) ->
   slowAdd = (a,b,autocb) ->
     await delay defer()
     a+b
   x = await slowAdd 3, (await slowAdd 3, 4, defer _), defer _
   cb(x is 10, {})
-  
+
 atest 'expressions - call args (2)', (cb) ->
   slowAdd = (a,b,autocb) ->
     await delay defer()
@@ -502,7 +502,7 @@ atest 'super with no args', (cb) ->
     foo : (cb) ->
       await delay defer()
       cb()
-  a = new A 
+  a = new A
   await a.foo defer()
   cb(a.x is 10, {})
 
@@ -527,7 +527,7 @@ atest 'for + return + autocb', (cb) ->
   bar = (autocb) ->
     await delay defer()
     (i for i in [0..10])
-  await bar defer v 
+  await bar defer v
   cb(v[3] is 3, {})
 
 atest 'for + return + autocb (part 2)', (cb) ->
@@ -563,4 +563,16 @@ atest "nested loops + inner break", (cb) ->
     i++
   res = j*i
   cb(res is 50, {})
-    
+
+atest "defer and object assignment", (cb) ->
+  baz = (cb) ->
+    await delay defer()
+    cb { a : 1, b : 2, c : 3}
+  out = []
+  await
+    for i in [0..2]
+      switch i
+        when 0 then baz defer { c : out[i] }
+        when 1 then baz defer { b : out[i] }
+        when 2 then baz defer { a : out[i] }
+  cb( out[0] is 3 and out[1] is 2 and out[2] is 1, {} )
