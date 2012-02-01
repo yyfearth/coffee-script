@@ -152,7 +152,7 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
     [ 'iced', 'Iced.runtime' ]
   ]
   code = jsMinify code
-  fs.writeFileSync 'extras/iced-coffee-script.js', header + '\n' + code
+  fs.writeFileSync 'extras/coffee-script-iced.js', header + '\n' + code
 
   code = (jsGenLib 'iced') + (jsGenLib 'icedlib')
   code = jsWrapCode code, 'Icedlib', 'icedlib', [
@@ -160,7 +160,7 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
     [ 'iced', 'Icedlib.iced' ]
   ]
   code = jsMinify code
-  fs.writeFileSync 'extras/iced-coffee-script-large.js', header + '\n' + code
+  fs.writeFileSync 'extras/coffee-script-iced-large.js', header + '\n' + code
 
   console.log "built ... running browser tests:"
   invoke 'test:browser'
