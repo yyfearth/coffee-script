@@ -52,7 +52,7 @@ task :gem do
   Gem::Package.open(file, 'w') do |pkg|
     pkg.metadata = gemspec.to_yaml
 
-    path = "lib/coffee_script/source.rb"
+    path = "lib/iced_coffee_script/source.rb"
     contents = <<-ERUBY
 module IcedCoffeeScript
   module Source
