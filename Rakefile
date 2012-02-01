@@ -27,7 +27,7 @@ task :gem do
   require 'rubygems/package'
 
   gemspec = Gem::Specification.new do |s|
-    s.name      = 'coffee-script-source'
+    s.name      = 'iced-coffee-script-source'
     s.version   = JSON.parse(File.read('package.json'))["version"]
     s.date      = Time.now.strftime("%Y-%m-%d")
 
@@ -39,7 +39,7 @@ task :gem do
     EOS
 
     s.files = [
-      'lib/iced_coffee_script/iced-coffee-script.js',
+      'lib/iced_coffee_script/coffee-script.js',
       'lib/iced_coffee_script/source.rb'
     ]
 
@@ -57,7 +57,7 @@ task :gem do
 module IcedCoffeeScript
   module Source
     def self.bundled_path
-      File.expand_path("../iced-coffee-script.js", __FILE__)
+      File.expand_path("../coffee-script.js", __FILE__)
     end
   end
 end
@@ -66,8 +66,8 @@ end
       tar_io.write(contents)
     end
 
-    contents = File.read("extras/iced-coffee-script.js")
-    path = "lib/iced_coffee_script/iced-coffee-script.js"
+    contents = File.read("extras/coffee-script.js")
+    path = "lib/iced_coffee_script/coffee-script.js"
     pkg.add_file_simple(path, 0644, contents.size) do |tar_io|
       tar_io.write(contents)
     end
