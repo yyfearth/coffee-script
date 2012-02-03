@@ -24,9 +24,9 @@ printWarn = (line) -> process.stderr.write line + '\n'
 
 # The help banner that is printed when `coffee` is called without arguments.
 BANNER = '''
-  Usage: coffee [options] path/to/script.coffee
+  Usage: iced [options] path/to/script.coffee
 
-  If called without options, `coffee` will run your script.
+  If called without options, `iced` will run your script.
          '''
 
 # The list of all the valid option flags that `coffee` knows how to handle.
@@ -58,7 +58,7 @@ notSources   = {}
 watchers     = {}
 optionParser = null
 
-# Run `coffee` by parsing passed options and determining what action to take.
+# Run `iced` by parsing passed options and determining what action to take.
 # Many flags cause us to divert before compiling anything. Flags passed after
 # `--` will be passed verbatim to your script as arguments in `process.argv`
 exports.run = ->
@@ -76,7 +76,7 @@ exports.run = ->
   if opts.run
     opts.literals = sources.splice(1).concat opts.literals
   process.argv = process.argv[0..1].concat opts.literals
-  process.argv[0] = 'coffee'
+  process.argv[0] = 'iced'
   process.execPath = require.main.filename
   for source in sources
     compilePath source, yes, path.normalize source
