@@ -26,10 +26,10 @@ hidden = (file) -> /^\.|~$/.test file
 
 # The help banner that is printed when `coffee` is called without arguments.
 BANNER = '''
-  Usage: coffee [options] path/to/script.coffee -- [args]
+  Usage: iced [options] path/to/script.coffee -- [args]
 
   If called without options, `coffee` will run your script.
-'''
+         '''
 
 # The list of all the valid option flags that `coffee` knows how to handle.
 SWITCHES = [
@@ -60,7 +60,7 @@ notSources   = {}
 watchers     = {}
 optionParser = null
 
-# Run `coffee` by parsing passed options and determining what action to take.
+# Run `iced` by parsing passed options and determining what action to take.
 # Many flags cause us to divert before compiling anything. Flags passed after
 # `--` will be passed verbatim to your script as arguments in `process.argv`
 exports.run = ->
@@ -77,7 +77,7 @@ exports.run = ->
   return require './repl'                unless sources.length
   literals = if opts.run then sources.splice 1 else []
   process.argv = process.argv[0..1].concat literals
-  process.argv[0] = 'coffee'
+  process.argv[0] = 'iced'
   process.execPath = require.main.filename
   for source in sources
     compilePath source, yes, path.normalize source
