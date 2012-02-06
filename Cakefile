@@ -49,17 +49,18 @@ option '-p', '--prefix [DIR]', 'set the installation prefix for `cake install`'
 
 task 'install', 'install CoffeeScript into /usr/local (or --prefix)', (options) ->
   base = options.prefix or '/usr/local'
-  lib  = "#{base}/lib/iced-coffee-script"
+  lib  = "#{base}/lib/extra-coffee-script"
   bin  = "#{base}/bin"
-  node = "~/.node_libraries/iced-coffee-script"
+  node = "~/.node_libraries/extra-coffee-script"
   console.log   "Installing CoffeeScript to #{lib}"
   console.log   "Linking to #{node}"
-  console.log   "Linking 'coffee' to #{bin}/iced"
+  console.log   "Linking 'coffee' to #{bin}/xcoffee"
   exec([
     "mkdir -p #{lib} #{bin}"
     "cp -rf bin lib LICENSE README package.json src #{lib}"
-    "ln -sfn #{lib}/bin/coffee #{bin}/iced"
-    "ln -sfn #{lib}/bin/cake #{bin}/icake"
+    "ln -sfn #{lib}/bin/coffee #{bin}/xcoffee"
+    "ln -sfn #{lib}/bin/cake #{bin}/xcake"
+    "ln -sfn #{lib}/bin/cson #{bin}/xcson"
     "mkdir -p ~/.node_libraries"
     "ln -sfn #{lib}/lib/coffee-script #{node}"
   ].join(' && '), (err, stdout, stderr) ->

@@ -33,6 +33,8 @@ BANNER = '''
 SWITCHES = [
   ['-b', '--bare',            'compile without a top-level function wrapper']
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
+  [      '--header',          'use a string as a head when compile is on']
+  ['-x', '--extra',         'enable extra features']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
   ['-i', '--interactive',     'run an interactive CoffeeScript REPL']
@@ -317,15 +319,20 @@ parseOptions = ->
   o = opts      = optionParser.parse process.argv[2..]
   handleIcedOptions o
   o.compile     or=  !!o.output
+  if o.header?
+    throw 'use header only with compile' if o.header? and not o.compile
+    o.header    = if o.header is 'on' then on else if o.header is 'off' then off else o.header
+  else o.header = o.compile
   o.run         = not (o.compile or o.print or o.lint)
   o.print       = !!  (o.print or (o.eval or o.stdio and o.compile))
+  o.extra       = !! o.extra
   sources       = o.arguments
   sourceCode[i] = null for source, i in sources
   return
 
 # The compile-time options to pass to the CoffeeScript compiler.
 compileOptions = (filename) ->
-  {filename, bare: opts.bare, header: opts.compile, runtime: opts.runtime}
+  {filename, bare: opts.bare, header: opts.header, runtime: opts.runtime, extra: opts.extra}
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
 # the `node` binary, preserving the other options.
@@ -345,4 +352,4 @@ usage = ->
 
 # Print the `--version` message and exit.
 version = ->
-  printLine "IcedCoffeeScript version #{CoffeeScript.VERSION}"
+  printLine "eXtraCoffeeScript version #{CoffeeScript.VERSION}"
