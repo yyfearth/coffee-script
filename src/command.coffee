@@ -34,7 +34,8 @@ SWITCHES = [
   ['-b', '--bare',            'compile without a top-level function wrapper']
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
   [      '--header',          'use a string as a head when compile is on']
-  ['-x', '--extra',         'enable extra features']
+  ['-x', '--extra',           'enable extra features']
+  [      '--min',             'enable uglify js to minify compiled js']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
   ['-i', '--interactive',     'run an interactive CoffeeScript REPL']
@@ -117,6 +118,12 @@ compilePath = (source, topLevel, base) ->
       notSources[source] = yes
       removeSource source, base
 
+# min js add by wilson
+{parser, uglify} = require 'uglify-js'
+min = (code, opt ={}) ->
+  uglify.gen_code (uglify.ast_squeeze uglify.ast_mangle parser.parse code),
+    ascii_only: on
+    inline_script: on
 
 # Compile a single source script, containing the given code, according to the
 # requested options. If evaluating the script directly sets `__filename`,
@@ -154,7 +161,9 @@ compileStdio = ->
   stdin.on 'data', (buffer) ->
     code += buffer.toString() if buffer
   stdin.on 'end', ->
-    compileScript null, code
+    js = compileScript null, code
+    js = min js if opts.min
+    js
 
 # If all of the source files are done being read, concatenate and compile
 # them together.
@@ -272,7 +281,10 @@ writeJs = (source, js, base) ->
   jsPath = outputPath source, base
   jsDir  = path.dirname jsPath
   compile = ->
-    js = ' ' if js.length <= 0
+    if js.length <= 0
+      js = ' '
+    else if opts.min
+      js = min js
     fs.writeFile jsPath, js, (err) ->
       if err
         printLine err.message
@@ -325,14 +337,14 @@ parseOptions = ->
   else o.header = o.compile
   o.run         = not (o.compile or o.print or o.lint)
   o.print       = !!  (o.print or (o.eval or o.stdio and o.compile))
-  o.extra       = !! o.extra
+  o.extra = o.imports = !! o.extra
   sources       = o.arguments
   sourceCode[i] = null for source, i in sources
   return
 
 # The compile-time options to pass to the CoffeeScript compiler.
 compileOptions = (filename) ->
-  {filename, bare: opts.bare, header: opts.header, runtime: opts.runtime, extra: opts.extra}
+  {filename, bare: opts.bare, header: opts.header, runtime: opts.runtime, imports: opts.imports}
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
 # the `node` binary, preserving the other options.
