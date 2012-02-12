@@ -34,7 +34,7 @@ SWITCHES = [
   ['-b', '--bare',            'compile without a top-level function wrapper']
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
   [      '--header',          'use a string as a head when compile is on']
-  ['-x', '--extra',           'enable extra features']
+  ['-x', '--imports',         'enable import feature']
   [      '--min',             'enable uglify js to minify compiled js']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
@@ -337,7 +337,7 @@ parseOptions = ->
   else o.header = o.compile
   o.run         = not (o.compile or o.print or o.lint)
   o.print       = !!  (o.print or (o.eval or o.stdio and o.compile))
-  o.extra = o.imports = !! o.extra
+  o.imports = !! o.imports
   sources       = o.arguments
   sourceCode[i] = null for source, i in sources
   return
