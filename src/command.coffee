@@ -89,7 +89,7 @@ compilePath = (source, topLevel, base) ->
   fs.stat source, (err, stats) ->
     throw err if err and err.code isnt 'ENOENT'
     if err?.code is 'ENOENT'
-      if topLevel and source[-7..] isnt '.coffee'
+      if topLevel and source[-7..] isnt '.coffee' and source[-5..] isnt '.iced'
         source = sources[sources.indexOf(source)] = "#{source}.coffee"
         return compilePath source, topLevel, base
       if topLevel
