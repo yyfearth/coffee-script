@@ -1,5 +1,5 @@
 /**
- * CoffeeScript Compiler v1.2.0m
+ * CoffeeScript Compiler v1.2.0n
  * http://coffeescript.org
  *
  * Copyright 2011, Jeremy Ashkenas

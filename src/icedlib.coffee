@@ -26,6 +26,36 @@ exports.timeout = (cb, t, res) ->
   _timeout cb, t, res, tmp
   tmp[0]
 
+#
+# The 'and' connector, that allows you to check only once that
+# all operations with a parallel `await` worked...
+#
+_iand = (cb, res, tmp) ->
+  await
+    tmp[0] = defer ok
+  res[0] = false unless ok
+  cb()
+ 
+exports.iand = (cb, res) ->
+  tmp = []
+  _iand cb, res, tmp
+  tmp[0]
+
+#
+# The 'or' connector, that allows you to check only once that
+# one of several operations in a parallel `await` worked
+#
+_ior = (cb, res, tmp) ->
+  await
+    tmp[0] = defer ok
+  res[0] = true if ok
+  cb()
+
+exports.ior = (cb, res) ->
+  tmp = []
+  _ior cb, res, tmp
+  tmp[0]
+
 ####
 # 
 # Pipeliner -- a class for firing a follow of network calls in a pipelined
