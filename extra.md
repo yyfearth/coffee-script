@@ -8,7 +8,7 @@ eXtraCoffeeScript is a fork of [IcedCoffeeScript](https://github.com/maxtaco/cof
 + Iced Features: Introduced `await` and `defer` keywords, for more information please read [this](iced.md).
 + Import: Introduced `import` to import the external source before compiling. This feature is inspired by [Import](https://github.com/devongovett/import) but implement is totally different. Currently switch `--imports` or `-x` must be added to the executable to enable this feature.
 + CSON: Included cson library and executable to compile CSON to JSON. This feature is inspired by [cson.npm](https://github.com/balupton/cson.npm) but implement is  different. Currently use `xcson package.cson` to compile package.cson to package.json.
-+Minify: Use [UglifyJS](https://github.com/mishoo/UglifyJS) to minify compiled javascript with extra switch `xcoffee --min` while using executable or option `min: true` while using library.
++ Minify: Use [UglifyJS](https://github.com/mishoo/UglifyJS) to minify compiled javascript with extra switch `xcoffee --min` while using executable or option `min: true` while using library.
 
 
 # Installing and Running

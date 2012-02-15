@@ -69,3 +69,36 @@ if require?
     for i in [0..10000]
       await noop defer()
     cb(true, {})
+
+##----------------------------------------------------------------------
+
+  atest "iand and ior", (cb) ->
+    boolfun = (res, cb) ->
+      await setTimeout defer(), 10*Math.random()
+      cb res
+    out = [ true ]
+    ok = true
+    await
+      boolfun true, icedlib.iand defer(), out
+      boolfun true, icedlib.iand defer(), out
+      boolfun true, icedlib.iand defer(), out
+    ok = false unless out[0]
+    await
+      boolfun true,  icedlib.iand defer(), out
+      boolfun true,  icedlib.iand defer(), out
+      boolfun false, icedlib.iand defer(), out
+    ok = false if out[0]
+    out[0] = false
+    await
+      boolfun true,  icedlib.ior defer(), out
+      boolfun true,  icedlib.ior defer(), out
+      boolfun false, icedlib.ior defer(), out
+    ok = false unless out[0]
+    out[0] = false
+    await
+      boolfun false, icedlib.ior defer(), out
+      boolfun false, icedlib.ior defer(), out
+      boolfun false, icedlib.ior defer(), out
+    ok = false if out[0]
+    cb(ok, {})
+    
