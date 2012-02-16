@@ -2,7 +2,7 @@
 
 ##=========================================================================
 
-generator = (intern,compiletime,runtime) ->
+exports.generator = generator = (intern,compiletime,runtime) ->
   
   # =======================================================================
   # Compile Time!

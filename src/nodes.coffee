@@ -2443,6 +2443,9 @@ class IcedRuntime extends Block
     else if @foundDefer then "node"
     else                     "none"
 
+    if o.runtime and not @foundDefer and not o.runforce
+      v = "none"
+
     window_mode = false
     window_val = null
 
