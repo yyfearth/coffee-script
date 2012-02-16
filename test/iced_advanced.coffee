@@ -102,3 +102,31 @@ if require?
     ok = false if out[0]
     cb(ok, {})
     
+
+##----------------------------------------------------------------------
+
+  atest "stack walk", (cb) ->
+    check = false
+    
+    f2 = (cb) ->
+      await setTimeout defer(), 10*Math.random()
+      stk = iced.stackWalk()
+      if stk.length is 4 and
+          stk[0].search /at f1 \(test\/iced_advanced.coffee:112\)/ and
+          stk[1].search /at f2 \(test\/iced_advanced.coffee:120\)/ and
+          stk[2].search /at foo \(test\/iced_advanced.coffee:124\)/ and
+          stk[3].search /at <anonymous> \(test\/iced_advanced.coffee:127\)/
+        check = true
+      cb()
+
+    f1 = (cb) ->
+      await f2 defer()
+      cb()
+
+    foo = (cb) ->
+      await f1 defer()
+      cb()
+
+    await foo defer()
+    cb(check, {})
+      
