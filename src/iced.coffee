@@ -1,8 +1,17 @@
 
 
 ##=========================================================================
-
-exports.generator = generator = (intern,compiletime,runtime) ->
+# 
+# Generate three categories of objects:
+#   intern -- for internal use only
+#   compiletime -- for compiletime lookups
+#   runtime -- for when it's actually run, either inlined or require'd
+# 
+# Eventually, we might want to call this generator to generate into
+# different contexts (like back into inline code, but for now, we abandon
+# this project).
+#  
+exports.generator = generator = (intern, compiletime, runtime) ->
   
   # =======================================================================
   # Compile Time!
