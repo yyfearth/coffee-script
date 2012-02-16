@@ -2,7 +2,7 @@
 
 ##=========================================================================
 
-library = (intern,compiletime,runtime) ->
+generator = (intern,compiletime,runtime) ->
   
   # =======================================================================
   # Compile Time!
@@ -25,7 +25,6 @@ library = (intern,compiletime,runtime) ->
     defer_method : "defer"
     slot : "__slot"
     assign_fn : "assign_fn"
-    runtime : "icedrun"
     autocb : "autocb"
     retslot : "ret"
     trace : "__iced_trace"
@@ -192,7 +191,7 @@ library = (intern,compiletime,runtime) ->
  
   #=======================================================================
 
-  # Catch all uncaught exceptions with the tamejs exception handler.
+  # Catch all uncaught exceptions with the iced exception handler.
   # As mentioned here:
   #
   #    http://debuggable.com/posts/node-js-dealing-with-uncaught-exceptions:4c933d54-1428-443c-928d-4e1ecbdd56cb 
@@ -207,8 +206,7 @@ library = (intern,compiletime,runtime) ->
 
 #=======================================================================
 
-runtime = {}
-library this, exports, runtime
-exports.runtime = runtime
+exports.runtime = {}
+generator this, exports, exports.runtime
 
 #=======================================================================
