@@ -10,8 +10,8 @@ fs               = require 'fs'
 path             = require 'path'
 {Lexer,RESERVED} = require './lexer'
 {parser}         = require './parser'
-iced             = require './iced'
 vm               = require 'vm'
+iced             = require './iced'
 
 # Native extensions we're willing to consider
 exports.EXTENSIONS = EXTENSIONS = [ ".coffee", ".xcoffee", ".iced" ]
@@ -32,7 +32,7 @@ else if require.registerExtension
     require.registerExtension e, (content) -> compile content
 
 # The current CoffeeScript version number.
-exports.VERSION = '1.2.0n'
+exports.VERSION = '1.2.0p'
 
 # Words that cannot be used as identifiers in CoffeeScript code
 exports.RESERVED = RESERVED
