@@ -137,7 +137,7 @@ jsWrapCode = (code, klass, req, assigns) ->
  
 task 'build:browser', 'rebuild the merged script for inclusion in the browser', ->
   code = ''
-  for name in ['helpers', 'rewriter', 'lexer', 'parser', 'scope', 'iced', 'nodes', 'coffee-script', 'browser', 'icedlib' ]
+  for name in ['helpers', 'rewriter', 'lexer', 'parser', 'iced', 'scope', 'nodes', 'coffee-script', 'browser', 'icedlib' ]
     code += jsGenLib name
 
   code = jsWrapCode code, "CoffeeScript", "coffee-script", [
