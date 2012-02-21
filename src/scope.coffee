@@ -7,6 +7,7 @@
 
 # Import the helpers we plan to use.
 {extend, last} = require './helpers'
+iced  = require './iced'
 
 exports.Scope = class Scope
 
@@ -75,7 +76,7 @@ exports.Scope = class Scope
   assign: (name, value) ->
     @add name, {value, assigned: yes}, yes
     @hasAssignments = yes
-
+    
   # Does this scope have any declared variables?
   hasDeclarations: ->
     !!@declaredVariables().length
@@ -84,9 +85,19 @@ exports.Scope = class Scope
   declaredVariables: ->
     realVars = []
     tempVars = []
-    for v in @variables when v.type is 'var'
-      (if v.name.charAt(0) is '_' then tempVars else realVars).push v.name
+    for v in @variables
+      # This is a hack that we need in order to get __iced_k to show
+      # up in the variable list and be a parameter for functions in the
+      # shared iced scope. See test case
+      #
+      #     'autocb + wait + scoping problems', (cb) ->
+      #
+      # in test/iced.coffee that # flexes this.
+      if v.type is 'var' or (v.type is 'param' and v.name is iced.const.k)
+        (if v.name.charAt(0) is '_' then tempVars else realVars).push v.name
+        
     realVars.sort().concat tempVars.sort()
+    
 
   # Return the list of assignments that are supposed to be made at the top
   # of this scope.
