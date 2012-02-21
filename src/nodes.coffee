@@ -1700,14 +1700,21 @@ exports.Code = class Code extends Base
     # 'new Return' constructor.  The subtler case is when control
     # falls off the end of a function.  But that's just the top-level
     # continuation within the function.  So we assign it to the autocb
-    # here.  There's a slight scoping hack, to supply  { param : yes },
-    # which forces __iced_k to be locally scoped.  Note that there's a
-    # global __iced_k that's just the no-op, and we definitely don't
-    # want to molest that!
-    if not @icedgen and @icedNodeFlag and @icedHasAutocbFlag
-      rhs = new Value new Literal iced.const.autocb
-      k_id = new Value new Literal iced.const.k
-      @body.unshift(new Assign k_id, rhs, null, { param : yes })
+    # here.  There's a slight scoping hack, to supply  { icedlocal : yes },
+    # which forces __iced_k to be locally scoped.  To have it global is
+    # a real disaster of subtle bugs. But wait, there's yet more!!
+    # Recall that icedgen functions share scope with their parent function.
+    # That means, they'll insert an '__iced_k' in the parent scope
+    # as a type == 'param' !! Meaning, it won't be output at the high-level
+    # function that contains them (since only 'var's) are output.
+    # Thus, we had to make a hack to scope.coffee to support this particular
+    # case.
+    # 
+    if @icedNodeFlag and not @icedgen
+      r = if @icedHasAutocbFlag then iced.const.autocb else iced.const.k_noop
+      rhs = new Value new Literal r
+      lhs = new Value new Literal iced.const.k
+      @body.unshift(new Assign lhs, rhs, null, { icedlocal : yes } )
 
     code  += "\n#{ @body.compileWithDeclarations o }\n#{@tab}" unless @body.isEmpty()
     code  += '}'
@@ -2467,7 +2474,7 @@ class IcedRuntime extends Block
 
     if @foundAwait
       rhs = new Code [], new Block []
-      lhs = new Value new Literal iced.const.k
+      lhs = new Value new Literal iced.const.k_noop
       if window_val
         window_val.add new Access lhs
         lhs = window_val
