@@ -21,6 +21,7 @@ exports.generator = generator = (intern, compiletime, runtime) ->
 
   compiletime.const = C =
     k : "__iced_k"
+    k_noop : "__iced_k_noop"
     param : "__iced_p_"
     ns: "iced"
     Deferrals : "Deferrals"

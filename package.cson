@@ -2,15 +2,15 @@ name:           'extra-coffee-script'
 description:    'eXtraCoffeeScript - IcedCoffeeScript with Import and CSON'
 keywords:       ['javascript', 'language', 'coffeescript', 'compiler']
 author:         'Wilson Young'
-version:         '1.2.0p'
+version:         '1.2.0q'
 licenses: 
   type:         'MIT'
   url:          'http://github.com/jashkenas/coffee-script/raw/master/LICENSE'
 engines:
   node:         '>=0.4.0'
-directories :
-  lib :         './lib/coffee-script'
-main :          './lib/coffee-script/coffee-script'
+directories:
+  lib:          './lib/coffee-script'
+main:           './lib/coffee-script/coffee-script'
 bin: 
   xcoffee:      './bin/coffee'
   xcake:        './bin/cake'
