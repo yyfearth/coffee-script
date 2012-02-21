@@ -583,3 +583,21 @@ atest 'defer + arguments', (cb) ->
     arguments[1](arguments[0])
   await bar 10, defer x
   cb(10 is x, {})
+
+# See comment in declaredVariables in src/scope.coffee for
+# an explanation of the fix to this bug.
+atest 'autocb + wait + scoping problems', (cb) ->
+  fun1 = (autocb) ->
+    await delay defer()
+    for i in [0..10]
+      await delay defer()
+      1
+  fun2 = (autocb) ->
+    await delay defer()
+    for j in [0..2]
+      await delay defer()
+      2
+  await
+    fun1 defer x
+    fun2 defer y
+  cb(x[0] is 1 and y[0] is 2, {})
