@@ -67,7 +67,7 @@ exports.generator = generator = (intern, compiletime, runtime) ->
         obj = null unless multi
         o._fulfill id, trace
       else
-        intern._warn "deferral was is dead at #{intern._trace_to_string trace}"
+        intern._warn "overused deferral at #{intern._trace_to_string trace}"
   
     ret[C.trace] = trace
       
@@ -117,7 +117,7 @@ exports.generator = generator = (intern, compiletime, runtime) ->
         @continuation = null
         c @ret
       else
-        intern._warn "Entered dead Deferral at #{intern._trace_to_string trace}"
+        intern._warn "Entered dead await at #{intern._trace_to_string trace}"
 
     _fulfill : (id, trace) ->
       if --@count > 0
