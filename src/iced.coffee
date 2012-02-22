@@ -1,6 +1,6 @@
 
 
-##=========================================================================
+#### Library generator
 # 
 # Generate three categories of objects:
 #   intern -- for internal use only
@@ -13,8 +13,10 @@
 #  
 exports.generator = generator = (intern, compiletime, runtime) ->
   
-  # =======================================================================
-  # Compile Time!
+  ##### Compile time
+  #
+  # Constants mainly for compile-time behavior, but some shared with the
+  # runtime too.
   #
   compiletime.transform = (x) ->
     x.icedTransform()
@@ -47,9 +49,10 @@ exports.generator = generator = (intern, compiletime, runtime) ->
     catchExceptions : 'catchExceptions'
     runtime_modes : [ "node", "inline", "window", "none" ]
 
-  #=======================================================================
-  # runtime
-
+  #### runtime
+  # 
+  # Support and libraries for runtime behavior
+  #
   intern.makeDeferReturn = (obj, defer_args, id, trace_template) ->
   
     trace = {}
@@ -65,10 +68,8 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       
     ret
 
-  #-----------------------------------------------------------------------
-  # 
-  # Tick Counter --
-  #    count off every mod processor ticks
+  #### Tick Counter
+  #  count off every mod processor ticks
   # 
   intern.__c = 0
 
@@ -79,11 +80,20 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       true
     else
       false
- 
+
+  #### Trace management and debugging
+  #
   intern.__active_trace = null
 
-  #-----------------------------------------------------------------------
-  # Deferrals
+  intern._trace_to_string = (tr) ->
+    fn = tr[C.funcname] || "<anonymous>"
+    "#{fn} (#{tr[C.filename]}:#{tr[C.lineno] + 1})"
+
+  intern._warn = (m) ->
+    if console?
+      console.log "ICED warning: #{m}"
+    
+  #### Deferrals
   #
   #   A collection of Deferrals; this is a better version than the one
   #   that's inline; it allows for iced tracing
@@ -97,8 +107,13 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       @ret = null
 
     _call : (trace) ->
-      intern.__active_trace = trace
-      @continuation @ret
+      if @continuation
+        intern.__active_trace = trace
+        c = @continuation
+        @continuation = null
+        c @ret
+      else
+        intern._warn "Deferral underrun for #{intern._trace_to_string @trace}"
 
     _fulfill : (id, trace) ->
       if --@count > 0
@@ -115,14 +130,19 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       self = this
       return intern.makeDeferReturn self, args, null, @trace
 
-  #=======================================================================
+  #### findDeferral
+  #
+  # Search an argument vector for a deferral-generated callback
 
   runtime.findDeferral = findDeferral = (args) ->
     for a in args
       return a if a?[C.trace]
     null
 
-  #=======================================================================
+  #### Rendezvous
+  #
+  # More flexible runtime behavior, can wait for the first deferral
+  # to fire, rather than just the last.
 
   runtime.Rendezvous = class Rendezvous
     constructor: ->
@@ -133,16 +153,17 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       # 'defer' output by the coffee compiler.
       @[C.deferrals] = this
 
-    #-----------------------------------------
-    
+    # RvId -- A helper class the allows deferalls to take on an ID
+    # when used with Rendezvous
     class RvId
       constructor: (@rv,@id)->
       defer: (defer_args) ->
         @rv._deferWithId @id, defer_args
 
-    #-----------------------------------------
+    # Public interface
     # 
     # The public interface has 3 methods --- wait, defer and id
+    # 
     wait: (cb) ->
       if @completed.length
         x = @completed.shift()
@@ -150,20 +171,16 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       else
         @waiters.push cb
 
-    #-----------------------------------------
-
     defer: (defer_args) ->
       id = @defer_id++
       @deferWithId id, defer_args
 
-    #-----------------------------------------
-    
     id: (i) ->
       ret = {}
       ret[C.deferrals] = new RvId(this, i)
       ret
   
-    #-----------------------------------------
+    # Private Interface
   
     _fulfill: (id, trace) ->
       if @waiters.length
@@ -172,25 +189,28 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       else
         @completed.push id
   
-    #-----------------------------------------
-  
     _deferWithId: (id, defer_args) ->
       @count++
       intern.makeDeferReturn this, defer_args, id, {}
 
-  #=======================================================================
-
+  #### stackWalk
+  #
+  # Follow an iced-generated stack walk from the active trace
+  # up as far as we can. Output a vector of stack frames.
+  #
   runtime.stackWalk = stackWalk = (cb) ->
     ret = []
     tr = if cb then cb[C.trace] else intern.__active_trace
     while tr
-      fn = tr[C.funcname] || "<anonymous>"
-      line = "   at #{fn} (#{tr[C.filename]}:#{tr[C.lineno] + 1})"
+      line = "   at #{intern._trace_to_string tr}"
       ret.push line
       tr = tr?[C.parent]?[C.trace]
     ret
 
-  #=======================================================================
+  #### exceptionHandler
+  #
+  # An exception handler that triggers the above iced stack walk
+  # 
 
   runtime.exceptionHandler = exceptionHandler = (err) ->
     console.log err.stack
@@ -199,8 +219,9 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       console.log "Iced 'stack' trace (w/ real line numbers):"
       console.log stack.join "\n"
  
-  #=======================================================================
 
+  #### catchExceptions
+  # 
   # Catch all uncaught exceptions with the iced exception handler.
   # As mentioned here:
   #
@@ -214,9 +235,8 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       exceptionHandler err
       process.exit 1
 
-#=======================================================================
+#### Exported items
 
 exports.runtime = {}
 generator this, exports, exports.runtime
 
-#=======================================================================
