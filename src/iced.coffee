@@ -53,7 +53,7 @@ exports.generator = generator = (intern, compiletime, runtime) ->
   # 
   # Support and libraries for runtime behavior
   #
-  intern.makeDeferReturn = (obj, defer_args, id, trace_template) ->
+  intern.makeDeferReturn = (obj, defer_args, id, trace_template, multi) ->
   
     trace = {}
     for k,v of trace_template
@@ -62,7 +62,12 @@ exports.generator = generator = (intern, compiletime, runtime) ->
     
     ret = (inner_args...) ->
       defer_args?.assign_fn?.apply(null, inner_args)
-      obj._fulfill id, trace
+      if obj
+        o = obj
+        obj = null unless multi
+        o._fulfill id, trace
+      else
+        intern._warn "deferral was is dead at #{intern._trace_to_string trace}"
   
     ret[C.trace] = trace
       
@@ -90,8 +95,7 @@ exports.generator = generator = (intern, compiletime, runtime) ->
     "#{fn} (#{tr[C.filename]}:#{tr[C.lineno] + 1})"
 
   intern._warn = (m) ->
-    if console?
-      console.log "ICED warning: #{m}"
+    console?.log "ICED warning: #{m}"
     
   #### Deferrals
   #
@@ -113,7 +117,7 @@ exports.generator = generator = (intern, compiletime, runtime) ->
         @continuation = null
         c @ret
       else
-        intern._warn "Deferral underrun for #{intern._trace_to_string @trace}"
+        intern._warn "Entered dead Deferral at #{intern._trace_to_string trace}"
 
     _fulfill : (id, trace) ->
       if --@count > 0
@@ -156,9 +160,9 @@ exports.generator = generator = (intern, compiletime, runtime) ->
     # RvId -- A helper class the allows deferalls to take on an ID
     # when used with Rendezvous
     class RvId
-      constructor: (@rv,@id)->
+      constructor: (@rv,@id,@multi)->
       defer: (defer_args) ->
-        @rv._deferWithId @id, defer_args
+        @rv._deferWithId @id, defer_args, @multi
 
     # Public interface
     # 
@@ -175,9 +179,12 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       id = @defer_id++
       @deferWithId id, defer_args
 
-    id: (i) ->
+    # id -- assign an ID to a deferral, and also toggle the multi
+    # bit on the deferral.  By default, this bit is off.
+    id: (i, multi) ->
+      multi = false unless multi?
       ret = {}
-      ret[C.deferrals] = new RvId(this, i)
+      ret[C.deferrals] = new RvId(this, i, multi)
       ret
   
     # Private Interface
@@ -189,9 +196,9 @@ exports.generator = generator = (intern, compiletime, runtime) ->
       else
         @completed.push id
   
-    _deferWithId: (id, defer_args) ->
+    _deferWithId: (id, defer_args, multi) ->
       @count++
-      intern.makeDeferReturn this, defer_args, id, {}
+      intern.makeDeferReturn this, defer_args, id, {}, multi
 
   #### stackWalk
   #
