@@ -130,3 +130,23 @@ if require?
     await foo defer()
     cb(check, {})
       
+
+##----------------------------------------------------------------------
+
+  atest "multi", (cb) ->
+    
+    fun = (c) ->
+      await setTimeout defer(), 10
+      c()
+      await setTimeout defer(), 10
+      c()
+      
+    rv = new iced.Rendezvous
+    c = rv.id(1,true).defer()
+    fun(c)
+    await rv.wait defer()
+    await rv.wait defer()
+    cb(true, {})
+    
+    
+  
