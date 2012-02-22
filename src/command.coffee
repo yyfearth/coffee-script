@@ -35,7 +35,8 @@ SWITCHES = [
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
   [      '--header',          'use a string as a head when compile is on']
   ['-x', '--imports',         'enable import feature']
-  [      '--min',             'enable uglify js to minify compiled js']
+  [      '--min',             'enable uglify-js to minify compiled js']
+  [      '--strict',          'enable runtime strict mode by add use strict into compiled js']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
   ['-i', '--interactive',     'run an interactive CoffeeScript REPL']
@@ -339,13 +340,14 @@ parseOptions = ->
   o.run         = not (o.compile or o.print or o.lint)
   o.print       = !!  (o.print or (o.eval or o.stdio and o.compile))
   o.imports = !! o.imports
+  #throw 'strict mode detect is conflict with bare' if o.strict and o.bare
   sources       = o.arguments
   sourceCode[i] = null for source, i in sources
   return
 
 # The compile-time options to pass to the CoffeeScript compiler.
 compileOptions = (filename) ->
-  { filename, bare: opts.bare, header: opts.header, runtime: opts.runtime, imports: opts.imports, runforce : opts.runforce }
+  { filename, bare: opts.bare, header: opts.header, runtime: opts.runtime, imports: opts.imports, strict: opts.strict, runforce : opts.runforce }
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
 # the `node` binary, preserving the other options.
