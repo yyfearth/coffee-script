@@ -535,7 +535,7 @@ exports.Block = class Block extends Base
       prelude = "#{@compileNode merge(o, indent: '')}\n" if preludeExps.length
       @expressions = rest
     code = @compileWithDeclarations o
-    code = '"use strict"\n' + code if o.strict # add by yyfearth
+    code = '"use strict";\n' + code if o.strict # add by yyfearth
     return code if o.bare
     "#{prelude}(function() {\n#{code}\n}).call(this);\n"
 
