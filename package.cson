@@ -2,7 +2,7 @@ name:           'extra-coffee-script'
 description:    'eXtraCoffeeScript - IcedCoffeeScript with Import and CSON'
 keywords:       ['javascript', 'language', 'coffeescript', 'compiler']
 author:         'Wilson Young'
-version:         '1.2.0r'
+version:         '1.2.0r_x'
 licenses: 
   type:         'MIT'
   url:          'http://github.com/jashkenas/coffee-script/raw/master/LICENSE'

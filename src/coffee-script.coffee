@@ -73,7 +73,7 @@ exports.imports = imports = (code, options = {}) ->
       import_code = fs.readFileSync _filename, 'utf8'
       imported[_filename] = true
       import_code = parse import_code, _filename
-      import_code = "`#{import_code}`" if is_js isnt _is_js # if coffee import js
+      import_code = "`#{import_code.replace /`/g, '\\x60'}`" if is_js isnt _is_js # if coffee import js
       #console.log 'import', _filename, import_code
       rmk = if /\.js$/.test filename then "/* imported #{_filename} */" else "### imported #{_filename} ###"
       "#{rmk}\n#{import_code}\n\n"
