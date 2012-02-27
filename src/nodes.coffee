@@ -1778,7 +1778,7 @@ exports.Code = class Code extends Base
 exports.Param = class Param extends Base
   constructor: (@name, @value, @splat) ->
     super()
-    if (name = @name.unwrapAll().value) in STRICT_PROSCRIBED
+    if (name = @name?.unwrapAll().value) in STRICT_PROSCRIBED
       throw SyntaxError "parameter name \"#{name}\" is not allowed"
 
   children: ['name', 'value']
