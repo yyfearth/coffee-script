@@ -282,7 +282,7 @@ atest "fat arrow versus iced", (cb) ->
   await f.useHandler "sleep2", defer(ok2)
   cb(ok1 and ok2, {})
 
- atest "nested loops", (cb) ->
+atest "nested loops", (cb) ->
   val = 0
   for i in [0..9]
     await delay(defer(),1)
