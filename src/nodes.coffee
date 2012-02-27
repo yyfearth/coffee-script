@@ -646,7 +646,11 @@ exports.Block = class Block extends Base
     new Block nodes
 
   icedAddRuntime : (foundDefer, foundAwait) ->
-    @expressions.unshift new IcedRuntime foundDefer, foundAwait
+    index = 0
+    while (node = @expressions[index]) and node instanceof Comment or
+        node instanceof Value and node.isString()
+      index++
+    @expressions.splice index, 0, (new IcedRuntime foundDefer, foundAwait)
 
   # Perform all steps of the Iced transform
   icedTransform : ->
@@ -1389,7 +1393,8 @@ exports.Class = class Class extends Base
     index = 0
     {expressions} = @body
     ++index while (node = expressions[index]) and node instanceof Comment or
-      node instanceof Value and node.isString()
+      node instanceof Value and node.isString() or
+      node instanceof IcedRuntime
     @directives = expressions.splice 0, index
 
   # Make sure that a constructor is defined for the class, and properly
