@@ -22,11 +22,13 @@ helpers.extend CoffeeScript, new EventEmitter
 printLine = (line) -> process.stdout.write line + '\n'
 printWarn = (line) -> process.stderr.write line + '\n'
 
+hidden = (file) -> /^\.|~$/.test file
+
 # The help banner that is printed when `coffee` is called without arguments.
 BANNER = '''
-  Usage: iced [options] path/to/script.coffee
+  Usage: iced [options] path/to/script.coffee -- [args]
 
-  If called without options, `iced` will run your script.
+  If called without options, `coffee` will run your script.
          '''
 
 # The list of all the valid option flags that `coffee` knows how to handle.
@@ -74,9 +76,8 @@ exports.run = ->
   return compileStdio()                  if opts.stdio
   return compileScript null, sources[0]  if opts.eval
   return require './repl'                unless sources.length
-  if opts.run
-    opts.literals = sources.splice(1).concat opts.literals
-  process.argv = process.argv[0..1].concat opts.literals
+  literals = if opts.run then sources.splice 1 else []
+  process.argv = process.argv[0..1].concat literals
   process.argv[0] = 'iced'
   process.execPath = require.main.filename
   for source in sources
@@ -101,11 +102,11 @@ compilePath = (source, topLevel, base) ->
       fs.readdir source, (err, files) ->
         throw err if err and err.code isnt 'ENOENT'
         return if err?.code is 'ENOENT'
-        files = files.map (file) -> path.join source, file
         index = sources.indexOf source
-        sources[index..index] = files
+        sources[index..index] = (path.join source, file for file in files)
         sourceCode[index..index] = files.map -> null
-        compilePath file, no, base for file in files
+        for file in files when not hidden file
+          compilePath (path.join source, file), no, base
     else if topLevel or path.extname(source) is '.coffee'
       watch source, base if opts.watch
       fs.readFile source, (err, code) ->
@@ -226,8 +227,8 @@ watchDir = (source, base) ->
             throw err unless err.code is 'ENOENT'
             watcher.close()
             return unwatchDir source, base
-          files = files.map (file) -> path.join source, file
-          for file in files when not notSources[file]
+          for file in files when not hidden(file) and not notSources[file]
+            file = path.join source, file
             continue if sources.some (s) -> s.indexOf(file) >= 0
             sources.push file
             sourceCode.push null
