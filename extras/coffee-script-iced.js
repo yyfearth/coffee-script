@@ -1,9 +1,5 @@
 /**
-<<<<<<< HEAD
- * CoffeeScript Compiler v1.2.0r
-=======
  * CoffeeScript Compiler v1.2.0s
->>>>>>> 049afec43fbbac823bf2093602585dabb1cb4434
  * http://coffeescript.org
  *
  * Copyright 2011, Jeremy Ashkenas
