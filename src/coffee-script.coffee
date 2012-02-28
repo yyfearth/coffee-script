@@ -44,6 +44,7 @@ exports.helpers = require './helpers'
 exports.imports = imports = (code, options = {}) ->
   regex = options.regex or /^\s*import\s+['"](.+)['"][;\s]*$/
   regex_g = new RegExp regex.source, 'gm'
+  return code unless regex.test
   chk_file = (filename) ->
     try
       stats = fs.lstatSync filename
@@ -95,7 +96,10 @@ exports.compile = compile = (code, options = {}) ->
     js = (iced.transform parser.parse lexer.tokenize code).compile options
     return js unless options.header
   catch err
-    console.log 'imported finished code:', code if options.imports
+    if options.imports and /### imported/.test code
+      lines = code.split(/\n/).map (line, i) -> "#{i + 1}. #{line}"
+      lines.unshift ''
+      console.log 'imported finished code:', lines.join '\n'
     err.message = "In #{options.filename}, #{err.message}" if options.filename
     throw err
 
