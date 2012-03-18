@@ -32,6 +32,9 @@ BANNER = '''
 SWITCHES = [
   ['-b', '--bare',            'compile without a top-level function wrapper']
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
+  [      '--header',          'use a string as a head when compile is on']
+  ['-x', '--imports',         'enable import feature']
+  # [      '--min',             'enable uglify-js to minify compiled js']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
   ['-i', '--interactive',     'run an interactive CoffeeScript REPL']
@@ -301,12 +304,23 @@ printTokens = (tokens) ->
     "[#{tag} #{value}]"
   printLine strings.join(' ')
 
+# add by wilson
+xoptions = ->
+  o = opts
+  if o.header?
+    throw 'use header only with compile' if o.header? and not o.compile
+    o.header    = if o.header is 'on' then on else if o.header is 'off' then off else o.header
+  else o.header = o.compile
+  o.imports = !! o.imports
+  return
+
 # Use the [OptionParser module](optparse.html) to extract all options from
 # `process.argv` that are specified in `SWITCHES`.
 parseOptions = ->
   optionParser  = new optparse.OptionParser SWITCHES, BANNER
   o = opts      = optionParser.parse process.argv[2..]
   o.compile     or=  !!o.output
+  xoptions()
   o.run         = not (o.compile or o.print or o.lint)
   o.print       = !!  (o.print or (o.eval or o.stdio and o.compile))
   sources       = o.arguments
@@ -314,8 +328,12 @@ parseOptions = ->
   return
 
 # The compile-time options to pass to the CoffeeScript compiler.
-compileOptions = (filename) ->
-  {filename, bare: opts.bare, header: opts.compile}
+compileOptions = (filename) -> {
+  filename
+  bare: opts.bare
+  header: opts.header
+  imports: opts.imports
+}
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
 # the `node` binary, preserving the other options.
@@ -335,4 +353,4 @@ usage = ->
 
 # Print the `--version` message and exit.
 version = ->
-  printLine "CoffeeScript version #{CoffeeScript.VERSION}"
+  printLine "eXtraCoffeeScript version #{CoffeeScript.VERSION}"
