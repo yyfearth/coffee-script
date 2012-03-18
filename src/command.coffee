@@ -12,6 +12,8 @@ optparse       = require './optparse'
 CoffeeScript   = require './coffee-script'
 {spawn, exec}  = require 'child_process'
 {EventEmitter} = require 'events'
+# add by wilson
+{minify}       = require './minify'
 
 # Allow CoffeeScript to emit Node.js events.
 helpers.extend CoffeeScript, new EventEmitter
@@ -34,7 +36,7 @@ SWITCHES = [
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
   [      '--header',          'use a string as a head when compile is on']
   ['-x', '--imports',         'enable import feature']
-  # [      '--min',             'enable uglify-js to minify compiled js']
+  [      '--min',             'enable uglify-js to minify compiled js']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
   ['-i', '--interactive',     'run an interactive CoffeeScript REPL']
@@ -312,6 +314,7 @@ xoptions = ->
     o.header    = if o.header is 'on' then on else if o.header is 'off' then off else o.header
   else o.header = o.compile
   o.imports = !! o.imports
+  o.minify = !! (o.min or o.minify)
   return
 
 # Use the [OptionParser module](optparse.html) to extract all options from
@@ -333,6 +336,7 @@ compileOptions = (filename) -> {
   bare: opts.bare
   header: opts.header
   imports: opts.imports
+  minify: opts.minify or opts.min
 }
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
