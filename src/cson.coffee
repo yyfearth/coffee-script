@@ -6,9 +6,6 @@ optparse       = require './optparse'
 CoffeeScript   = require './coffee-script'
 {spawn, exec}  = require 'child_process'
 {EventEmitter} = require 'events'
-iced           = require './iced'
-
-runtime_modes_str = "{" + (iced.const.runtime_modes.join ", ") + "}"
 
 # Allow CoffeeScript to emit Node.js events.
 helpers.extend CoffeeScript, new EventEmitter
