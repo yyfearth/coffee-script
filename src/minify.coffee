@@ -2,11 +2,12 @@
 {parser, uglify} = require 'uglify-js'
 exports.minify = (code, opt) ->
   if not opt or opt is true
-    uglify.split_lines (uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code), 32768 # 32 * 1024
+    uglify.split_lines (uglify.gen_code (uglify.ast_squeeze uglify.ast_mangle parser.parse code), ascii_only: on, inline_script: on), 32768 # 32 * 1024
   else
     opt.max_line_length ?= opt.max_line_len ? 32768 # 32 * 1024
-    opt.lift_variables = opt.lift_variables or opt.lift_vars or 0
+    opt.lift_variables = opt.lift_variables or opt.lift_vars or false
     opt.ascii_only ?= not opt.allow_non_ascii # default yes
+    opt.inline_script ?= on
     ast = parser.parse code, opt.strict_semicolons # parse code and get the initial AST
     ast = uglify.ast_lift_variables ast if opt.lift_variables # merge var, discard unused arg, var, inner func
     ast = uglify.ast_mangle ast, opt unless opt.no_mangle # get a new AST with mangled names
