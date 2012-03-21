@@ -2710,7 +2710,10 @@ exports.For = class For extends While
     else if @range and @name
       condition = new Op '<=', @name, @source.base.to
       init = [ new Assign @name, @source.base.from ]
-      step = new Op '++', @name
+      if @step?
+        step = new Op "+=", @name, @step
+      else
+        step = new Op '++', @name
 
     # Handle the case of 'for i,blah in arr'
     else if ! @range and @name
