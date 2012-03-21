@@ -601,3 +601,11 @@ atest 'autocb + wait + scoping problems', (cb) ->
     fun1 defer x
     fun2 defer y
   cb(x[0] is 1 and y[0] is 2, {})
+
+
+atest 'for in by + await', (cb) ->
+  res = []
+  for i in [0..10] by 3
+    await delay defer()
+    res.push i
+  cb(res.length is 4 and res[3] is 9, {})
