@@ -2479,12 +2479,26 @@ class IcedRuntime extends Block
     @push inc if inc
 
     if @foundAwait
+      
+      # Emit __iced_k = __iced_k_noop = function(){} 
       rhs = new Code [], new Block []
-      lhs = new Value new Literal iced.const.k_noop
-      if window_val
-        window_val.add new Access lhs
-        lhs = window_val
-      @push new Assign lhs, rhs
+
+      lhs_vec = []
+      for k in [ iced.const.k_noop, iced.const.k ]
+        val = new Value new Literal k
+        
+        # Add window. if necessary
+        if window_val
+          klass = window_val.copy()
+          klass.add new Access val
+          val = klass
+          
+        lhs_vec.push val
+          
+      assign = rhs
+      for v in lhs_vec
+        assign = new Assign v, assign
+      @push assign
 
     if @isEmpty() then null
     else               super o
@@ -2692,7 +2706,10 @@ exports.For = class For extends While
     else if @range and @name
       condition = new Op '<=', @name, @source.base.to
       init = [ new Assign @name, @source.base.from ]
-      step = new Op '++', @name
+      if @step?
+        step = new Op "+=", @name, @step
+      else
+        step = new Op '++', @name
 
     # Handle the case of 'for i,blah in arr'
     else if ! @range and @name
