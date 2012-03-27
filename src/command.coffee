@@ -108,7 +108,7 @@ compilePath = (source, topLevel, base) ->
         sourceCode[index..index] = files.map -> null
         files.forEach (file) ->
           compilePath (path.join source, file), no, base
-    else if topLevel or path.extname(source) is '.coffee'
+    else if topLevel or path.extname(source).match /^.*\.(iced|coffee)$/ 
       watch source, base if opts.watch
       fs.readFile source, (err, code) ->
         throw err if err and err.code isnt 'ENOENT'
