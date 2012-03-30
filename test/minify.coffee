@@ -17,7 +17,7 @@ test "compile with min", ->
 
 test "compile with minify default no_ascii is on", ->
   code = CoffeeScript.compile 'b = "\xff"', min: on
-  console.log code
+  # console.log code
   ok /"\\(?:u00ff|xff)"/.test code
 
 test "compile with minify default inline_script is on", ->
