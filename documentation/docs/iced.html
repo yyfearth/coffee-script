@@ -1,0 +1,187 @@
+<!DOCTYPE html>  <html> <head>   <title>iced.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="browser.html">                 browser.coffee               </a>                                           <a class="source" href="cake.html">                 cake.coffee               </a>                                           <a class="source" href="coffee-script.html">                 coffee-script.coffee               </a>                                           <a class="source" href="command.html">                 command.coffee               </a>                                           <a class="source" href="grammar.html">                 grammar.coffee               </a>                                           <a class="source" href="helpers.html">                 helpers.coffee               </a>                                           <a class="source" href="iced.html">                 iced.coffee               </a>                                           <a class="source" href="icedlib.html">                 icedlib.coffee               </a>                                           <a class="source" href="index.html">                 index.coffee               </a>                                           <a class="source" href="lexer.html">                 lexer.coffee               </a>                                           <a class="source" href="nodes.html">                 nodes.coffee               </a>                                           <a class="source" href="optparse.html">                 optparse.coffee               </a>                                           <a class="source" href="repl.html">                 repl.coffee               </a>                                           <a class="source" href="rewriter.html">                 rewriter.coffee               </a>                                           <a class="source" href="scope.html">                 scope.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               iced.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>Library generator</h3>
+
+<p>Generate three categories of objects:
+  intern -- for internal use only
+  compiletime -- for compiletime lookups
+  runtime -- for when it's actually run, either inlined or require'd</p>
+
+<p>Eventually, we might want to call this generator to generate into
+different contexts (like back into inline code, but for now, we abandon
+this project).</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">exports.generator = generator = </span><span class="nf">(intern, compiletime, runtime) -&gt;</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h4>Compile time</h4>
+
+<p>Constants mainly for compile-time behavior, but some shared with the
+runtime too.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">compiletime.transform = </span><span class="nf">(x) -&gt;</span>
+    <span class="nx">x</span><span class="p">.</span><span class="nx">icedTransform</span><span class="p">()</span>
+
+  <span class="nv">compiletime.const = C =</span>
+    <span class="nv">k : </span><span class="s2">&quot;__iced_k&quot;</span>
+    <span class="nv">k_noop : </span><span class="s2">&quot;__iced_k_noop&quot;</span>
+    <span class="nv">param : </span><span class="s2">&quot;__iced_p_&quot;</span>
+    <span class="nv">ns: </span><span class="s2">&quot;iced&quot;</span>
+    <span class="nv">Deferrals : </span><span class="s2">&quot;Deferrals&quot;</span>
+    <span class="nv">deferrals : </span><span class="s2">&quot;__iced_deferrals&quot;</span>
+    <span class="nv">fulfill : </span><span class="s2">&quot;_fulfill&quot;</span>
+    <span class="nv">b_while : </span><span class="s2">&quot;_break&quot;</span>
+    <span class="nv">t_while : </span><span class="s2">&quot;_while&quot;</span>
+    <span class="nv">c_while : </span><span class="s2">&quot;_continue&quot;</span>
+    <span class="nv">n_while : </span><span class="s2">&quot;_next&quot;</span>
+    <span class="nv">n_arg   : </span><span class="s2">&quot;__iced_next_arg&quot;</span>
+    <span class="nv">defer_method : </span><span class="s2">&quot;defer&quot;</span>
+    <span class="nv">slot : </span><span class="s2">&quot;__slot&quot;</span>
+    <span class="nv">assign_fn : </span><span class="s2">&quot;assign_fn&quot;</span>
+    <span class="nv">autocb : </span><span class="s2">&quot;autocb&quot;</span>
+    <span class="nv">retslot : </span><span class="s2">&quot;ret&quot;</span>
+    <span class="nv">trace : </span><span class="s2">&quot;__iced_trace&quot;</span>
+    <span class="nv">passed_deferral : </span><span class="s2">&quot;__iced_passed_deferral&quot;</span>
+    <span class="nv">findDeferral : </span><span class="s2">&quot;findDeferral&quot;</span>
+    <span class="nv">lineno : </span><span class="s2">&quot;lineno&quot;</span>
+    <span class="nv">parent : </span><span class="s2">&quot;parent&quot;</span>
+    <span class="nv">filename : </span><span class="s2">&quot;filename&quot;</span>
+    <span class="nv">funcname : </span><span class="s2">&quot;funcname&quot;</span>
+    <span class="nv">catchExceptions : </span><span class="s1">&#39;catchExceptions&#39;</span>
+    <span class="nv">runtime_modes : </span><span class="p">[</span> <span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="s2">&quot;inline&quot;</span><span class="p">,</span> <span class="s2">&quot;window&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span> <span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h3>runtime</h3>
+
+<p>Support and libraries for runtime behavior</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">intern.makeDeferReturn = </span><span class="nf">(obj, defer_args, id, trace_template, multi) -&gt;</span>
+  
+    <span class="nv">trace = </span><span class="p">{}</span>
+    <span class="k">for</span> <span class="nx">k</span><span class="p">,</span><span class="nx">v</span> <span class="k">of</span> <span class="nx">trace_template</span>
+      <span class="nx">trace</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">v</span>
+    <span class="nx">trace</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">lineno</span><span class="p">]</span> <span class="o">=</span> <span class="nx">defer_args</span><span class="o">?</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">lineno</span><span class="p">]</span>
+    
+    <span class="nv">ret = </span><span class="nf">(inner_args...) -&gt;</span>
+      <span class="nx">defer_args</span><span class="o">?</span><span class="p">.</span><span class="nx">assign_fn</span><span class="o">?</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">inner_args</span><span class="p">)</span>
+      <span class="k">if</span> <span class="nx">obj</span>
+        <span class="nv">o = </span><span class="nx">obj</span>
+        <span class="nv">obj = </span><span class="kc">null</span> <span class="nx">unless</span> <span class="nx">multi</span>
+        <span class="nx">o</span><span class="p">.</span><span class="nx">_fulfill</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">trace</span>
+      <span class="k">else</span>
+        <span class="nx">intern</span><span class="p">.</span><span class="nx">_warn</span> <span class="s2">&quot;overused deferral at #{intern._trace_to_string trace}&quot;</span>
+  
+    <span class="nx">ret</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">trace</span><span class="p">]</span> <span class="o">=</span> <span class="nx">trace</span>
+      
+    <span class="nx">ret</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h3>Tick Counter</h3>
+
+<p>count off every mod processor ticks</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">intern.__c = </span><span class="mi">0</span>
+
+  <span class="nv">intern.tickCounter = </span><span class="nf">(mod) -&gt;</span>
+    <span class="nx">intern</span><span class="p">.</span><span class="nx">__c</span><span class="o">++</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">intern</span><span class="p">.</span><span class="nx">__c</span> <span class="o">%</span> <span class="nx">mod</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+      <span class="nv">intern.__c = </span><span class="mi">0</span>
+      <span class="kc">true</span>
+    <span class="k">else</span>
+      <span class="kc">false</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h3>Trace management and debugging</h3>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">intern.__active_trace = </span><span class="kc">null</span>
+
+  <span class="nv">intern._trace_to_string = </span><span class="nf">(tr) -&gt;</span>
+    <span class="nv">fn = </span><span class="nx">tr</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">funcname</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;&lt;anonymous&gt;&quot;</span>
+    <span class="s2">&quot;#{fn} (#{tr[C.filename]}:#{tr[C.lineno] + 1})&quot;</span>
+
+  <span class="nv">intern._warn = </span><span class="nf">(m) -&gt;</span>
+    <span class="nx">console</span><span class="o">?</span><span class="p">.</span><span class="nx">log</span> <span class="s2">&quot;ICED warning: #{m}&quot;</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h3>Deferrals</h3>
+
+<p>A collection of Deferrals; this is a better version than the one
+  that's inline; it allows for iced tracing</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">runtime.Deferrals = </span><span class="k">class</span> <span class="nx">Deferrals</span>
+
+    <span class="nv">constructor: </span><span class="nf">(k, @trace) -&gt;</span>
+      <span class="vi">@continuation = </span><span class="nx">k</span>
+      <span class="vi">@count = </span><span class="mi">1</span>
+      <span class="vi">@ret = </span><span class="kc">null</span>
+
+    <span class="nv">_call : </span><span class="nf">(trace) -&gt;</span>
+      <span class="k">if</span> <span class="nx">@continuation</span>
+        <span class="nv">intern.__active_trace = </span><span class="nx">trace</span>
+        <span class="nv">c = </span><span class="nx">@continuation</span>
+        <span class="vi">@continuation = </span><span class="kc">null</span>
+        <span class="nx">c</span> <span class="nx">@ret</span>
+      <span class="k">else</span>
+        <span class="nx">intern</span><span class="p">.</span><span class="nx">_warn</span> <span class="s2">&quot;Entered dead await at #{intern._trace_to_string trace}&quot;</span>
+
+    <span class="nv">_fulfill : </span><span class="nf">(id, trace) -&gt;</span>
+      <span class="k">if</span> <span class="o">--</span><span class="nx">@count</span> <span class="o">&gt;</span> <span class="mi">0</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>noop</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">else</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">intern</span><span class="p">.</span><span class="nx">tickCounter</span> <span class="mi">500</span>
+        <span class="nx">@_call</span> <span class="nx">trace</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">process</span><span class="o">?</span>
+        <span class="nx">process</span><span class="p">.</span><span class="nx">nextTick</span> <span class="p">(</span><span class="o">=&gt;</span> <span class="nx">@_call</span> <span class="nx">trace</span><span class="p">)</span>
+      <span class="k">else</span>
+        <span class="nx">setTimeout</span> <span class="p">(</span><span class="o">=&gt;</span> <span class="nx">@_call</span> <span class="nx">trace</span><span class="p">),</span> <span class="mi">0</span>
+      
+    <span class="nv">defer : </span><span class="nf">(args) -&gt;</span>
+      <span class="nx">@count</span><span class="o">++</span>
+      <span class="nv">self = </span><span class="k">this</span>
+      <span class="k">return</span> <span class="nx">intern</span><span class="p">.</span><span class="nx">makeDeferReturn</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">@trace</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3>findDeferral</h3>
+
+<p>Search an argument vector for a deferral-generated callback</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">runtime.findDeferral = findDeferral = </span><span class="nf">(args) -&gt;</span>
+    <span class="k">for</span> <span class="nx">a</span> <span class="k">in</span> <span class="nx">args</span>
+      <span class="k">return</span> <span class="nx">a</span> <span class="k">if</span> <span class="nx">a</span><span class="o">?</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">trace</span><span class="p">]</span>
+    <span class="kc">null</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h3>Rendezvous</h3>
+
+<p>More flexible runtime behavior, can wait for the first deferral
+to fire, rather than just the last.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">runtime.Rendezvous = </span><span class="k">class</span> <span class="nx">Rendezvous</span>
+    <span class="nv">constructor: </span><span class="o">-&gt;</span>
+      <span class="vi">@completed = </span><span class="p">[]</span>
+      <span class="vi">@waiters = </span><span class="p">[]</span>
+      <span class="vi">@defer_id = </span><span class="mi">0</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>This is a hack to work with the desugaring of
+'defer' output by the coffee compiler.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="err">@</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">deferrals</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>RvId -- A helper class the allows deferalls to take on an ID
+when used with Rendezvous</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">class</span> <span class="nx">RvId</span>
+      <span class="nv">constructor: </span><span class="nf">(@rv,@id,@multi)-&gt;</span>
+      <span class="nv">defer: </span><span class="nf">(defer_args) -&gt;</span>
+        <span class="nx">@rv</span><span class="p">.</span><span class="nx">_deferWithId</span> <span class="nx">@id</span><span class="p">,</span> <span class="nx">defer_args</span><span class="p">,</span> <span class="nx">@multi</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Public interface</p>
+
+<p>The public interface has 3 methods --- wait, defer and id</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">wait: </span><span class="nf">(cb) -&gt;</span>
+      <span class="k">if</span> <span class="nx">@completed</span><span class="p">.</span><span class="nx">length</span>
+        <span class="nv">x = </span><span class="nx">@completed</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+      <span class="k">else</span>
+        <span class="nx">@waiters</span><span class="p">.</span><span class="nx">push</span> <span class="nx">cb</span>
+
+    <span class="nv">defer: </span><span class="nf">(defer_args) -&gt;</span>
+      <span class="nv">id = </span><span class="nx">@defer_id</span><span class="o">++</span>
+      <span class="nx">@deferWithId</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">defer_args</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>id -- assign an ID to a deferral, and also toggle the multi
+bit on the deferral.  By default, this bit is off.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">id: </span><span class="nf">(i, multi) -&gt;</span>
+      <span class="nv">multi = </span><span class="kc">false</span> <span class="nx">unless</span> <span class="nx">multi</span><span class="o">?</span>
+      <span class="nv">ret = </span><span class="p">{}</span>
+      <span class="nx">ret</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">deferrals</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">RvId</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">multi</span><span class="p">)</span>
+      <span class="nx">ret</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p>Private Interface</p>             </td>             <td class="code">               <div class="highlight"><pre>  
+    <span class="nv">_fulfill: </span><span class="nf">(id, trace) -&gt;</span>
+      <span class="k">if</span> <span class="nx">@waiters</span><span class="p">.</span><span class="nx">length</span>
+        <span class="nv">cb = </span><span class="nx">@waiters</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+        <span class="nx">cb</span> <span class="nx">id</span>
+      <span class="k">else</span>
+        <span class="nx">@completed</span><span class="p">.</span><span class="nx">push</span> <span class="nx">id</span>
+  
+    <span class="nv">_deferWithId: </span><span class="nf">(id, defer_args, multi) -&gt;</span>
+      <span class="nx">@count</span><span class="o">++</span>
+      <span class="nx">intern</span><span class="p">.</span><span class="nx">makeDeferReturn</span> <span class="k">this</span><span class="p">,</span> <span class="nx">defer_args</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">multi</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h3>stackWalk</h3>
+
+<p>Follow an iced-generated stack walk from the active trace
+up as far as we can. Output a vector of stack frames.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">runtime.stackWalk = stackWalk = </span><span class="nf">(cb) -&gt;</span>
+    <span class="nv">ret = </span><span class="p">[]</span>
+    <span class="nv">tr = </span><span class="k">if</span> <span class="nx">cb</span> <span class="k">then</span> <span class="nx">cb</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">trace</span><span class="p">]</span> <span class="k">else</span> <span class="nx">intern</span><span class="p">.</span><span class="nx">__active_trace</span>
+    <span class="k">while</span> <span class="nx">tr</span>
+      <span class="nv">line = </span><span class="s2">&quot;   at #{intern._trace_to_string tr}&quot;</span>
+      <span class="nx">ret</span><span class="p">.</span><span class="nx">push</span> <span class="nx">line</span>
+      <span class="nv">tr = </span><span class="nx">tr</span><span class="o">?</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">parent</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="nx">C</span><span class="p">.</span><span class="nx">trace</span><span class="p">]</span>
+    <span class="nx">ret</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h3>exceptionHandler</h3>
+
+<p>An exception handler that triggers the above iced stack walk</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">runtime.exceptionHandler = exceptionHandler = </span><span class="nf">(err) -&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span><span class="p">.</span><span class="nx">stack</span>
+    <span class="nv">stack = </span><span class="nx">stackWalk</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">length</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s2">&quot;Iced &#39;stack&#39; trace (w/ real line numbers):&quot;</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">join</span> <span class="s2">&quot;\n&quot;</span>
+ </pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h3>catchExceptions</h3>
+
+<p>Catch all uncaught exceptions with the iced exception handler.
+As mentioned here:</p>
+
+<p>http://debuggable.com/posts/node-js-dealing-with-uncaught-exceptions:4c933d54-1428-443c-928d-4e1ecbdd56cb </p>
+
+<p>It's good idea to kill the service at this point, since state
+is probably horked. See his examples for more explanations.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">runtime.catchExceptions = </span><span class="nf">() -&gt;</span>
+    <span class="nx">process</span><span class="o">?</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;uncaughtException&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+      <span class="nx">exceptionHandler</span> <span class="nx">err</span>
+      <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>Exported items</h3>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">exports.runtime = </span><span class="p">{}</span>
+<span class="nx">generator</span> <span class="k">this</span><span class="p">,</span> <span class="nx">exports</span><span class="p">,</span> <span class="nx">exports</span><span class="p">.</span><span class="nx">runtime</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
