@@ -31,6 +31,10 @@ exports.Scope = class Scope
     else
       @positions[name] = @variables.push({name, type}) - 1
 
+  getMethodRecurse : () ->
+    if @shared then @parent.getMethodRecurse()
+    else @method
+
   # Look up a variable name in lexical scope, and declare it if it does not
   # already exist.
   find: (name, options) ->

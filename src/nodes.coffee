@@ -926,7 +926,7 @@ exports.Call = class Call extends Base
   # Grab the reference to the superclass's implementation of the current
   # method.
   superReference: (o) ->
-    {method} = o.scope
+    method = o.scope.getMethodRecurse()
     throw SyntaxError 'cannot call super outside of a function.' unless method
     {name} = method
     throw SyntaxError 'cannot call super on an anonymous function.' unless name?
@@ -938,6 +938,10 @@ exports.Call = class Call extends Base
     else
       "#{name}.__super__.constructor"
 
+  # After a CPS transform, the this object might be lost, and we
+  # might need _this rather than this.  I'm not sure if this is
+  # the best way to handle this, but go with this for now...
+  superThis : (o) -> if o.scope.icedgen then "_this" else "this"
 
   icedWrapContinuation: YES
   icedCpsRotate: ->
@@ -1003,21 +1007,21 @@ exports.Call = class Call extends Base
     args = @filterImplicitObjects @args
     args = (arg.compile o, LEVEL_LIST for arg in args).join ', '
     if @isSuper
-      @superReference(o) + ".call(this#{ args and ', ' + args })"
+      @superReference(o) + ".call(#{@superThis o}#{ args and ', ' + args })"
     else
       (if @isNew then 'new ' else '') + @variable.compile(o, LEVEL_ACCESS) + "(#{args})"
 
   # `super()` is converted into a call against the superclass's implementation
   # of the current function.
   compileSuper: (args, o) ->
-    "#{@superReference(o)}.call(this#{ if args.length then ', ' else '' }#{args})"
+    "#{@superReference(o)}.call(#{@superThis o}#{ if args.length then ', ' else '' }#{args})"
 
   # If you call a function with a splat, it's converted into a JavaScript
   # `.apply()` call to allow an array of arguments to be passed.
   # If it's a constructor, then things get real tricky. We have to inject an
   # inner constructor in order to be able to pass the varargs.
   compileSplat: (o, splatArgs) ->
-    return "#{ @superReference o }.apply(this, #{splatArgs})" if @isSuper
+    return "#{ @superReference o }.apply(#{@superThis o}, #{splatArgs})" if @isSuper
     if @isNew
       idt = @tab + TAB
       return """
@@ -1644,6 +1648,7 @@ exports.Code = class Code extends Base
   compileNode: (o) ->
     o.scope         = new Scope o.scope, @body, this
     o.scope.shared  = del(o, 'sharedScope') or @icedgen
+    o.scope.icedgen = @icedgen
     o.indent        += TAB
     delete o.bare
     delete o.isExistentialEquals
@@ -1701,9 +1706,6 @@ exports.Code = class Code extends Base
       f.add new Access new Value new Literal iced.const.findDeferral
       rhs = new Call f, [ new Value new Literal 'arguments' ]
       @body.unshift(new Assign lhs, rhs)
-
-    if @icedNodeFlag
-      o.iced_scope = o.scope
 
     # There are two important cases to consider in terms of autocb;
     # In the case of an explicit call to return, we handle it in
