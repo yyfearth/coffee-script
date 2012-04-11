@@ -1119,7 +1119,8 @@ exports.Assign = class Assign extends Base
   compileConditional: (o) ->
     [left, right] = @variable.cacheReference o
     # Disallow conditional assignment of undefined variables.
-    if left.base instanceof Literal and left.base.value != "this" and not o.scope.check left.base.value
+    if not left.properties.length and left.base instanceof Literal and 
+           left.base.value != "this" and not o.scope.check left.base.value
       throw new Error "the variable \"#{left.base.value}\" can't be assigned with #{@context} because it has not been defined."
     if "?" in @context then o.isExistentialEquals = true
     new Op(@context[...-1], left, new Assign(right, @value, '=') ).compile o
@@ -1871,17 +1872,7 @@ exports.If = class If extends Base
     cond     = @condition.compile o, LEVEL_PAREN
     o.indent += TAB
     body     = @ensureBlock(@body)
-    bodyc    = body.compile o
-    if (
-      1 is body.expressions?.length and
-      !@elseBody and !child and
-      bodyc and cond and
-      -1 is (bodyc.indexOf '\n') and
-      80 > cond.length + bodyc.length
-    )
-      return "#{@tab}if (#{cond}) #{bodyc.replace /^\s+/, ''}"
-    bodyc    = "\n#{bodyc}\n#{@tab}" if bodyc
-    ifPart   = "if (#{cond}) {#{bodyc}}"
+    ifPart   = "if (#{cond}) {\n#{body.compile(o)}\n#{@tab}}"
     ifPart   = @tab + ifPart unless child
     return ifPart unless @elseBody
     ifPart + ' else ' + if @isChain
