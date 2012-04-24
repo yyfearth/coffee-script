@@ -496,7 +496,7 @@ exports.Call = class Call extends Base
   # Grab the reference to the superclass's implementation of the current
   # method.
   superReference: (o) ->
-    {method} = o.scope
+    method = o.scope.namedMethod()
     throw SyntaxError 'cannot call super outside of a function.' unless method
     {name} = method
     throw SyntaxError 'cannot call super on an anonymous function.' unless name?
@@ -507,6 +507,10 @@ exports.Call = class Call extends Base
       (new Value (new Literal method.klass), accesses).compile o
     else
       "#{name}.__super__.constructor"
+
+  # The appropriate `this` value for a `super` call.
+  superThis : (o) ->
+    o.scope.method?.context or "this"
 
   # Soaked chained invocations unfold into if/else ternary structures.
   unfoldSoak: (o) ->
@@ -566,21 +570,21 @@ exports.Call = class Call extends Base
     args = @filterImplicitObjects @args
     args = (arg.compile o, LEVEL_LIST for arg in args).join ', '
     if @isSuper
-      @superReference(o) + ".call(this#{ args and ', ' + args })"
+      @superReference(o) + ".call(#{@superThis(o)}#{ args and ', ' + args })"
     else
       (if @isNew then 'new ' else '') + @variable.compile(o, LEVEL_ACCESS) + "(#{args})"
 
   # `super()` is converted into a call against the superclass's implementation
   # of the current function.
   compileSuper: (args, o) ->
-    "#{@superReference(o)}.call(this#{ if args.length then ', ' else '' }#{args})"
+    "#{@superReference(o)}.call(#{@superThis(o)}#{ if args.length then ', ' else '' }#{args})"
 
   # If you call a function with a splat, it's converted into a JavaScript
   # `.apply()` call to allow an array of arguments to be passed.
   # If it's a constructor, then things get real tricky. We have to inject an
   # inner constructor in order to be able to pass the varargs.
   compileSplat: (o, splatArgs) ->
-    return "#{ @superReference o }.apply(this, #{splatArgs})" if @isSuper
+    return "#{ @superReference o }.apply(#{@superThis(o)}, #{splatArgs})" if @isSuper
     if @isNew
       idt = @tab + TAB
       return """
@@ -1278,7 +1282,10 @@ exports.Param = class Param extends Base
     for obj in name.objects
       # * assignments within destructured parameters `{foo:bar}`
       if obj instanceof Assign
-        names.push obj.variable.base.value
+        names.push obj.value.base.value
+      # * splats within destructured parameters `[xs...]`
+      else if obj instanceof Splat
+        names.push obj.name.unwrap().value
       # * destructured parameters within destructured parameters `[{a}]`
       else if obj.isArray() or obj.isObject()
         names.push @names(obj.base)...
@@ -1705,8 +1712,8 @@ exports.For = class For extends While
     scope     = o.scope
     name      = @name  and @name.compile o, LEVEL_LIST
     index     = @index and @index.compile o, LEVEL_LIST
-    scope.find(name,  immediate: yes) if name and not @pattern
-    scope.find(index, immediate: yes) if index
+    scope.find(name)  if name and not @pattern
+    scope.find(index) if index
     rvar      = scope.freeVariable 'results' if @returns
     ivar      = (@object and index) or scope.freeVariable 'i'
     kvar      = (@range and name) or index or ivar
