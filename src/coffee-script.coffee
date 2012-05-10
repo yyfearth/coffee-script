@@ -32,7 +32,7 @@ else if require.registerExtension
     require.registerExtension e, (content) -> compile content
 
 # The current CoffeeScript version number.
-exports.VERSION = '1.3.1b'
+exports.VERSION = '1.3.1c'
 
 # Words that cannot be used as identifiers in CoffeeScript code
 exports.RESERVED = RESERVED
