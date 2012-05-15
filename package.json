@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
     "name": "extra-coffee-script",
     "description": "eXtraCoffeeScript - CoffeeScript with eXtras: Import, CSON, etc.",
     "keywords": [
@@ -9,10 +8,10 @@
         "compiler"
     ],
     "author": "Wilson Young",
-    "version": "1.3.2-pre",
+    "version": "1.3.2",
     "licenses": {
         "type": "MIT",
-        "url": "http://github.com/jashkenas/coffee-script/raw/master/LICENSE"
+        "url": "https://raw.github.com/jashkenas/coffee-script/master/LICENSE"
     },
     "engines": {
         "node": ">=0.4.0"
@@ -37,36 +36,4 @@
     "devDependencies": {
         "jison": ">=0.2.0"
     }
-=======
-  "name":         "coffee-script",
-  "description":  "Unfancy JavaScript",
-  "keywords":     ["javascript", "language", "coffeescript", "compiler"],
-  "author":       "Jeremy Ashkenas",
-  "version":      "1.3.2",
-  "licenses":     [{
-    "type":       "MIT",
-    "url":        "https://github.com/jashkenas/coffee-script/raw/master/LICENSE"
-  }],
-  "engines":      {
-    "node":       ">=0.4.0"
-  },
-  "directories" : {
-    "lib" : "./lib/coffee-script"
-  },
-  "main" : "./lib/coffee-script/coffee-script",
-  "bin":          {
-    "coffee":     "./bin/coffee",
-    "cake":       "./bin/cake"
-  },
-  "homepage":     "http://coffeescript.org",
-  "bugs":         "https://github.com/jashkenas/coffee-script/issues",
-  "repository":   {
-    "type": "git",
-    "url": "git://github.com/jashkenas/coffee-script.git"
-  },
-  "devDependencies": {
-    "uglify-js":  ">=1.0.0",
-    "jison":      ">=0.2.0"
-  }
->>>>>>> 7792a3a6e3fff0b064eee4014daa25fed498c263
 }
