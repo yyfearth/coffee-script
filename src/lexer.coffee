@@ -123,11 +123,11 @@ exports.Lexer = class Lexer
     unless forcedIdentifier
       id  = COFFEE_ALIAS_MAP[id] if id in COFFEE_ALIASES
       tag = switch id
-        when '!'                                  then 'UNARY'
-        when '==', '!='                           then 'COMPARE'
-        when '&&', '||'                           then 'LOGIC'
-        when 'true', 'false', 'null', 'undefined' then 'BOOL'
-        when 'break', 'continue'                  then 'STATEMENT'
+        when '!'                 then 'UNARY'
+        when '==', '!='          then 'COMPARE'
+        when '&&', '||'          then 'LOGIC'
+        when 'true', 'false'     then 'BOOL'
+        when 'break', 'continue' then 'STATEMENT'
         else  tag
 
     @token tag, id
@@ -139,19 +139,19 @@ exports.Lexer = class Lexer
   numberToken: ->
     return 0 unless match = NUMBER.exec @chunk
     number = match[0]
-    if /E/.test number
+    if /^0[BOX]/.test number
+      @error "radix prefix '#{number}' must be lowercase"
+    else if /E/.test(number) and not /^0x/.test number
       @error "exponential notation '#{number}' must be indicated with a lowercase 'e'"
-    else if /[BOX]/.test number
-      @error "radix prefixes must be lowercase '#{number}'"
-    else if /^0[89]/.test number
-      @error "decimal literals '#{number}' must not be prefixed with '0'"
-    else if /^0[0-7]/.test number
-      @error "octal literals '#{number}' must be prefixed with '0o'"
+    else if /^0\d*[89]/.test number
+      @error "decimal literal '#{number}' must not be prefixed with '0'"
+    else if /^0\d+/.test number
+      @error "octal literal '#{number}' must be prefixed with '0o'"
     lexedLength = number.length
-    if octalLiteral = /0o([0-7]+)/.exec number
-      number = (parseInt octalLiteral[1], 8).toString()
-    if binaryLiteral = /0b([01]+)/.exec number
-      number = (parseInt binaryLiteral[1], 2).toString()
+    if octalLiteral = /^0o([0-7]+)/.exec number
+      number = '0x' + (parseInt octalLiteral[1], 8).toString 16
+    if binaryLiteral = /^0b([01]+)/.exec number
+      number = '0x' + (parseInt binaryLiteral[1], 2).toString 16
     @token 'NUMBER', number
     lexedLength
 
@@ -170,7 +170,7 @@ exports.Lexer = class Lexer
           @token 'STRING', @escapeLines string
       else
         return 0
-    if octalEsc = /^(?:\\.|[^\\])*\\[0-7]/.test string
+    if octalEsc = /^(?:\\.|[^\\])*\\(?:0[0-7]|[1-7])/.test string
       @error "octal escape sequences #{string} are not allowed"
     @line += count string, '\n'
     string.length
@@ -690,7 +690,7 @@ MATH    = ['*', '/', '%']
 RELATION = ['IN', 'OF', 'INSTANCEOF']
 
 # Boolean tokens.
-BOOL = ['TRUE', 'FALSE', 'NULL', 'UNDEFINED']
+BOOL = ['TRUE', 'FALSE']
 
 # Tokens which a regular expression will never immediately follow, but which
 # a division operator might.
@@ -698,7 +698,7 @@ BOOL = ['TRUE', 'FALSE', 'NULL', 'UNDEFINED']
 # See: http://www.mozilla.org/js/language/js20-2002-04/rationale/syntax.html#regular-expressions
 #
 # Our list is shorter, due to sans-parentheses method calls.
-NOT_REGEX = ['NUMBER', 'REGEX', 'BOOL', '++', '--', ']']
+NOT_REGEX = ['NUMBER', 'REGEX', 'BOOL', 'NULL', 'UNDEFINED', '++', '--', ']']
 
 # If the previous token is not spaced, there are more preceding tokens that
 # force a division parse:
@@ -707,8 +707,8 @@ NOT_SPACED_REGEX = NOT_REGEX.concat ')', '}', 'THIS', 'IDENTIFIER', 'STRING'
 # Tokens which could legitimately be invoked or indexed. An opening
 # parentheses or bracket following these tokens will be recorded as the start
 # of a function invocation or indexing operation.
-CALLABLE  = ['IDENTIFIER', 'STRING', 'REGEX', ')', ']', '}', '?', '::', '@', 'THIS', 'SUPER', 'DEFER']
-INDEXABLE = CALLABLE.concat 'NUMBER', 'BOOL'
+CALLABLE  = ['IDENTIFIER', 'STRING', 'REGEX', ')', ']', '}', '?', '::', '@', 'THIS', 'SUPER', 'DEFER', 'TAMEREQUIRE']
+INDEXABLE = CALLABLE.concat 'NUMBER', 'BOOL', 'NULL', 'UNDEFINED'
 
 # Tokens that, when immediately preceding a `WHEN`, indicate that the `WHEN`
 # occurs at the start of a line. We disambiguate these from trailing whens to
