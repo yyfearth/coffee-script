@@ -7,7 +7,7 @@
 {RESERVED, STRICT_PROSCRIBED} = require './lexer'
 
 # Import the helpers we plan to use.
-{compact, flatten, extend, merge, del, starts, ends, last} = require './helpers'
+{compact, flatten, extend, merge, del, starts, ends, last, some} = require './helpers'
 
 exports.extend = extend  # for parser
 
@@ -802,11 +802,34 @@ exports.Obj = class Obj extends Base
   compileNode: (o) ->
     props = @properties
     propNames = []
+    normaliseString = (s) ->
+      quoteNormalised = switch s[0]
+        when '"' then s[1...-1].replace /\\"/g, '"'
+        when "'" then s[1...-1].replace /\\'/g, "'"
+      octalNormalised = quoteNormalised.replace /\\([0abtnvfr\n\\])/, (match, c) ->
+        map =
+          0:"\0", a:"\a", b:"\b", t:"\t", n:"\n", v:"\v",
+          f:"\f", r:"\r", "\\":"\\", "\n":""
+        map[c]
+      octalNormalised.replace /\\x([0-9a-f]{2})|\\u([0-9a-f]{4})/i, (match, h, u) ->
+        String.fromCharCode parseInt (h ? u), 16
+    isDuplicate = (x) ->
+      mx = x.match /^['"]/
+      (y) ->
+        return true if y is x or +y is +x
+        my = y.match /^['"]/
+        if mx and my
+          return true if normaliseString(x) is normaliseString y
+        else if mx
+          return true if y is normaliseString x
+        else if my
+          return true if x is normaliseString y
+        false
     for prop in @properties
       prop = prop.variable if prop.isComplex()
       if prop?
         propName = prop.unwrapAll().value.toString()
-        if propName in propNames
+        if some.call propNames, isDuplicate propName
           throw SyntaxError "multiple object literal properties named \"#{propName}\""
         propNames.push propName
     return (if @front then '({})' else '{}') unless props.length
