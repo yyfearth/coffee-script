@@ -102,6 +102,7 @@ procJSON = (code) ->
   return json if opts.raw and not opts.safe
   try
     obj = JSON.parse json
+    return json if opts.raw and opts.safe
   catch e
     throw 'Invalid JSON comiled, JSON.parse check failed (--safe)' if opts.safe
     try
@@ -109,12 +110,11 @@ procJSON = (code) ->
       throw 'eval return null' unless obj?
     catch e
       throw 'Invalid JSON comiled for eval cannot parse'
-  return json if opts.raw and opts.safe
   if opts.beautify
     json = JSON.stringify obj, null, opts.space
-    json + '\n'
+    json + '\n' # return
   else
-    JSON.stringify obj
+    JSON.stringify obj # return
 
 # Compile a single source script, containing the given code, according to the
 # requested options. If evaluating the script directly sets `__filename`,
@@ -290,7 +290,7 @@ parseOptions = ->
   if o.space?
     throw 'space need beautify is on' unless o.beautify
     o.space     =  o.space >>> 0 if /^\d+$/.test o.space
-  else o.space  = 4
+  else o.space  = '\t' #4
   o.raw         = !!  o.raw
   o.help       ?= process.argv.length < 3
   throw 'beautify conflict with raw' if o.beautify and o.raw
