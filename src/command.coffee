@@ -15,6 +15,8 @@ CoffeeScript   = require './coffee-script'
 # add by wilson
 {minify}       = require './minify'
 
+exists         = fs.exists or path.exists
+
 # Allow CoffeeScript to emit Node.js events.
 helpers.extend CoffeeScript, new EventEmitter
 
@@ -252,8 +254,8 @@ removeSource = (source, base, removeJs) ->
   sourceCode.splice index, 1
   if removeJs and not opts.join
     jsPath = outputPath source, base
-    path.exists jsPath, (exists) ->
-      if exists
+    exists jsPath, (itExists) ->
+      if itExists
         fs.unlink jsPath, (err) ->
           throw err if err and err.code isnt 'ENOENT'
           timeLog "removed #{source}"
@@ -279,8 +281,8 @@ writeJs = (source, js, base) ->
         printLine err.message
       else if opts.compile and opts.watch
         timeLog "compiled #{source}"
-  path.exists jsDir, (exists) ->
-    if exists then compile() else exec "mkdir -p #{jsDir}", compile
+  exists jsDir, (itExists) ->
+    if itExists then compile() else exec "mkdir -p #{jsDir}", compile
 
 # Convenience for cleaner setTimeouts.
 wait = (milliseconds, func) -> setTimeout func, milliseconds
