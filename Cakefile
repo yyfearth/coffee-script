@@ -54,11 +54,14 @@ task 'install', 'install CoffeeScript into /usr/local (or --prefix)', (options) 
   console.log   "Installing CoffeeScript to #{lib}"
   console.log   "Linking to #{node}"
   console.log   "Linking 'coffee' to #{bin}/coffee"
+  console.log   "Linking 'cake' to #{bin}/cake"
+  console.log   "Linking 'cson' to #{bin}/cson"
   exec([
     "mkdir -p #{lib} #{bin}"
     "cp -rf bin lib LICENSE README package.json src #{lib}"
     "ln -sfn #{lib}/bin/coffee #{bin}/coffee"
     "ln -sfn #{lib}/bin/cake #{bin}/cake"
+    "ln -sfn #{lib}/bin/cson #{bin}/cson"
     "mkdir -p ~/.node_libraries"
     "ln -sfn #{lib}/lib/coffee-script #{node}"
   ].join(' && '), (err, stdout, stderr) ->
