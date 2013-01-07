@@ -2,7 +2,7 @@ name:           'extra-coffee-script'
 description:    'eXtraCoffeeScript - CoffeeScript with eXtras: Import, CSON, etc.'
 keywords:       ['javascript', 'language', 'coffeescript', 'compiler']
 author:         'Wilson Young'
-version:         '1.4.0'
+version:        '1.5.0-pre'
 licenses: 
   type:         'MIT'
   url:          'https://raw.github.com/jashkenas/coffee-script/master/LICENSE'
@@ -12,16 +12,17 @@ directories:
   lib:          './lib/coffee-script'
 main:           './lib/coffee-script/coffee-script'
 bin: 
-  xcoffee:      './bin/coffee'
-  xcake:        './bin/cake'
-  xcson:        './bin/cson'
+  coffee:      './bin/coffee'
+  cake:        './bin/cake'
+  cson:        './bin/cson'
 scripts:
   test:         'node ./bin/cake test'
 homepage:       'http://yyfearth.github.com/coffee-script'
+bugs:         'https://github.com/jashkenas/coffee-script/issues'
 repository: 
   type:         'git'
   url:          'git://github.com/yyfearth/coffee-script.git'
 dependencies:
-  'uglify-js':  '>=1.2.5'
+  'uglify-js':  '~2.2'
 devDependencies:
   'jison':      '>=0.2.0'
