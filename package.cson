@@ -22,7 +22,6 @@ bugs:         'https://github.com/jashkenas/coffee-script/issues'
 repository: 
   type:         'git'
   url:          'git://github.com/yyfearth/coffee-script.git'
-dependencies:
-  'uglify-js':  '~2.2'
 devDependencies:
+  'uglify-js':  '~2.2'
   'jison':      '>=0.2.0'
