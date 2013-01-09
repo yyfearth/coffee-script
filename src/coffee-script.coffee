@@ -60,8 +60,7 @@ exports.compile = compile = (code, options = {}) ->
       console.log 'imported finished code:', lines.join '\n'
 
     err.message = "In #{options.filename}, #{err.message}" if options.filename
-    console.error err.message
-    process.exit 1
+    throw err
 
   # minify add by wilson
   js = minify js, options.min if options.min
