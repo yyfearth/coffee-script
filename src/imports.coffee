@@ -18,6 +18,7 @@ exports.imports = (code, options = {}) ->
   filename = options.filename or null
   cwd = process.cwd()
   imported = {}
+  # return
   do parse = (code, filename) ->
     code.replace regex_g, (match) ->
       match = match.match regex

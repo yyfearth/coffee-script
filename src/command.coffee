@@ -12,8 +12,6 @@ optparse       = require './optparse'
 CoffeeScript   = require './coffee-script'
 {spawn, exec}  = require 'child_process'
 {EventEmitter} = require 'events'
-# add by wilson
-{minify}       = require './minify'
 
 exists         = fs.exists or path.exists
 
@@ -38,7 +36,6 @@ SWITCHES = [
   ['-c', '--compile',         'compile to JavaScript and save as .js files']
   [      '--header',          'use a string as a head when compile is on']
   ['-x', '--imports',         'enable import feature']
-  [      '--min',             'enable uglify-js to minify compiled js']
   ['-e', '--eval',            'pass a string from the command line as input']
   ['-h', '--help',            'display this help message']
   ['-i', '--interactive',     'run an interactive CoffeeScript REPL']
@@ -48,7 +45,6 @@ SWITCHES = [
   [      '--nodejs [ARGS]',   'pass options directly to the "node" binary']
   ['-o', '--output [DIR]',    'set the output directory for compiled JavaScript']
   ['-p', '--print',           'print out the compiled JavaScript']
-  ['-r', '--require [FILE*]', 'require a library before executing your script']
   ['-s', '--stdio',           'listen for and compile scripts over stdio']
   ['-t', '--tokens',          'print out the tokens that the lexer/rewriter produce']
   ['-v', '--version',         'display the version number']
@@ -72,17 +68,15 @@ exports.run = ->
   return forkNode()                      if opts.nodejs
   return usage()                         if opts.help
   return version()                       if opts.version
-  loadRequires()                         if opts.require
-  return require './repl'                if opts.interactive
+  return require('./repl').start()       if opts.interactive
   if opts.watch and !fs.watch
     return printWarn "The --watch feature depends on Node v0.6.0+. You are running #{process.version}."
   return compileStdio()                  if opts.stdio
   return compileScript null, sources[0]  if opts.eval
-  return require './repl'                unless sources.length
+  return require('./repl').start()       unless sources.length
   literals = if opts.run then sources.splice 1 else []
   process.argv = process.argv[0..1].concat literals
   process.argv[0] = 'coffee'
-  process.execPath = require.main.filename
   for source in sources
     compilePath source, yes, path.normalize source
 
@@ -93,14 +87,14 @@ compilePath = (source, topLevel, base) ->
   fs.stat source, (err, stats) ->
     throw err if err and err.code isnt 'ENOENT'
     if err?.code is 'ENOENT'
-      if topLevel and path.extname(source) not in coffee_exts
+      if topLevel and source and path.extname(source) not in coffee_exts
         source = sources[sources.indexOf(source)] = "#{source}.coffee"
         return compilePath source, topLevel, base
       if topLevel
         console.error "File not found: #{source}"
         process.exit 1
       return
-    if stats.isDirectory()
+    if stats.isDirectory() and path.dirname(source) isnt 'node_modules'
       watchDir source, base if opts.watch
       fs.readdir source, (err, files) ->
         throw err if err and err.code isnt 'ENOENT'
@@ -169,13 +163,6 @@ compileJoin = ->
     clearTimeout joinTimeout
     joinTimeout = wait 100, ->
       compileScript opts.join, sourceCode.join('\n'), opts.join
-
-# Load files that are to-be-required before compilation occurs.
-loadRequires = ->
-  realFilename = module.filename
-  module.filename = '.'
-  require req for req in opts.require
-  module.filename = realFilename
 
 # Watch a source CoffeeScript file using `fs.watch`, recompiling it every
 # time the file is updated. May be used in combination with other options,
@@ -318,7 +305,6 @@ xoptions = ->
     o.header    = if o.header is 'on' then on else if o.header is 'off' then off else o.header
   else o.header = o.compile
   o.imports = !! o.imports
-  o.minify = !! (o.min or o.minify)
   return
 
 # Use the [OptionParser module](optparse.html) to extract all options from
@@ -342,7 +328,6 @@ compileOptions = (filename) ->
     bare: opts.bare
     header: opts.compile
     imports: opts.imports
-    minify: opts.minify or opts.min
   }
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
