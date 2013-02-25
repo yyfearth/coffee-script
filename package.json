@@ -8,7 +8,7 @@
 		"compiler"
 	],
 	"author": "Wilson Young",
-	"version": "1.5.0-pre",
+	"version": "1.5.0",
 	"licenses": {
 		"type": "MIT",
 		"url": "https://raw.github.com/jashkenas/coffee-script/master/LICENSE"
