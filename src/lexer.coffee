@@ -35,7 +35,6 @@ exports.Lexer = class Lexer
   # unless explicitly asked not to.
   tokenize: (code, opts = {}) ->
     @literate = opts.literate  # Are we lexing literate CoffeeScript?
-    code      = @clean code    # The stripped, cleaned original source code.
     @indent   = 0              # The current indentation level.
     @indebt   = 0              # The over-indentation at the current level.
     @outdebt  = 0              # The under-outdentation at the current level.
@@ -47,6 +46,7 @@ exports.Lexer = class Lexer
         opts.line or 0         # The start line for the current @chunk.
     @chunkColumn =
         opts.column or 0       # The start column of the current @chunk.
+    code = @clean code         # The stripped, cleaned original source code.
 
     # At every position, run through this list of attempted matches,
     # short-circuiting if any of them succeed. Their order determines precedence:
@@ -80,8 +80,10 @@ exports.Lexer = class Lexer
   # by removing all lines that aren't indented by at least four spaces or a tab.
   clean: (code) ->
     code = code.slice(1) if code.charCodeAt(0) is BOM
-    code = "\n#{code}" if WHITESPACE.test code
     code = code.replace(/\r/g, '').replace TRAILING_SPACES, ''
+    if WHITESPACE.test code
+        code = "\n#{code}"
+        @chunkLine--
     if @literate
       lines = for line in code.split('\n')
         if match = LITERATE.exec line
@@ -112,7 +114,7 @@ exports.Lexer = class Lexer
       @token 'OWN', id
       return id.length
     forcedIdentifier = colon or
-      (prev = last @tokens) and (prev[0] in ['.', '?.', '::'] or
+      (prev = last @tokens) and (prev[0] in ['.', '?.', '::', '?::'] or
       not prev.spaced and prev[0] is '@')
     tag = 'IDENTIFIER'
 
@@ -326,7 +328,7 @@ exports.Lexer = class Lexer
         @suppressNewlines()
         return indent.length
       diff = size - @indent + @outdebt
-      @token 'INDENT', diff, 0, indent.length
+      @token 'INDENT', diff, indent.length - size, size
       @indents.push diff
       @ends.push 'OUTDENT'
       @outdebt = @indebt = 0
@@ -441,6 +443,7 @@ exports.Lexer = class Lexer
         attempt = match[1]
         indent = attempt if indent is null or 0 < attempt.length < indent.length
     doc = doc.replace /// \n #{indent} ///g, '\n' if indent
+    doc = doc.replace /\n# \n/g, '\n\n' if @literate
     doc = doc.replace /^\n/, '' unless herecomment
     doc
 
@@ -647,7 +650,7 @@ exports.Lexer = class Lexer
     # so if last_column == first_column, then we're looking at a character of length 1.
     lastCharacter = Math.max 0, length - 1
     [locationData.last_line, locationData.last_column] =
-      @getLineAndColumnFromChunk offsetInChunk + (length - 1)
+      @getLineAndColumnFromChunk offsetInChunk + (lastCharacter)
 
     token = [tag, value, locationData]
 
@@ -675,7 +678,7 @@ exports.Lexer = class Lexer
   # Are we in the midst of an unfinished expression?
   unfinished: ->
     LINE_CONTINUER.test(@chunk) or
-    @tag() in ['\\', '.', '?.', 'UNARY', 'MATH', '+', '-', 'SHIFT', 'RELATION'
+    @tag() in ['\\', '.', '?.', '?::', 'UNARY', 'MATH', '+', '-', 'SHIFT', 'RELATION'
                'COMPARE', 'LOGIC', 'THROW', 'EXTENDS']
 
   # Converts newlines for string literals.
@@ -768,7 +771,7 @@ OPERATOR   = /// ^ (
    | >>>=?             # zero-fill right shift
    | ([-+:])\1         # doubles
    | ([&|<>])\2=?      # logic / shift
-   | \?\.              # soak access
+   | \?(\.|::)         # soak access
    | \.{2,3}           # range or splat
 ) ///
 
