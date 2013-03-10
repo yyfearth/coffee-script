@@ -39,7 +39,8 @@ exports.imports = imports
 
 # Compile CoffeeScript code to JavaScript, using the Coffee/Jison compiler.
 #
-# If `options.sourceMap` is specified, then `options.filename` must also be specified.
+# If `options.sourceMap` is specified, then `options.filename` must also be specified.  All
+# options that can be passed to `generateV3SourceMap()` may also be passed here.
 #
 # This returns a javascript string, unless `options.sourceMap` is passed,
 # in which case this returns a `{js, v3SourceMap, sourceMap}
@@ -54,8 +55,6 @@ exports.compile = compile = (code, options = {}) ->
   try
 
     if options.sourceMap
-      coffeeFile = helpers.baseFileName options.filename
-      jsFile = helpers.baseFileName(options.filename, yes) + ".js"
       sourceMap = new sourcemap.SourceMap()
 
     fragments = (parser.parse lexer.tokenize(code, options)).compileToFragments options
@@ -97,7 +96,7 @@ exports.compile = compile = (code, options = {}) ->
     answer = {js}
     if sourceMap
       answer.sourceMap = sourceMap
-      answer.v3SourceMap = sourcemap.generateV3SourceMap sourceMap, coffeeFile, jsFile
+      answer.v3SourceMap = sourcemap.generateV3SourceMap(sourceMap, options)
     answer
   else
     js

@@ -5,13 +5,13 @@
 # interactive REPL.
 
 # External dependencies.
-fs             = require 'fs'
-path           = require 'path'
-helpers        = require './helpers'
-optparse       = require './optparse'
-CoffeeScript   = require './coffee-script'
-{spawn, exec}  = require 'child_process'
-{EventEmitter} = require 'events'
+fs                = require 'fs'
+path              = require 'path'
+helpers           = require './helpers'
+optparse          = require './optparse'
+CoffeeScript      = require './coffee-script'
+{spawn, exec}     = require 'child_process'
+{EventEmitter}    = require 'events'
 
 exists         = fs.exists or path.exists
 
@@ -113,9 +113,9 @@ compilePath = (source, topLevel, base) ->
 # Compile a single source script, containing the given code, according to the
 # requested options. If evaluating the script directly sets `__filename`,
 # `__dirname` and `module.filename` to be correct relative to the script's path.
-compileScript = (file, input, base) ->
+compileScript = (file, input, base=null) ->
   o = opts
-  options = compileOptions file
+  options = compileOptions file, base
   try
     t = task = {file, input, options}
     CoffeeScript.emit 'compile', task
@@ -123,6 +123,7 @@ compileScript = (file, input, base) ->
     else if o.nodes       then printLine CoffeeScript.nodes(t.input, t.options).toString().trim()
     else if o.run         then CoffeeScript.run t.input, t.options
     else if o.join and t.file isnt o.join
+      t.input = helpers.invertLiterate t.input if helpers.isLiterate file
       sourceCode[sources.indexOf(t.file)] = t.input
       compileJoin()
     else
@@ -136,7 +137,7 @@ compileScript = (file, input, base) ->
       if o.print
         printLine t.output.trim()
       else if o.compile || o.map
-        writeJs base, t.file, t.output, t.sourceMap
+        writeJs base, t.file, t.output, options.jsPath, t.sourceMap
       else if o.lint
         lint t.file, t.output
   catch err
@@ -264,8 +265,7 @@ outputPath = (source, base, extension=".js") ->
 #
 # If `generatedSourceMap` is provided, this will write a `.map` file into the
 # same directory as the `.js` file.
-writeJs = (base, sourcePath, js, generatedSourceMap = null) ->
-  jsPath = outputPath sourcePath, base
+writeJs = (base, sourcePath, js, jsPath, generatedSourceMap = null) ->
   sourceMapPath = outputPath sourcePath, base, ".map"
   jsDir  = path.dirname jsPath
   compile = ->
@@ -324,8 +324,8 @@ parseOptions = ->
   return
 
 # The compile-time options to pass to the CoffeeScript compiler.
-compileOptions = (filename) ->
-  {
+compileOptions = (filename, base) ->
+  answer = {
     filename
     literate: helpers.isLiterate(filename)
     bare: opts.bare
@@ -333,6 +333,23 @@ compileOptions = (filename) ->
     sourceMap: opts.map
     imports: opts.imports
   }
+  if filename
+    if base
+      cwd = process.cwd()
+      jsPath = outputPath filename, base
+      jsDir = path.dirname jsPath
+      answer = helpers.merge answer, {
+        jsPath
+        sourceRoot: path.relative jsDir, cwd
+        sourceFiles: [path.relative cwd, filename]
+        generatedFile: helpers.baseFileName(jsPath)
+      }
+    else
+      answer = helpers.merge answer,
+        sourceRoot: ""
+        sourceFiles: [helpers.baseFileName filename]
+        generatedFile: helpers.baseFileName(filename, yes) + ".js"
+  answer
 
 # Start up a new Node.js instance with the arguments in `--nodejs` passed to
 # the `node` binary, preserving the other options.

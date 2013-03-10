@@ -134,8 +134,7 @@ exports.Base = class Base
   # `toString` representation of the node, for inspecting the parse tree.
   # This is what `coffee --nodes` prints out.
   toString: (idt = '', name = @constructor.name) ->
-    location = if @locationData then locationDataToString @locationData else "??"
-    tree = '\n' + idt + location + ": " + name
+    tree = '\n' + idt + name
     tree += '?' if @soak
     @eachChild (node) -> tree += node.toString idt + TAB
     tree
@@ -883,7 +882,7 @@ exports.Obj = class Obj extends Base
     return [@makeCode(if @front then '({})' else '{}')] unless props.length
     if @generated
       for node in props when node instanceof Value
-        throw new Error 'cannot have an implicit value in an implicit object'
+        throw new SyntaxError 'cannot have an implicit value in an implicit object'
     idt         = o.indent += TAB
     lastNoncom  = @lastNonComment @properties
     answer = []
@@ -895,6 +894,8 @@ exports.Obj = class Obj extends Base
       else
         ',\n'
       indent = if prop instanceof Comment then '' else idt
+      if prop instanceof Assign and prop.variable instanceof Value and prop.variable.hasProperties()
+        throw new SyntaxError 'Invalid object key'
       if prop instanceof Value and prop.this
         prop = new Assign prop.properties[0].name, prop, 'object'
       if prop not instanceof Comment
@@ -982,22 +983,9 @@ exports.Class = class Class extends Base
   # Ensure that all functions bound to the instance are proxied in the
   # constructor.
   addBoundFunctions: (o) ->
-    if @boundFuncs.length
-      o.scope.assign '_this', 'this'
-      for [name, func] in @boundFuncs
-        lhs = new Value (new Literal "this"), [new Access name]
-        body = new Block [new Return new Literal "#{@ctor.name}.prototype.#{name.value}.apply(_this, arguments)"]
-        rhs = new Code func.params, body, 'boundfunc'
-        bound = new Assign lhs, rhs
-
-        @ctor.body.unshift bound
-
-        # {base} = assign.variable
-        # lhs = (new Value (new Literal "this"), [new Access base]).compile o
-        # @ctor.body.unshift new Literal """#{lhs} = function() {
-        # #{o.indent}  return #{@ctor.name}.prototype.#{base.value}.apply(_this, arguments);
-        # #{o.indent}}\n
-        # """
+    for bvar in @boundFuncs
+      lhs = (new Value (new Literal "this"), [new Access bvar]).compile o
+      @ctor.body.unshift new Literal "#{lhs} = #{utility 'bind'}(#{lhs}, this)"
     return
 
   # Merge the properties from a top-level object as prototypal properties
@@ -1011,9 +999,9 @@ exports.Class = class Class extends Base
         func = assign.value
         if base.value is 'constructor'
           if @ctor
-            throw new Error 'cannot define more than one constructor in a class'
+            throw new SyntaxError 'cannot define more than one constructor in a class'
           if func.bound
-            throw new Error 'cannot define a constructor as a bound function'
+            throw new SyntaxError 'cannot define a constructor as a bound function'
           if func instanceof Code
             assign = @ctor = func
           else
@@ -1027,7 +1015,7 @@ exports.Class = class Class extends Base
           else
             assign.variable = new Value(new Literal(name), [(new Access new Literal 'prototype'), new Access base ])
             if func instanceof Code and func.bound
-              @boundFuncs.push [base, func]
+              @boundFuncs.push base
               func.bound = no
       assign
     compact exprs
@@ -1057,16 +1045,26 @@ exports.Class = class Class extends Base
 
   # Make sure that a constructor is defined for the class, and properly
   # configured.
-  ensureConstructor: (name) ->
-    if not @ctor
-      @ctor = new Code
-      @ctor.body.push new Literal "#{name}.__super__.constructor.apply(this, arguments)" if @parent
-      @ctor.body.push new Literal "#{@externalCtor}.apply(this, arguments)" if @externalCtor
-      @ctor.body.makeReturn()
-      @body.expressions.unshift @ctor
-    @ctor.ctor     = @ctor.name = name
-    @ctor.klass    = null
+  ensureConstructor: (name, o) ->
+    missing = not @ctor
+    @ctor or= new Code
+    @ctor.ctor = @ctor.name = name
+    @ctor.klass = null
     @ctor.noReturn = yes
+    if missing
+      superCall = new Literal "#{name}.__super__.constructor.apply(this, arguments)" if @parent
+      superCall = new Literal "#{@externalCtor}.apply(this, arguments)" if @externalCtor
+      if superCall
+        ref = new Literal o.scope.freeVariable 'ref'
+        @ctor.body.unshift new Assign ref, superCall
+      @addBoundFunctions o
+      if superCall
+        @ctor.body.push ref
+        @ctor.body.makeReturn()
+      @body.expressions.unshift @ctor
+    else
+      @addBoundFunctions o
+
 
   # Instead of generating the JavaScript string directly, we build up the
   # equivalent syntax tree and compile that, in pieces. You can see the
@@ -1080,12 +1078,11 @@ exports.Class = class Class extends Base
     @hoistDirectivePrologue()
     @setContext name
     @walkBody name, o
-    @ensureConstructor name
+    @ensureConstructor name, o
     @body.spaced = yes
     @body.expressions.unshift @ctor unless @ctor instanceof Code
     @body.expressions.push lname
     @body.expressions.unshift @directives...
-    @addBoundFunctions o
 
     call  = Closure.wrap @body
 
@@ -1237,7 +1234,7 @@ exports.Assign = class Assign extends Base
     # Disallow conditional assignment of undefined variables.
     if not left.properties.length and left.base instanceof Literal and
            left.base.value != "this" and not o.scope.check left.base.value
-      throw new Error "the variable \"#{left.base.value}\" can't be assigned with #{@context} because it has not been defined."
+      throw new SyntaxError "the variable \"#{left.base.value}\" can't be assigned with #{@context} because it has not been defined."
     if "?" in @context then o.isExistentialEquals = true
     new Op(@context[...-1], left, new Assign(right, @value, '=') ).compileToFragments o
 
@@ -1738,13 +1735,11 @@ exports.Try = class Try extends Base
     tryPart   = @attempt.compileToFragments o, LEVEL_TOP
 
     catchPart = if @recovery
-      if @error.isObject?()
-        placeholder = new Literal '_error'
-        @recovery.unshift new Assign @error, placeholder
-        @error = placeholder
+      placeholder = new Literal '_error'
+      @recovery.unshift new Assign @error, placeholder
+      @error = placeholder
       if @error.value in STRICT_PROSCRIBED
         throw SyntaxError "catch variable may not be \"#{@error.value}\""
-      o.scope.add @error.value, 'param' unless o.scope.check @error.value
       [].concat @makeCode(" catch ("), @error.compileToFragments(o), @makeCode(") {\n"),
         @recovery.compileToFragments(o, LEVEL_TOP), @makeCode("\n#{@tab}}")
     else unless @ensure or @recovery
@@ -2121,6 +2116,11 @@ UTILITIES =
   extends: -> """
     function(child, parent) { for (var key in parent) { if (#{utility 'hasProp'}.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }
   """
+
+  # Create a function bound to the current value of "this".
+  bind: -> '''
+    function(fn, me){ return function(){ return fn.apply(me, arguments); }; }
+  '''
 
   # Discover if an item is in an array.
   indexOf: -> """
