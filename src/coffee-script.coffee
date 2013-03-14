@@ -118,7 +118,7 @@ exports.nodes = (source, options) ->
 # setting `__filename`, `__dirname`, and relative `require()`.
 exports.run = (code, options = {}) ->
   mainModule = require.main
-
+  options.sourceMap ?= true
   # Set the filename.
   mainModule.filename = process.argv[1] =
       if options.filename then fs.realpathSync(options.filename) else '.'
@@ -127,11 +127,16 @@ exports.run = (code, options = {}) ->
   mainModule.moduleCache and= {}
 
   # Assign paths for node_modules loading
-  mainModule.paths = require('module')._nodeModulePaths path.dirname fs.realpathSync options.filename
+  mainModule.paths = require('module')._nodeModulePaths path.dirname fs.realpathSync options.filename or '.'
 
   # Compile.
   if not helpers.isCoffee(mainModule.filename) or require.extensions
-    mainModule._compile compile(code, options), mainModule.filename
+    answer = compile(code, options)
+    # Attach sourceMap object to mainModule._sourceMaps[options.filename] so that
+    # it is accessible by Error.prepareStackTrace.
+    do patchStackTrace
+    mainModule._sourceMaps[mainModule.filename] = answer.sourceMap
+    mainModule._compile answer.js, mainModule.filename
   else
     mainModule._compile code, mainModule.filename
 
@@ -192,4 +197,107 @@ parser.lexer =
   upcomingInput: ->
     ""
 
+# Make all the AST nodes visible to the parser.
 parser.yy = require './nodes'
+
+# Override Jison's default error handling function.
+parser.yy.parseError = (message, {token}) ->
+  # Disregard Jison's message, it contains redundant line numer information.
+  message = "unexpected #{if token is 1 then 'end of input' else token}"
+  # The second argument has a `loc` property, which should have the location
+  # data for this token. Unfortunately, Jison seems to send an outdated `loc`
+  # (from the previous token), so we take the location information directly
+  # from the lexer.
+  helpers.throwSyntaxError message, parser.lexer.yylloc
+
+# Based on [michaelficarra/CoffeeScriptRedux](http://goo.gl/ZTx1p)
+# NodeJS / V8 have no support for transforming positions in stack traces using
+# sourceMap, so we must monkey-patch Error to display CoffeeScript source
+# positions.
+
+# Ideally, this would happen in a way that is scalable to multiple compile-to-
+# JS languages trying to do the same thing in the same NodeJS process. We can
+# implement it as if there were an API, and then patch in support for that
+# API. The following maybe should be in its own npm module that multiple
+# compilers can include.
+
+patched = false
+patchStackTrace = ->
+  return if patched
+  patched = true
+  mainModule = require.main
+  # Map of filenames -> functions that return a sourceMap string.
+  mainModule._sourceMaps = {}
+
+  # (Assigning to a property of the Module object in the normal module cache is
+  # unsuitable, because node deletes those objects from the cache if an
+  # exception is thrown in the module body.)
+
+  Error.prepareStackTrace = (err, stack) ->
+    sourceFiles = {}
+
+    getSourceMapping = (filename, line, column) ->
+      sourceMap = mainModule._sourceMaps[filename]
+      answer = sourceMap.getSourcePosition [line, column] if sourceMap
+      answer
+
+    frames = for frame in stack
+      break if frame.getFunction() is exports.run
+      "  at #{formatSourcePosition frame, getSourceMapping}"
+
+    "#{err.name}: #{err.message ? ''}\n#{frames.join '\n'}\n"
+
+# Based on http://v8.googlecode.com/svn/branches/bleeding_edge/src/messages.js
+# Modified to handle sourceMap
+formatSourcePosition = (frame, getSourceMapping) ->
+  fileName = undefined
+  fileLocation = ''
+
+  if frame.isNative()
+    fileLocation = "native"
+  else
+    if frame.isEval()
+      fileName = frame.getScriptNameOrSourceURL()
+      fileLocation = "#{frame.getEvalOrigin()}, " unless fileName
+    else
+      fileName = frame.getFileName()
+
+    fileName or= "<anonymous>"
+
+    line = frame.getLineNumber()
+    column = frame.getColumnNumber()
+
+    # Check for a sourceMap position
+    source = getSourceMapping fileName, line, column
+    fileLocation =
+      if source
+        "#{fileName}:#{source[0]}:#{source[1]}, <js>:#{line}:#{column}"
+      else
+        "#{fileName}:#{line}:#{column}"
+
+
+  functionName = frame.getFunctionName()
+  isConstructor = frame.isConstructor()
+  isMethodCall = not (frame.isToplevel() or isConstructor)
+
+  if isMethodCall
+    methodName = frame.getMethodName()
+    typeName = frame.getTypeName()
+
+    if functionName
+      tp = as = ''
+      if typeName and functionName.indexOf typeName
+        tp = "#{typeName}."
+      if methodName and functionName.indexOf(".#{methodName}") isnt functionName.length - methodName.length - 1
+        as = " [as #{methodName}]"
+
+      "#{tp}#{functionName}#{as} (#{fileLocation})"
+    else
+      "#{typeName}.#{methodName or '<anonymous>'} (#{fileLocation})"
+  else if isConstructor
+    "new #{functionName or '<anonymous>'} (#{fileLocation})"
+  else if functionName
+    "#{functionName} (#{fileLocation})"
+  else
+    fileLocation
+

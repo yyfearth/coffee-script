@@ -131,7 +131,7 @@ task 'doc:site', 'watch and continually rebuild the documentation for the websit
 
 
 task 'doc:source', 'rebuild the internal documentation', ->
-  exec 'docco src/*.coffee && cp -rf docs documentation && rm -r docs', (err) ->
+  exec 'docco src/*.*coffee && cp -rf docs documentation && rm -r docs', (err) ->
     throw err if err
 
 
